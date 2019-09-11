@@ -1,0 +1,24 @@
+FROM continuumio/anaconda3:2019.03
+
+WORKDIR /workplace
+RUN apt-get update && \
+        apt-get install -y gcc build-essential libomp-dev libopenblas-dev
+ADD requirements.txt /workplace/
+RUN pip install -r requirements.txt
+RUN ldd -r /opt/conda/lib/python3.7/site-packages/faiss/_swigfaiss.so
+
+ENV PYTHONIOENCODING utf-8
+ENV PYTHONPATH /opt/conda/lib/python3.7/site-packages/faiss
+ENV LD_LIBRARY_DIR /usr/lib
+
+RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
+RUN python -m spacy download en_core_web_sm
+
+RUN mkdir /workplace/.env
+ADD env /workplace/.env/main.env
+
+WORKDIR /
+RUN git clone https://github.com/rkern/line_profiler.git && \
+        find line_profiler -name '*.pyx' -exec cython {} \; && \
+        cd line_profiler && \
+        pip install .

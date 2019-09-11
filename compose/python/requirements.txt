@@ -17,9 +17,7 @@ pytest
 sklearn
 spacy
 spherecluster
-sqlalchemy
 tensorflow
 tensorflow-probability
 tqdm
 watchdog
-

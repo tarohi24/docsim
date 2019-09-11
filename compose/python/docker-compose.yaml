@@ -1,0 +1,29 @@
+version: "2.4"
+services:
+  python:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    image: hirota/python
+    container_name: "python_hirota"
+    env_file:
+      - ./env
+    volumes:
+      - /home/hirota/adapat:/workplace
+      - /home/hirota/adapat/adapat:/opt/conda/lib/python3.7/site-packages/adapat:ro
+
+  jnote:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    image: hirota/python
+    container_name: "jupyter_hirota"
+    volumes:
+      - /home/hirota/adapat:/workplace
+      - /home/hirota/adapat/adapat:/opt/conda/lib/python3.7/site-packages/adapat:ro
+    env_file:
+      - ./env
+    ports:
+      - 9999:9999
+    command: jupyter notebook --no-browser --port 9999 --ip=0.0.0.0 --allow-root
+    working_dir: /workplace/notebooks
