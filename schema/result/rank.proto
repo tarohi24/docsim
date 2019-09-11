@@ -1,0 +1,14 @@
+syntax = "proto3";
+package docsim;
+import "./dataset.proto";
+
+
+message Rank {
+  Dataset dataset = 1;
+  string runname = 2;
+  repeated message RankItem {
+    int32 qid = 1;
+    string docid = 2;
+    int32 rank = 3;
+  }
+}

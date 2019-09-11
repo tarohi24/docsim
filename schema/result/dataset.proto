@@ -1,0 +1,8 @@
+syntax = "proto3";
+package docsim;
+
+enum Dataset {
+  CLEF = 1;
+  NTCIR = 2;
+  ANN = 3;
+}
