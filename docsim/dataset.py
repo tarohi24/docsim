@@ -11,8 +11,11 @@ ary = np.ndarray
 class Dataset:
     name: str
 
-    def get_cachedir(self) -> Path:
+    def get_data_dir(self) -> Path:
         return project_root.joinpath(f'data/{self.name}')
+
+    def get_result_dir(self) -> Path:
+        return project_root.joinpath(f'result/{self.name}')
 
     def __eq__(self, another):
         if isinstance(another, Dataset):
