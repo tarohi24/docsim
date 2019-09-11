@@ -5,7 +5,7 @@ from typing import Dict, List, Set
 
 from dataclasses_jsonschema import JsonSchemaMixin
 
-from docsim.dataset import DocumentID
+from docsim.doc_model import DocumentID
 
 
 @dataclass
