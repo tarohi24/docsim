@@ -1,41 +1,53 @@
-from abc import ABCMeta, abstractmethod
+from dataclasses import dataclass
 
 import numpy as np
+
+
 ary = np.ndarray
 
 
 @dataclass
-class Document(ABCMeta):
+class DocumentID:
+    dataset: Dataset
     docid: str
-    body: str
+
+    def __eq__(self, another):
+        if isinstance(another, DocumentID):
+            return (self.dataset == another.dataset)\
+                and (self.docid == another.docid)
+        else:
+            return False
+
+    def __hash__(self):
+        return hash(tuple(self.dataset, self.docid))
 
 
 @dataclass
-class EmbeddedQuery(Document):
+class Document:
+    docid: DocumentID
+    body: str
+
+
+
+@dataclass
+class EmbeddedDocument(Document):
     mat: ary
     model: str
-    
 
     def normalize(self) -> ary:
         norm: float =  np.linalg.norm(self.mat, axis=1)
         return (mat.T / norm).T
 
-    
-
 
 @dataclass
-class QueryDocument:
-    body: str
-    
-    
-    
+class Dataset:
+    name: str
 
-class QueryDataset(ABCMeta):
-    """
-    pass
-    """
-    
-    
+    def __eq__(self, another):
+        if isinstance(another, Dataset):
+            return self.name == another.name
+        else:
+            return False
 
-
-class CLEFDataset
+    def __hash__(self):
+        return hash(self.name)
