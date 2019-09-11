@@ -12,6 +12,7 @@ from docsim.dataset import DocumentID
 class RankItem:
     """
     both a prediction result or a ground truth
+    recall, precision and ap considere self as a ground truth
     """
     query_id: DocumentID
     scores: Dict[DocumentID, float]
@@ -23,9 +24,6 @@ class RankItem:
     def recall(self,
                pred: RankItem,
                n: int) -> float:
-        """
-        self is considered as a ground truth
-        """
         pred_set: Set[DocumentID] = set(pred.get_ranks[:n])
         gt: Set[DocumentID] = set(self.scores.keys())
         return len(pred_set & gt) / len(gt)
@@ -33,16 +31,6 @@ class RankItem:
     def precision(self,
                   pred: RankItem,
                   n: int) -> float:
-        """
-        self is considered as a ground truth
-        """
         pred_set: Set[DocumentID] = set(pred.get_ranks[:n])
         gt: Set[DocumentID] = set(self.scores.keys())
         return len(pred_set & gt) / n
-
-
-@dataclass
-class Rank:
-    items: Set[RankItem]
-
-    def recall(
