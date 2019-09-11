@@ -9,8 +9,8 @@ services:
     env_file:
       - ./env
     volumes:
-      - /home/hirota/adapat:/workplace
-      - /home/hirota/adapat/adapat:/opt/conda/lib/python3.7/site-packages/adapat:ro
+      - ../../../docsim:/workplace
+      - ../../docsim:/opt/conda/lib/python3.7/site-packages/adapat:ro
 
   jnote:
     build:
@@ -19,8 +19,8 @@ services:
     image: hirota/python
     container_name: "jupyter_hirota"
     volumes:
-      - /home/hirota/adapat:/workplace
-      - /home/hirota/adapat/adapat:/opt/conda/lib/python3.7/site-packages/adapat:ro
+      - ../../../docsim:/workplace
+      - ../../docsim:/opt/conda/lib/python3.7/site-packages/adapat:ro
     env_file:
       - ./env
     ports:
