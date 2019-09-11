@@ -1,4 +1,8 @@
+from pathlib import Path
+
 import numpy as np
+
+from docsim.settings import project_root
 
 ary = np.ndarray
 
@@ -6,6 +10,9 @@ ary = np.ndarray
 @dataclass
 class Dataset:
     name: str
+
+    def get_cachedir(self):
+        return project_root.
 
     def __eq__(self, another):
         if isinstance(another, Dataset):
