@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from numbers import Real
 from operator import itemgetter
-from typing import Dict, List, Set
-
+from typing import Dict, List, Iterable
 
 from dataclasses_jsonschema import JsonSchemaMixin
+from more_itertools import flatten
 
 from docsim.doc_model import DocumentID
 
@@ -15,22 +16,24 @@ class RankItem:
     recall, precision and ap considere self as a ground truth
     """
     query_id: DocumentID
-    scores: Dict[DocumentID, float]
+    scores: Dict[DocumentID, Real]
     
     def get_ranks(self) -> List[DocumentID]:
         return [docid for docid, _ in sorted(scores.items(),
                                              key=itemgetter(1))]
 
-    def recall(self,
-               pred: RankItem,
-               n: int) -> float:
-        pred_set: Set[DocumentID] = set(pred.get_ranks[:n])
-        gt: Set[DocumentID] = set(self.scores.keys())
-        return len(pred_set & gt) / len(gt)
-
-    def precision(self,
-                  pred: RankItem,
-                  n: int) -> float:
-        pred_set: Set[DocumentID] = set(pred.get_ranks[:n])
-        gt: Set[DocumentID] = set(self.scores.keys())
-        return len(pred_set & gt) / n
+def to_trec(items: Iterable[RankItem],
+            runname: str = 'STANDARD') -> List[str, str, Real]:
+    """
+    Convert items to TREC-eval input format
+    """
+    return list(
+        flatten([
+            [
+                (str(item.query_id), docid, score, runname)
+                for docid, score
+                in sorted(item.scores.items(), key=itemgetter(1), reverse=True)
+            ]
+            for item in items
+        ])
+    )

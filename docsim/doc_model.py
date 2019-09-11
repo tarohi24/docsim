@@ -22,6 +22,9 @@ class DocumentID:
     def __hash__(self):
         return hash(tuple(self.dataset, self.docid))
 
+    def __str__(self):
+        return f'{dataset}_{docid}'
+
 
 @dataclass
 class Document(JsonSchemaMixin):
