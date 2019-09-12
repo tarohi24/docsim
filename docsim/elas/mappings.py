@@ -22,8 +22,19 @@ class TextField(Mapping):
             'analyzer': 'english'
         }
 
+
 @dataclass
-class TagField(Mapping):
+class KeywordField(Mapping):
+    keyword: str
+
+    @classmethod
+    def mapping(cls) -> Dict:
+        return {
+            'type': 'keyword',
+        }
+
+@dataclass
+class TagsField(Mapping):
     tags: List[str]
 
     @classmethod
@@ -48,7 +59,7 @@ class VectorField(Mapping):
     
 
 @dataclass
-class BaseMapping(JsonSchemaMixin):
+class IRBase:
     """
     Attributes
     ------------
@@ -57,10 +68,18 @@ class BaseMapping(JsonSchemaMixin):
     tags
         used for pre-filtering
     """
+    docid: KeywordField
+    title: TextField
     text: TextField
-    tags: List[str]
-    embedding: List[Real]
-
-    def to_mapping(cls) -> Dict:
-        schema: Dict = cls.json_schema()
-        return ToMappingConverter().convert(schema)
+    tags: TagsField
+    
+    @classmethod
+    def mapping(cls) -> Dict:
+        return {
+            'properties': {
+                'docid': KeywordField.mapping(),
+                'title': TextField.mapping(),
+                'text': TextField.mapping(),
+                'tags': TagsField.mapping(),
+            }
+        }
