@@ -1,10 +1,16 @@
 from dataclasses import dataclass
 import json
 from pathlib import Path
+from typing import Dict, List, TypeVar
 
 from dataclasses_jsonschema import JsonSchemaMixin
+import numpy as np
+import numpy.ndarray as ary
 
 from docsim.dataset import Dataset
+
+
+T_JsonSchemaMixin = TypeVar('T', bound='JsonSchemaMixin')
 
 
 @dataclass
@@ -23,7 +29,7 @@ class DocumentID:
         return hash(tuple(self.dataset, self.docid))
 
     def __str__(self):
-        return f'{dataset}_{docid}'
+        return f'{self.dataset}_{self.docid}'
 
 
 @dataclass
@@ -38,8 +44,8 @@ class EmbeddedDocument(Document, JsonSchemaMixin):
     model: str
 
     def normalize(self) -> ary:
-        norm: float =  np.linalg.norm(self.mat, axis=1)
-        return (mat.T / norm).T
+        norm: float = np.linalg.norm(self.mat, axis=1)
+        return (self.mat.T / norm).T
 
 
 @dataclass
@@ -54,17 +60,17 @@ class EmbeddedDocumentList(JsonSchemaMixin):
         return cachedir.joinpath(f'{doctype}.json')
 
     @classmethod
-    def load_cache(cls,
+    def load_cache(cls: T_JsonSchemaMixin,
                    dataset: Dataset,
-                   doctype: str = 'query') -> EmbeddedDocumentList:
-        fpaht: Path = cls.get_filepath(dataset=dataset, doctype=doctype)
+                   doctype: str = 'query') -> T_JsonSchemaMixin:
+        fpath: Path = cls.get_filepath(dataset=dataset, doctype=doctype)
         with open(fpath, 'r') as fin:
             dic: Dict = json.load(fin)
-        return EmbeddedDocumentList.from_dict(dic)
+        return cls.from_dict(dic)
 
     def dump(self,
              dataset: Dataset,
              doctype: str) -> None:
-        fpaht: Path = cls.get_filepath(dataset=dataset, doctype=doctype)
+        fpath: Path = self.__cls__.get_filepath(dataset=dataset, doctype=doctype)
         with open(fpath, 'w') as fin:
-            dic: Dict = json.dump(self.to_dict(), fin)
+            json.dump(self.to_dict(), fin)

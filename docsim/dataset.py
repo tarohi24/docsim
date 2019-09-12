@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
@@ -27,7 +28,7 @@ class Dataset:
         return hash(self.name)
 
 
-datasets = {
+datasets = (
     Dataset('clef'),
     Dataset('ntcir'),
 )

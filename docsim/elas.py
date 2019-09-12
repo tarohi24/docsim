@@ -2,9 +2,13 @@
 Module for elasticsaerch
 """
 from dataclasses import dataclass
-from typing import Dict
+from numbers import Real
+from typing import Dict, Type
 
 from dataclasses_jsonschema import JsonSchemaMixin
+
+
+T_JsonSchemaMixin = TypeVar('T', bound='JsonSchemaMixin')
 
 
 @dataclass
@@ -14,9 +18,9 @@ class EsResultItem(JsonSchemaMixin):
     source: Dict
 
     @classmethod
-    def from_dict(cls,
+    def from_dict(cls: Type[T_JsonSchemaMixin],
                   data: Dict,
-                  validate: bool = True) -> EsResultItem:
+                  validate: bool = True) -> T_JsonSchemaMixin:
         new_data: Dict = {
             'elas_id': data['_id'],
             'score': data['_score'],
@@ -31,6 +35,6 @@ class EsResult():
 
     @classmethod
     def from_dict(cls,
-                  data: Dict) -> EsResult:
+                  data: Dict) -> cls:
         hits: List[Dict] = data['hits']['hits']  # type: ignore
         return [EsResultItem.from_dict(hit) for hit in hits]

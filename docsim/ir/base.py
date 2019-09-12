@@ -42,5 +42,5 @@ class Searcher:
             items=items,
             dataset=self.dataset,
             runname=self.runname,
-            is_ground_truth=false)
+            is_ground_truth=False)
         trec.dump()
