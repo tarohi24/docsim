@@ -13,6 +13,7 @@ from docsim.ir.base import Searcher
 @dataclass
 class KeywordBaseline(Searcher):
     n_words: int
+    es_index: str
     
     def retrieve(self, query: Document) -> RankItem:
         filters: List[Filter] = [
@@ -20,4 +21,5 @@ class KeywordBaseline(Searcher):
             text.StopWordRemover(),
             text.RegexRemover(),
             text.TFFilter(n_words=self.n_words)]
-        q_words: List[str] = text.TextProcessor(text=query.
+        q_words: List[str] = text.TextProcessor(text=query.body)
+        # search elasticsearch
