@@ -83,3 +83,11 @@ class IRBase:
                 'tags': TagsField.mapping(),
             }
         }
+
+
+class Converter:
+    """
+    convert something into IRBase
+    """
+    def to_irbase(self) -> IRBase:
+        raise NotImplementedError('This is an abstract class.')
