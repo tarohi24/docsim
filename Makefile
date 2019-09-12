@@ -51,7 +51,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
-	flake8 docsim tests
+	flake8 docsim || true
 
 test: ## run tests quickly with the default Python
 	python setup.py test
@@ -86,3 +86,8 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
+tags: FORCE  ## make tags
+	ctags **/*.py
+
+FORCE:
