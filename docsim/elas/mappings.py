@@ -5,6 +5,11 @@ import numpy as np
 import numpy.ndarray as ary
 
 
+class Field:
+    @classmethod
+    def mapping(cls) -> Dict:
+        raise NotImplementedError('This is an abstract class.')
+
 class Mapping:
     @classmethod
     def mapping(cls) -> Dict:
@@ -12,7 +17,7 @@ class Mapping:
 
 
 @dataclass
-class TextField(Mapping):
+class TextField(Field):
     text: str
 
     @classmethod
@@ -24,7 +29,7 @@ class TextField(Mapping):
 
 
 @dataclass
-class KeywordField(Mapping):
+class KeywordField(Field):
     keyword: str
 
     @classmethod
@@ -34,7 +39,7 @@ class KeywordField(Mapping):
         }
 
 @dataclass
-class TagsField(Mapping):
+class TagsField(Field):
     tags: List[str]
 
     @classmethod
@@ -45,7 +50,7 @@ class TagsField(Mapping):
 
 
 @dataclass
-class VectorField(Mapping):
+class VectorField(Field):
     """
     yet supported
     """
@@ -59,7 +64,7 @@ class VectorField(Mapping):
     
 
 @dataclass
-class IRBase:
+class IRBase(Mapping):
     """
     Attributes
     ------------

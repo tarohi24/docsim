@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 import logging
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
-from docsim.elas.mappings import Converter, IRBase
+from docsim.elas import mappings as mpgs
+
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
@@ -16,11 +18,9 @@ def find_or_default(root: ET.Element,
 
 
 @dataclass
-class CLEFConverter(Converter):
+class CLEFConverter(mpgs.Converter):
     xml_fpath: Path
 
-    @staticmethod
-    
     def convert(self) -> IRBase:
         root: ET.Element = ET.parse(str(self.xml_fpath.resolve())).get_root()
 
@@ -39,36 +39,14 @@ class CLEFConverter(Converter):
             root=root,
             xpaht="bibliographic-data/technical-data/invention-title[@lang='EN']",
             default='')
-        tags_orig: str = find_or_default(
-            root=root,
-            xpath='bibliographic-data/technical-data/classifications-ipcr')
-        
-        
-        try:
-            text: str = root.find("").text.replace('\n', ' ')
-        except Exception as e:
-            logger.warning('Description not found')
+        tags_field: str = 'bibliographic-data/technical-data/classifications-ipcr'
+        tags: List[str] = [t.text.split()[0] for t in root.findall(tags_field)]
+    
+        return mpgs.IRBase(
+            docid=mpgs.KeywordField(docid),
+            title=mpgs.TextField(title),
+            text=mpgs.TextField(text),
+            tags=mpgs.TagsField(tags))
 
-        bib: Optional[ET.Element] = root.find('')
-        if bib is not None:
-            # title
-            try:
-                title: str = bib.find("technical-data/invention-title[@lang='EN']").text
-            except Exception as e:
-                logger.warning('Title not found')
-
-            # patent classification
-            if bib is not None:
-                try:
-                except Exception as e:
-                    logger.warning('Classsifications not found')
-                    tags: List
-            return IRBase(
-                docid=docid,
-                text=text,
-                
-        else:
-            
-
-            
-            
+@dataclass
+class CLEFInser
