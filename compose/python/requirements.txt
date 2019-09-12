@@ -6,6 +6,7 @@ faiss==1.5.3
 fast-pagerank
 fasttext
 gitpython
+jsondict
 jsonschema
 jupyter
 networkx
