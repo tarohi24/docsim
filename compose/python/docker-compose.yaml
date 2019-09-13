@@ -10,7 +10,7 @@ services:
       - ./env
     volumes:
       - ../../../docsim:/workplace
-      - ../../docsim:/opt/conda/lib/python3.7/site-packages/adapat:ro
+      - ../../docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro
 
   jnote:
     build:
@@ -20,7 +20,7 @@ services:
     container_name: "jupyter_hirota"
     volumes:
       - ../../../docsim:/workplace
-      - ../../docsim:/opt/conda/lib/python3.7/site-packages/adapat:ro
+      - ../../docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro
     env_file:
       - ./env
     ports:
