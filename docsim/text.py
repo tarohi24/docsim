@@ -1,6 +1,7 @@
 from collections import Counter
+from dataclasses import dataclass
 import re
-from typing import Callable, List
+from typing import List, Pattern, Set
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -31,10 +32,10 @@ class StopWordRemover(Filter):
 
 @dataclass
 class RegexRemover(Filter):
-    regex: re.Pattern = re.compile('[!@#$]')
+    regex: Pattern = re.compile('[!@#$]')
 
     def apply(self, tokens: List[str]) -> List[str]:
-        return [w for w in [re.sub(regex, '', w) for w in tokens] if w != '']
+        return [w for w in [re.sub(self.regex, '', w) for w in tokens] if w != '']
 
 
 @dataclass
@@ -50,17 +51,17 @@ class TFFilter(Filter):
 
 class TextProcessor:
     text: str
-    filters: List[Filter] = [LowerFilter, StopWordRemover, RegexRemover]
+    filters: List[Filter] = [LowerFilter(), StopWordRemover(), RegexRemover()]
 
     def apply(self) -> List[str]:
 
         def apply_filter(tokens: List[str],
-                         filters: List[FilterType]) -> List[str]:
+                         filters: List[Filter]) -> List[str]:
             if len(filters) == 0:
                 return tokens
             else:
                 head, *tail = filters
-                head_applied: List[str] = head(tokens)
+                head_applied: List[str] = head.apply(tokens)
                 return apply_filter(head_applied, tail)
 
         tokenized: List[str] = word_tokenize(self.text)

@@ -3,12 +3,14 @@ Module for elasticsaerch
 """
 from dataclasses import dataclass
 from numbers import Real
-from typing import Dict, Type
+from typing import Dict, List, Type, TypeVar
 
 from dataclasses_jsonschema import JsonSchemaMixin
 
 
-T_JsonSchemaMixin = TypeVar('T', bound='JsonSchemaMixin') 
+T_JsonSchemaMixin = TypeVar('T_JsonSchemaMixin', bound='JsonSchemaMixin')
+T_EsResult = TypeVar('T_EsResult', bound='EsResult')
+
 
 @dataclass
 class EsResultItem(JsonSchemaMixin):
@@ -34,9 +36,9 @@ class EsResult:
 
     @classmethod
     def from_dict(cls,
-                  data: Dict) -> cls:
+                  data: Dict) -> 'EsResult':
         hits: List[Dict] = data['hits']['hits']  # type: ignore
-        return [EsResultItem.from_dict(hit) for hit in hits]
+        return cls([EsResultItem.from_dict(hit) for hit in hits])
 
 
 @dataclass
@@ -59,5 +61,4 @@ class EsSearcher:
             '_source': ['documentId', 'description', ]
         }
         res: EsResult = EsResult.from_dict(es.search(index=index, body=body))
-        
-        
+        return res

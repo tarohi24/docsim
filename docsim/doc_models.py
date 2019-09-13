@@ -10,7 +10,7 @@ import numpy.ndarray as ary
 from docsim.dataset import Dataset
 
 
-T_JsonSchemaMixin = TypeVar('T', bound='JsonSchemaMixin')
+EmbeddedDocumentListType = TypeVar('EmbeddedDocumentListType', bound='EmbeddedDocumentList')
 
 
 @dataclass
@@ -60,9 +60,9 @@ class EmbeddedDocumentList(JsonSchemaMixin):
         return cachedir.joinpath(f'{doctype}.json')
 
     @classmethod
-    def load_cache(cls: T_JsonSchemaMixin,
+    def load_cache(cls,
                    dataset: Dataset,
-                   doctype: str = 'query') -> T_JsonSchemaMixin:
+                   doctype: str = 'query') -> EmbeddedDocumentListType:
         fpath: Path = cls.get_filepath(dataset=dataset, doctype=doctype)
         with open(fpath, 'r') as fin:
             dic: Dict = json.load(fin)

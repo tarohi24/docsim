@@ -32,11 +32,11 @@ class Searcher:
     @ignore_exception
     def retrieve(self, query: Document) -> RankItem:
         raise NotImplementedError('This is an abstract class.')
-        
+
     def run(self) -> None:
         items: List[RankItem] = [res
                                  for res
-                                 in [retrieve(query) for self.queries]
+                                 in [retrieve(query) for query in self.queries]
                                  if res is not None]
         trec: TRECConverter = TRECConverter(
             items=items,

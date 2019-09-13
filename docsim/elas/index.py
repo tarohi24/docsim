@@ -2,16 +2,16 @@
 Index module
 """
 from dataclasses import dataclass
-from typing import Iterable
+import logging
+from typing import Dict, Iterable, Type
 
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk, streaming_bulk
+from elasticsearch.helpers import streaming_bulk
 
 from docsim.mappings import EsItem
 from docsim.settings import es
 
 
-ItemClass = TypeVar('ItemClass', bound=EsItem)
 logger = logging.getLogger(__file__)
 
 
@@ -22,13 +22,13 @@ class IndexCreateError(Exception):
 @dataclass
 class EsIndex:
     es_index: str
+    item_cls: Type[EsItem]
     es: Elasticsearch = es
-    item_cls: ItemClass
 
     def create_index(self) -> None:
         ack: Dict = self.es.indices.create(
             index=self.es_index,
-            body={'mappings': mappings})
+            body={'mappings': self.item_cls.mappings()})
         if 'acknowled' not in ack:
             raise IndexCreateError(f'Index {self.es_index} already exists')
         elif not ack['acknowled']:
@@ -36,11 +36,12 @@ class EsIndex:
         else:
             return
 
-    def bulk_insert(self, items: Iterable[self.item_cls]) -> None:
+    def bulk_insert(self,
+                    items: Iterable[EsItem]) -> None:
         """
         CAUTION: This initializes the index.
         """
-        def iter_items(items: Iterable[self.item_cls]) -> Iterable[Dict]:
+        def iter_items(items: Iterable[EsItem]) -> Iterable[Dict]:
             for item in items:
                 yield item.to_dict()
 

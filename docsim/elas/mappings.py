@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from numbers import Real
+from typing import Any, Dict, List
 
-import numpy as np
 import numpy.ndarray as ary
 
 
@@ -9,10 +8,10 @@ class Field:
     @classmethod
     def mapping(cls) -> Dict:
         raise NotImplementedError('This is an abstract class.')
-    
+
     def to_elas_value(self) -> Any:
         raise NotImplementedError('This is an abstract class.')
-        
+
 
 class EsItem:
     """
@@ -55,6 +54,7 @@ class KeywordField(Field):
 
     def to_elas_value(self) -> str:
         return self.keyword
+
 
 @dataclass
 class TagsField(Field):
@@ -101,7 +101,7 @@ class IRBase(EsItem):
     title: TextField
     text: TextField
     tags: TagsField
-    
+
     @classmethod
     def mapping(cls) -> Dict:
         return {
