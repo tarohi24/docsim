@@ -11,18 +11,47 @@ logger = logging.getLogger(__file__)
 T = TypeVar('T')
 
 
-def find_or_default(root: ET.Element,
-                    xpath: str,
-                    default: str) -> str:
-    content: Optional[ET.Element] = root.find(xpath)
-    if content is None:
-        return default
+class NoneException(Exception):
+    pass
+
+
+def get_or_raise_exception(obj: Optional[T]) -> T:
+    if obj is None:
+        raise NoneException
     else:
-        text: Optional[str] = content.text
-        if text is not None:
-            return text
-        else:
-            return default
+        return obj
+
+
+def find_text_or_default(root: ET.Element,
+                         xpath: str,
+                         default: str) -> str:
+    try:
+        content: ET.Element = get_or_raise_exception(root.find(xpath))
+    except NoneException:
+        return default
+    try:
+        text: Optional[str] = get_or_raise_exception(content.text)
+    except NoneException:
+        return default
+    return text
+
+
+def get_paragraph_list(root: ET.Element) -> List[str]:
+    try:
+        desc_root: ET.Element = get_or_raise_exception(root.find("description[@lang='EN']"))
+    except NoneException:
+        return []
+    ps: List[ET.Element] = desc_root.findall('p')
+    if len(ps) > 1:
+        return [d.text for d in ps]
+    elif len(ps) == 1:
+        try:
+            pre_text: str = get_or_raise_exception(ps[0].find('pre').text, default='')
+            return pre_text.replace('\\n', '\n').split('\n\n')
+        except:
+            li: List[ET.Element] = ps[0].findall('sl/li')
+            return [d.text for d in li]
+    return []
 
 
 class CLEFConverter(mpgs.Converter):
@@ -38,11 +67,11 @@ class CLEFConverter(mpgs.Converter):
             logger.warning('DocID not found')
 
         # text
-        text: str = find_or_default(
+        text: str = find_text_or_default(
             root=root,
             xpath="bibliographic-data/description[@lang='EN']",
             default='')
-        title: str = find_or_default(
+        title: str = find_text_or_default(
             root=root,
             xpath="bibliographic-data/technical-data/invention-title[@lang='EN']",
             default='')
