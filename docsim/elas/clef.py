@@ -6,8 +6,6 @@ from typing import Generator, List, Optional, TypeVar
 
 from docsim.elas import mappings as mpgs
 from docsim.elas.mappings import IRBase
-from docsim.embedding.base import Model as EmbeddingModel
-
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
@@ -58,11 +56,10 @@ def get_paragraph_list(root: ET.Element) -> List[str]:
 
 @dataclass
 class CLEFConverter(mpgs.Converter):
-    embedding_model: EmbeddingModel
 
     def generate_irbase(self,
                         fpath: Path) -> Generator[IRBase, None, None]:
-        root: ET.Element = ET.parse(str(self.xml_fpath.resolve())).getroot()
+        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
 
         # docid
         try:
@@ -77,6 +74,7 @@ class CLEFConverter(mpgs.Converter):
                     root.find("description[@lang='EN']")))
         except NoneException:
             logger.warn('fail to parse')
+            return
 
         title: str = find_text_or_default(
             root=root,
