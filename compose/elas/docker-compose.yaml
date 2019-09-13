@@ -1,0 +1,33 @@
+version: '2'
+services:
+  elas:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    container_name: "elas_hirota"
+    environment:
+      - node.name=elas
+      - cluster.initial_master_nodes=elas
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms64g -Xmx64g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata_docsim:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      esnet:
+    ulimits:
+     
+      memlock:
+        soft: -1
+        hard: -1
+
+volumes:
+  esdata_docsim:
+    driver: local
+
+networks:
+  esnet:
