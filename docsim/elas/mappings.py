@@ -146,5 +146,5 @@ class Converter:
     """
     convert something into IRBase
     """
-    def to_irbase(self) -> IRBase:
+    def to_irbase(self, fpath: Path) -> Iterable[IRBase]:
         raise NotImplementedError('This is an abstract class.')

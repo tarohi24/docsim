@@ -56,8 +56,8 @@ def get_paragraph_list(root: ET.Element) -> List[str]:
 
 class CLEFConverter(mpgs.Converter):
 
-    def convert(self,
-                xml_fpath: Path) -> Generator[IRBase, None, None]:
+    def generate_irbase(self,
+                        fpath: Path) -> Generator[IRBase, None, None]:
         root: ET.Element = ET.parse(str(self.xml_fpath.resolve())).getroot()
 
         # docid
