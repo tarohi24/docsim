@@ -7,12 +7,12 @@ from docsim.elas.mappings import IRBase
 
 def main(ds_name: str) -> None:
     dataset: Dataset = dataset_dict[ds_name]
-    es_client: EsClient(
+    es_client: EsClient = EsClient(
         es_index=dataset.es_index,
         item_cls=IRBase)
     items: Generator[IRBase, None, None] = {
         dataset.converter.generate_irbase(fpath)
-        for fpath in dataset.original_files()
+        for fpath in dataset.list_original_files()
     }
     es_client.bulk_insert(items)
 

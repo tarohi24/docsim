@@ -22,5 +22,5 @@ def return_matrix(func: Callable[..., np.ndarray]):
 class Model:
 
     @return_vector
-    def embed_paragraph(word: str) -> np.ndarray:
+    def embed_paragraph(para: str) -> np.ndarray:
         raise NotImplementedError('Model is an abstract class')

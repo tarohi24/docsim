@@ -86,16 +86,14 @@ class KeywordListField(Field):
 
 
 @dataclass
-class VectorField(Field):
-    """
-    yet supported
-    """
+class FasttextVectorField(Field):
     vec: np.ndarray
 
     @classmethod
     def mapping(cls) -> Dict:
         return {
-            'type': 'dense_vector'
+            'type': 'dense_vector',
+            'dim': 300
         }
 
     def to_elas_value(self) -> List[float]:

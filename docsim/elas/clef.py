@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import logging
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -5,6 +6,7 @@ from typing import Generator, List, Optional, TypeVar
 
 from docsim.elas import mappings as mpgs
 from docsim.elas.mappings import IRBase
+from docsim.embedding.base import Model as EmbeddingModel
 
 
 logger = logging.getLogger(__file__)
@@ -54,7 +56,9 @@ def get_paragraph_list(root: ET.Element) -> List[str]:
     return []
 
 
+@dataclass
 class CLEFConverter(mpgs.Converter):
+    embedding_model: EmbeddingModel
 
     def generate_irbase(self,
                         fpath: Path) -> Generator[IRBase, None, None]:

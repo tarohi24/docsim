@@ -13,9 +13,8 @@ class Dataset:
     converter: Converter
     es_index: str
 
-    @property
-    def original_files(self) -> Generator[Path, None, None]:
-        return self.get_data_dir().glob('**/*.xml')
+    def list_original_files(self) -> Generator[Path, None, None]:
+        return self.get_data_dir().glob('orig/**/*.xml')
 
     def get_data_dir(self) -> Path:
         return project_root.joinpath(f'data/{self.name}')
