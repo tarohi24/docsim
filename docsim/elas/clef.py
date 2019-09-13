@@ -62,7 +62,8 @@ def get_paragraph_list(root: ET.Element) -> List[str]:
 @dataclass
 class CLEFConverter(mpgs.Converter):
     pbar_succ = tqdm(position=0, desc='success')
-    pbar_fail = tqdm(position=1, desc='fail')
+    pbar_fail_1 = tqdm(position=1, desc='fail to fin description')
+    pbar_fail_2 = tqdm(position=2, desc='fail to retrieve paragraphs')
 
     def generate_irbase(self,
                         fpath: Path) -> Generator[IRBase, None, None]:
@@ -72,7 +73,6 @@ class CLEFConverter(mpgs.Converter):
         try:
             docid: str = root.attrib['ucid'].replace('-', '')
         except KeyError:
-            self.pbar_fail.update(1)
             logger.warning('DocID not found')
 
         # text
@@ -80,12 +80,12 @@ class CLEFConverter(mpgs.Converter):
             paras: List[str] = get_paragraph_list(root)
         except Exception:
             logger.warning('Could not find description field in the original XML.')
-            self.pbar_fail.update(1)
+            self.pbar_fail_1.update(1)
             return
 
         if len(paras) == 0:
             logger.warning('No paragraphs found.')
-            self.pbar_fail.update(1)
+            self.pbar_fail_2.update(1)
             return
 
         logger.info('XML successfully parsed')
@@ -97,8 +97,8 @@ class CLEFConverter(mpgs.Converter):
         tags_orig: List[ET.Element] = root.findall(tags_field)
         tags: List[str] = [t.text.split()[0] for t in tags_orig if t.text is not None]
 
+        self.pbar_succ.update(1)
         for paraid, para in enumerate(paras):
-            self.pbar_succ.update(1)
             yield mpgs.IRBase(
                 docid=mpgs.KeywordField(docid),
                 paraid=mpgs.IntField(paraid),
