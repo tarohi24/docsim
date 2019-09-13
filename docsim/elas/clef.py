@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import logging
 from pathlib import Path
 import xml.etree.ElementTree as ET
@@ -26,11 +25,10 @@ def find_or_default(root: ET.Element,
             return default
 
 
-@dataclass
 class CLEFConverter(mpgs.Converter):
-    xml_fpath: Path
 
-    def convert(self) -> IRBase:
+    def convert(self,
+                xml_fpath: Path) -> IRBase:
         root: ET.Element = ET.parse(str(self.xml_fpath.resolve())).getroot()
 
         # docid

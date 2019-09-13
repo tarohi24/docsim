@@ -43,6 +43,21 @@ class TextField(Field):
 
 
 @dataclass
+class TextListField(Field):
+    texts: List[str]
+
+    @classmethod
+    def mapping(cls) -> Dict:
+        return {
+            'type': 'text',
+            'analyzer': 'english'
+        }
+
+    def to_elas_value(self) -> List[str]:
+        return self.texts
+
+
+@dataclass
 class KeywordField(Field):
     keyword: str
 
@@ -57,8 +72,8 @@ class KeywordField(Field):
 
 
 @dataclass
-class TagsField(Field):
-    tags: List[str]
+class KeywordListField(Field):
+    keywords: List[str]
 
     @classmethod
     def mapping(cls) -> Dict:
@@ -67,7 +82,7 @@ class TagsField(Field):
         }
 
     def to_elas_value(self) -> List[str]:
-        return self.tags
+        return self.keywords
 
 
 @dataclass
@@ -98,9 +113,9 @@ class IRBase(EsItem):
         used for pre-filtering
     """
     docid: KeywordField  # unique key
-    title: TextField
-    text: TextField
-    tags: TagsField
+    title: TextListField
+    texts: TextListField
+    tags: KeywordListField
 
     @classmethod
     def mapping(cls) -> Dict:
@@ -108,8 +123,8 @@ class IRBase(EsItem):
             'properties': {
                 'docid': KeywordField.mapping(),
                 'title': TextField.mapping(),
-                'text': TextField.mapping(),
-                'tags': TagsField.mapping(),
+                'texts': TextListField.mapping(),
+                'tags': KeywordListField.mapping(),
             }
         }
 
@@ -118,7 +133,7 @@ class IRBase(EsItem):
             '_id': self.docid.to_elas_value(),
             'docid': self.docid.to_elas_value(),
             'title': self.title.to_elas_value(),
-            'text': self.text.to_elas_value(),
+            'texts': self.texts.to_elas_value(),
             'tags': self.tags.to_elas_value(),
         }
 

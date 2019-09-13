@@ -26,9 +26,3 @@ class Dataset:
 
     def __hash__(self):
         return hash(self.name)
-
-
-datasets = (
-    Dataset('clef'),
-    Dataset('ntcir'),
-)

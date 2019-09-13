@@ -21,7 +21,7 @@ class IndexCreateError(Exception):
 
 
 @dataclass
-class EsIndex:
+class EsClient:
     es_index: str
     item_cls: Type[EsItem]
     es: Elasticsearch = es
