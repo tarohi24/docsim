@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 import xml.etree.ElementTree as ET
-from typing import List, Optional, TypeVar
+from typing import Generator, List, Optional, TypeVar
 
 from docsim.elas import mappings as mpgs
 from docsim.elas.mappings import IRBase
@@ -57,7 +57,7 @@ def get_paragraph_list(root: ET.Element) -> List[str]:
 class CLEFConverter(mpgs.Converter):
 
     def convert(self,
-                xml_fpath: Path) -> IRBase:
+                xml_fpath: Path) -> Generator[IRBase, None, None]:
         root: ET.Element = ET.parse(str(self.xml_fpath.resolve())).getroot()
 
         # docid
@@ -67,10 +67,13 @@ class CLEFConverter(mpgs.Converter):
             logger.warning('DocID not found')
 
         # text
-        text: str = find_text_or_default(
-            root=root,
-            xpath="bibliographic-data/description[@lang='EN']",
-            default='')
+        try:
+            paras: List[str] = get_paragraph_list(
+                get_or_raise_exception(
+                    root.find("description[@lang='EN']")))
+        except NoneException:
+            logger.warn('fail to parse')
+
         title: str = find_text_or_default(
             root=root,
             xpath="bibliographic-data/technical-data/invention-title[@lang='EN']",
@@ -79,8 +82,10 @@ class CLEFConverter(mpgs.Converter):
         tags_orig: List[ET.Element] = root.findall(tags_field)
         tags: List[str] = [t.text.split()[0] for t in tags_orig if t.text is not None]
 
-        return mpgs.IRBase(
-            docid=mpgs.KeywordField(docid),
-            title=mpgs.TextField(title),
-            text=mpgs.TextField(text),
-            tags=mpgs.TagsField(tags))
+        for i, para in enumerate(paras):
+            yield mpgs.IRBase(
+                docid=mpgs.KeywordField(docid),
+                paraid=i,
+                title=mpgs.TextField(title),
+                text=mpgs.TextField(para),
+                tags=mpgs.TagsField(tags))

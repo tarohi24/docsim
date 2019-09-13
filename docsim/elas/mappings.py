@@ -28,6 +28,20 @@ class EsItem:
 
 
 @dataclass
+class IntField(Field):
+    value: int
+
+    @classmethod
+    def mapping(cls) -> Dict:
+        return {
+            'type': 'integer',
+        }
+
+    def to_elas_value(self) -> int:
+        return self.value
+
+
+@dataclass
 class TextField(Field):
     text: str
 
@@ -40,21 +54,6 @@ class TextField(Field):
 
     def to_elas_value(self) -> str:
         return self.text
-
-
-@dataclass
-class TextListField(Field):
-    texts: List[str]
-
-    @classmethod
-    def mapping(cls) -> Dict:
-        return {
-            'type': 'text',
-            'analyzer': 'english'
-        }
-
-    def to_elas_value(self) -> List[str]:
-        return self.texts
 
 
 @dataclass
@@ -113,8 +112,9 @@ class IRBase(EsItem):
         used for pre-filtering
     """
     docid: KeywordField  # unique key
-    title: TextListField
-    texts: TextListField
+    paraid: IntField
+    title: TextField
+    text: TextField
     tags: KeywordListField
 
     @classmethod
@@ -122,18 +122,22 @@ class IRBase(EsItem):
         return {
             'properties': {
                 'docid': KeywordField.mapping(),
+                'paraid': IntField.mapping(),
                 'title': TextField.mapping(),
-                'texts': TextListField.mapping(),
+                'text': TextField.mapping(),
                 'tags': KeywordListField.mapping(),
             }
         }
 
     def to_dict(self) -> Dict:
+        docid_val: str = self.docid.to_elas_value()
+        paraid_val: int = self.paraid.to_elas_value()
         return {
-            '_id': self.docid.to_elas_value(),
-            'docid': self.docid.to_elas_value(),
+            '_id': '{}-{}'.format(docid_val, str(paraid_val)),
+            'docid': docid_val,
+            'paraid': paraid_val,
             'title': self.title.to_elas_value(),
-            'texts': self.texts.to_elas_value(),
+            'text': self.text.to_elas_value(),
             'tags': self.tags.to_elas_value(),
         }
 
