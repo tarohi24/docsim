@@ -1,26 +1,21 @@
 import sys
 
-from docsim.dataset import Dataset
-from docsim.elas.clef import CLEFConverter
+from docsim.dataset import Dataset, dataset_dict
 from docsim.elas.index import EsClient
-from docsim.elas.mappings import Converter
+from docsim.elas.mappings import IRBase
 
 
-dataset_dict: Dict[str, Dataset] = {
-    'clef': Dataset('clef')
-}
-
-converters: Dict[str, Converter] = {
-    'clef': CLEFConverter(),
-}
-
-es_indices: Dict[str, str] = {
-    'clef': 'clef',
-}
+def main(ds_name: str) -> None:
+    dataset: Dataset = dataset_dict[ds_name]
+    es_client: EsClient(
+        es_index=dataset.es_index,
+        item_cls=IRBase)
+    items: Generator[IRBase, None, None] = {
+        dataset.converter.generate_irbase(fpath)
+        for fpath in dataset.original_files()
+    }
+    es_client.bulk_insert(items)
 
 
 if __name__ == '__main__':
-    ds_name: str = sys.argv[1]
-    dataset: Dataset = dataset_dict[ds_name]
-    converter: Converter = converters[ds_name]
-    es_clinet: EsClient = 
+    main(sys.argv[1])
