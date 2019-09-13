@@ -43,11 +43,12 @@ class EsResult:
 
 @dataclass
 class EsSearcher:
-    index: str
-    size: int
-    source_field: List[str]
+    es: EsClient
+    es_index: str
 
-    def search(self, keywords: List[str]) -> EsResult:
+    def search(self,
+               query: List[str],
+               tags: List[) -> EsResult:
         body = {
             'query': {
                 'bool': {
