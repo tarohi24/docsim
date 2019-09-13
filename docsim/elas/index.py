@@ -7,6 +7,7 @@ from typing import Dict, Iterable, Type
 
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import streaming_bulk
+from tqdm import tqdm
 
 from docsim.mappings import EsItem
 from docsim.settings import es
@@ -50,9 +51,9 @@ class EsIndex:
         except IndexCreateError:
             raise AssertionError('Bulk insert fails')
 
-        for ok, response in streaming_bulk(es,
-                                           iter_items(items),
-                                           index=self.es_index,
-                                           chunk_size=100):
+        for ok, response in tqdm(streaming_bulk(es,
+                                                iter_items(items),
+                                                index=self.es_index,
+                                                chunk_size=100)):
             if not ok:
                 logger.warn('Bulk insert: fails')
