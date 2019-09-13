@@ -1,7 +1,8 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List
+from pathlib import Path
+from typing import Any, Dict, Iterable, List
 
-import numpy.ndarray as ary
+import numpy as np
 
 
 class Field:
@@ -89,7 +90,7 @@ class VectorField(Field):
     """
     yet supported
     """
-    vec: ary
+    vec: np.ndarray
 
     @classmethod
     def mapping(cls) -> Dict:

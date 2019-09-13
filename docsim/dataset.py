@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Dict, Generator
 
-import numpy as np
-
+from docsim.elas.clef import CLEFConverter
 from docsim.elas.mappings import Converter
 from docsim.settings import project_root
-
-ary = np.ndarray
 
 
 @dataclass
@@ -41,4 +39,3 @@ dataset_dict: Dict[str, Dataset] = {
         converter=CLEFConverter(),
         es_index='clef'),
 }
-

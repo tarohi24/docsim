@@ -5,10 +5,8 @@ from typing import Dict, List, TypeVar
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
-import numpy.ndarray as ary
 
 from docsim.dataset import Dataset
-
 
 EmbeddedDocumentListType = TypeVar('EmbeddedDocumentListType', bound='EmbeddedDocumentList')
 
@@ -40,10 +38,10 @@ class Document(JsonSchemaMixin):
 
 @dataclass
 class EmbeddedDocument(Document, JsonSchemaMixin):
-    mat: ary
+    mat: np.ndarray
     model: str
 
-    def normalize(self) -> ary:
+    def normalize(self) -> np.ndarray:
         norm: float = np.linalg.norm(self.mat, axis=1)
         return (self.mat.T / norm).T
 
