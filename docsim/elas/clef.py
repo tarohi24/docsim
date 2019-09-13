@@ -30,7 +30,7 @@ def find_text_or_default(root: ET.Element,
     except NoneException:
         return default
     try:
-        text: Optional[str] = get_or_raise_exception(content.text)
+        text: str = get_or_raise_exception(content.text)
     except NoneException:
         return default
     return text
@@ -41,16 +41,16 @@ def get_paragraph_list(root: ET.Element) -> List[str]:
         desc_root: ET.Element = get_or_raise_exception(root.find("description[@lang='EN']"))
     except NoneException:
         return []
-    ps: List[ET.Element] = desc_root.findall('p')
+    ps: List[ET.Element] = [tag for tag in desc_root.findall('p') if tag is not None]
     if len(ps) > 1:
-        return [d.text for d in ps]
+        return [d.text for d in ps if d.text is not None]
     elif len(ps) == 1:
         try:
-            pre_text: str = get_or_raise_exception(ps[0].find('pre').text, default='')
+            pre_text: str = get_or_raise_exception(ps[0].find('pre')).text  # noqa
             return pre_text.replace('\\n', '\n').split('\n\n')
-        except:
+        except NoneException:
             li: List[ET.Element] = ps[0].findall('sl/li')
-            return [d.text for d in li]
+            return [d.text for d in li if d.text is not None]
     return []
 
 
