@@ -9,10 +9,22 @@ class Field:
     @classmethod
     def mapping(cls) -> Dict:
         raise NotImplementedError('This is an abstract class.')
+    
+    def to_elas_value(self) -> Any:
+        raise NotImplementedError('This is an abstract class.')
+        
 
-class Mapping:
+class EsItem:
+    """
+    Elasticsearch mapping
+    """
+    unique_key_field: Field
+
     @classmethod
     def mapping(cls) -> Dict:
+        raise NotImplementedError('This is an abstract class.')
+
+    def to_dict(self) -> Dict:
         raise NotImplementedError('This is an abstract class.')
 
 
@@ -27,6 +39,9 @@ class TextField(Field):
             'analyzer': 'english'
         }
 
+    def to_elas_value(self) -> str:
+        return self.text
+
 
 @dataclass
 class KeywordField(Field):
@@ -38,6 +53,9 @@ class KeywordField(Field):
             'type': 'keyword',
         }
 
+    def to_elas_value(self) -> str:
+        return self.keyword
+
 @dataclass
 class TagsField(Field):
     tags: List[str]
@@ -47,6 +65,9 @@ class TagsField(Field):
         return {
             'type': 'keyword'
         }
+
+    def to_elas_value(self) -> List[str]:
+        return self.tags
 
 
 @dataclass
@@ -61,10 +82,13 @@ class VectorField(Field):
         return {
             'type': 'dense_vector'
         }
-    
+
+    def to_elas_value(self) -> List[float]:
+        return self.vec.tolist()
+
 
 @dataclass
-class IRBase(Mapping):
+class IRBase(EsItem):
     """
     Attributes
     ------------
@@ -73,7 +97,7 @@ class IRBase(Mapping):
     tags
         used for pre-filtering
     """
-    docid: KeywordField
+    docid: KeywordField  # unique key
     title: TextField
     text: TextField
     tags: TagsField
@@ -87,6 +111,15 @@ class IRBase(Mapping):
                 'text': TextField.mapping(),
                 'tags': TagsField.mapping(),
             }
+        }
+
+    def to_dict(self) -> Dict:
+        return {
+            '_id': self.docid.to_elas_value(),
+            'docid': self.docid.to_elas_value(),
+            'title': self.title.to_elas_value(),
+            'text': self.text.to_elas_value(),
+            'tags': self.tags.to_elas_value(),
         }
 
 
