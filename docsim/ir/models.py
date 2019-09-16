@@ -7,20 +7,10 @@ from docsim.elas.models import EsItem
 
 
 @dataclass
-class IRBase(EsItem):
-    """
-    Attributes
-    ------------
-    text
-        body
-    tags
-        used for pre-filtering
-    """
-    docid: models.KeywordField  # unique key
+class IRParagraph(EsItem):
+    docid: models.KeywordField
     paraid: models.IntField
-    title: models.TextField
     text: models.TextField
-    tags: models.KeywordListField
 
     @classmethod
     def mapping(cls) -> Dict:
@@ -28,9 +18,7 @@ class IRBase(EsItem):
             'properties': {
                 'docid': models.KeywordField.mapping(),
                 'paraid': models.IntField.mapping(),
-                'title': models.TextField.mapping(),
                 'text': models.TextField.mapping(),
-                'tags': models.KeywordListField.mapping(),
             }
         }
 
@@ -41,11 +29,39 @@ class IRBase(EsItem):
             '_id': '{}-{}'.format(docid_val, str(paraid_val)),
             'docid': docid_val,
             'paraid': paraid_val,
+            'text': self.text.to_elas_value(),
+        }
+    
+
+class IRDocument(EsItem):
+    """
+    importable both from dump and from elasticsearch
+    """
+    docid: models.KeywordField  # unique key
+    title: models.TextField
+    text: models.TextField
+    tags: models.KeywordListField
+
+    @classmethod
+    def mapping(cls) -> Dict:
+        return {
+            'properties': {
+                'docid': models.KeywordField.mapping(),
+                'title': models.TextField.mapping(),
+                'text': models.TextField.mapping(),
+                'tags': models.KeywordListField.mapping(),
+            }
+        }
+
+    def to_dict(self) -> Dict:
+        return {
+            '_id': self.docid.to_elas_value(),
+            'docid': self.docid.to_elas_value(),
             'title': self.title.to_elas_value(),
             'text': self.text.to_elas_value(),
             'tags': self.tags.to_elas_value(),
         }
-
+    
 
 class Converter:
     """

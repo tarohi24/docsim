@@ -54,7 +54,7 @@ class EsSearcher:
 
     def add_query(self,
                   terms: List[str],
-                  field: str,
+                  field: str = 'text',
                   condition: str = 'should') -> 'EsSearcher':
         """
         modify self.query
@@ -89,7 +89,7 @@ class EsSearcher:
 
     def add_filter(self,
                    terms: List[str],
-                   field: str,
+                   field: str = 'tags',
                    condition: str = 'should') -> 'EsSearcher':
         """
         modify self.query

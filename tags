@@ -5,29 +5,26 @@
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
 !_TAG_PROGRAM_VERSION	0.0.0	/8ee649f/
-Dataset	docsim/dataset.py	/^class Dataset:$/;"	c
-Document	docsim/doc_models.py	/^class Document(JsonSchemaMixin):$/;"	c
-DocumentID	docsim/doc_models.py	/^class DocumentID:$/;"	c
-EmbeddedDocument	docsim/doc_models.py	/^class EmbeddedDocument(Document, JsonSchemaMixin):$/;"	c
-EmbeddedDocumentList	docsim/doc_models.py	/^class EmbeddedDocumentList(JsonSchemaMixin):$/;"	c
-EmbeddedDocumentListType	docsim/doc_models.py	/^EmbeddedDocumentListType = TypeVar('EmbeddedDocumentListType', bound='EmbeddedDocumentList')$/;"	v
+Dataset	docsim/models.py	/^class Dataset:$/;"	c
+Document	docsim/models.py	/^class Document(JsonSchemaMixin):$/;"	c
+DocumentID	docsim/models.py	/^class DocumentID:$/;"	c
+EmbeddedDocument	docsim/models.py	/^class EmbeddedDocument(Document, JsonSchemaMixin):$/;"	c
+EmbeddedDocumentList	docsim/models.py	/^class EmbeddedDocumentList(JsonSchemaMixin):$/;"	c
 Filter	docsim/text.py	/^class Filter:$/;"	c
 LowerFilter	docsim/text.py	/^class LowerFilter(Filter):$/;"	c
-RankItem	docsim/rank.py	/^class RankItem:$/;"	c
 RegexRemover	docsim/text.py	/^class RegexRemover(Filter):$/;"	c
 StopWordRemover	docsim/text.py	/^class StopWordRemover(Filter):$/;"	c
 TFFilter	docsim/text.py	/^class TFFilter(Filter):$/;"	c
-TRECConverter	docsim/rank.py	/^class TRECConverter:$/;"	c
 TestDocsim	tests/test_docsim.py	/^class TestDocsim(unittest.TestCase):$/;"	c
 TextProcessor	docsim/text.py	/^class TextProcessor:$/;"	c
 __author__	docsim/__init__.py	/^__author__ = """Wataru Hirota"""$/;"	v
 __call__	docsim/text.py	/^    def __call__(self, tokens: List[str]) -> List[str]:$/;"	m	class:Filter
 __email__	docsim/__init__.py	/^__email__ = 'w-hirota@ist.osaka-u.ac.jp'$/;"	v
-__eq__	docsim/dataset.py	/^    def __eq__(self, another):$/;"	m	class:Dataset
-__eq__	docsim/doc_models.py	/^    def __eq__(self, another):$/;"	m	class:DocumentID
-__hash__	docsim/dataset.py	/^    def __hash__(self):$/;"	m	class:Dataset
-__hash__	docsim/doc_models.py	/^    def __hash__(self):$/;"	m	class:DocumentID
-__str__	docsim/doc_models.py	/^    def __str__(self):$/;"	m	class:DocumentID
+__eq__	docsim/models.py	/^    def __eq__(self, another):$/;"	m	class:Dataset
+__eq__	docsim/models.py	/^    def __eq__(self, another):$/;"	m	class:DocumentID
+__hash__	docsim/models.py	/^    def __hash__(self):$/;"	m	class:Dataset
+__hash__	docsim/models.py	/^    def __hash__(self):$/;"	m	class:DocumentID
+__str__	docsim/models.py	/^    def __str__(self):$/;"	m	class:DocumentID
 __version__	docsim/__init__.py	/^__version__ = '0.1.0'$/;"	v
 apply	docsim/text.py	/^    def apply(self) -> List[str]:$/;"	m	class:TextProcessor
 apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:Filter
@@ -36,22 +33,17 @@ apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	
 apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:StopWordRemover
 apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:TFFilter
 apply_filter	docsim/text.py	/^        def apply_filter(tokens: List[str],$/;"	f	member:TextProcessor.apply	file:
-dataset_dict	docsim/dataset.py	/^dataset_dict: Dict[str, Dataset] = {$/;"	v
-dump	docsim/doc_models.py	/^    def dump(self,$/;"	m	class:EmbeddedDocumentList
-dump	docsim/rank.py	/^    def dump(self,$/;"	m	class:TRECConverter
+dataset_dict	docsim/models.py	/^dataset_dict: Dict[str, Dataset] = {$/;"	v
+dump	docsim/models.py	/^    def dump(self,$/;"	m	class:EmbeddedDocumentList
 es	docsim/settings.py	/^es: Elasticsearch = Elasticsearch(os.environ['ES_URL'])$/;"	v
 filters	docsim/text.py	/^    filters: List[Filter] = [LowerFilter(), StopWordRemover(), RegexRemover()]$/;"	v	class:TextProcessor
-format	docsim/rank.py	/^    def format(self,$/;"	m	class:TRECConverter
-get_data_dir	docsim/dataset.py	/^    def get_data_dir(self) -> Path:$/;"	m	class:Dataset
-get_filepath	docsim/doc_models.py	/^    def get_filepath(cls,$/;"	m	class:EmbeddedDocumentList
-get_fpath	docsim/rank.py	/^    def get_fpath(self) -> Path:$/;"	m	class:TRECConverter
-get_ranks	docsim/rank.py	/^    def get_ranks(self) -> List[DocumentID]:$/;"	m	class:RankItem
-get_result_dir	docsim/dataset.py	/^    def get_result_dir(self) -> Path:$/;"	m	class:Dataset
-is_ground_truth	docsim/rank.py	/^    is_ground_truth: bool = False$/;"	v	class:TRECConverter
-list_original_files	docsim/dataset.py	/^    def list_original_files(self) -> Generator[Path, None, None]:$/;"	m	class:Dataset
-load_cache	docsim/doc_models.py	/^    def load_cache(cls,$/;"	m	class:EmbeddedDocumentList
-normalize	docsim/doc_models.py	/^    def normalize(self) -> np.ndarray:$/;"	m	class:EmbeddedDocument
-np	docsim/doc_models.py	/^import numpy as np$/;"	I
+get_data_dir	docsim/models.py	/^    def get_data_dir(self) -> Path:$/;"	m	class:Dataset
+get_filepath	docsim/models.py	/^    def get_filepath(cls,$/;"	m	class:EmbeddedDocumentList
+get_result_dir	docsim/models.py	/^    def get_result_dir(self) -> Path:$/;"	m	class:Dataset
+list_original_files	docsim/models.py	/^    def list_original_files(self) -> Generator[Path, None, None]:$/;"	m	class:Dataset
+load_cache	docsim/models.py	/^    def load_cache(cls,$/;"	m	class:EmbeddedDocumentList
+normalize	docsim/models.py	/^    def normalize(self) -> np.ndarray:$/;"	m	class:EmbeddedDocument
+np	docsim/models.py	/^import numpy as np$/;"	I
 project_root	docsim/settings.py	/^project_root: Path = Path(os.environ['PROJECT_ROOT'])$/;"	v
 regex	docsim/text.py	/^    regex: Pattern = re.compile('[!@#$]')$/;"	v	class:RegexRemover
 setUp	tests/test_docsim.py	/^    def setUp(self):$/;"	m	class:TestDocsim

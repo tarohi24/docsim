@@ -8,6 +8,7 @@ from docsim import text
 from docsim.doc_models import Document
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.ir.base import RankItem, Searcher
+from docsim.ir.mappings import IRBase
 from docsim.text import Filter
 
 
@@ -17,7 +18,7 @@ class KeywordBaseline(Searcher):
     es_index: str
 
     def retrieve(self,
-                 query: Document,
+                 query: IRBase,
                  size: int) -> RankItem:
         filters: List[Filter] = [
             text.LowerFilter(),
@@ -30,4 +31,6 @@ class KeywordBaseline(Searcher):
         searcher\
             .add_query(terms=q_words, field='text')\
             .add_size(size)\
-            .add_filter(terms=query)
+            .add_filter(terms=query, field='tags')\
+            .add_source_fields(['docid', ])\
+            

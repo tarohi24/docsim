@@ -5,7 +5,7 @@ from typing import Generator, Iterable
 
 from docsim.dataset import Dataset, dataset_dict
 from docsim.elas.index import EsClient
-from docsim.elas.mappings import IRBase, Converter
+from docsim.ir.mappings import IRBase, Converter
 
 
 logger = logging.getLogger(__file__)
