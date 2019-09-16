@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
+from tqdm import tqdm
+
 from docsim.ir.trec import RankItem, TRECConverter
 from docsim.ir.models import QueryDataset, QueryDocument
 
@@ -16,7 +18,7 @@ class Searcher:
     def run(self) -> None:
         items: List[RankItem] = [res
                                  for res
-                                 in [self.retrieve(query) for query in self.dataset.queries]
+                                 in [self.retrieve(query) for query in tqdm(self.dataset.queries)]
                                  if res is not None]
         trec: TRECConverter = TRECConverter(
             items=items,
