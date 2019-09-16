@@ -16,7 +16,9 @@ class KeywordBaseline(Searcher):
     n_words: int
     es_index: str
 
-    def retrieve(self, query: Document) -> RankItem:
+    def retrieve(self,
+                 query: Document,
+                 size: int) -> RankItem:
         filters: List[Filter] = [
             text.LowerFilter(),
             text.StopWordRemover(),
@@ -24,3 +26,8 @@ class KeywordBaseline(Searcher):
             text.TFFilter(n_words=self.n_words)]
         q_words: List[str] = text.TextProcessor(text=query.body)
         # search elasticsearch
+        searcher: EsSearcher = EsSearcher(es_index=self.es_index)
+        searcher\
+            .add_query(terms=q_words, field='text')\
+            .add_size(size)\
+            .add_filter(terms=query.
