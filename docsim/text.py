@@ -1,5 +1,5 @@
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import re
 from typing import List, Pattern, Set
 
@@ -22,9 +22,8 @@ class LowerFilter(Filter):
         return [w.lower() for w in tokens]
 
 
-@dataclass
 class StopWordRemover(Filter):
-    stop_words: Set[str] = set(stopwords.words('english'))
+    stop_words: Set[str] = field(default_factory=lambda: set(stopwords.words('english')))
 
     def apply(self, tokens: List[str]) -> List[str]:
         return [w for w in tokens if w not in self.stop_words]
@@ -32,7 +31,7 @@ class StopWordRemover(Filter):
 
 @dataclass
 class RegexRemover(Filter):
-    regex: Pattern = re.compile('[!@#$]')
+    regex: Pattern = field(default_factory=lambda: re.compile('[!@#$]'))
 
     def apply(self, tokens: List[str]) -> List[str]:
         return [w for w in [re.sub(self.regex, '', w) for w in tokens] if w != '']
@@ -48,10 +47,10 @@ class TFFilter(Filter):
     def apply(self, tokens: List[str]) -> List[str]:
         return [token for token, _ in Counter(tokens).most_common(self.n_words)]
 
-
+@dataclass
 class TextProcessor:
     text: str
-    filters: List[Filter] = [LowerFilter(), StopWordRemover(), RegexRemover()]
+    filters: List[Filter] = field(default_factory=lambda: [LowerFilter(), StopWordRemover(), RegexRemover()])
 
     def apply(self) -> List[str]:
 

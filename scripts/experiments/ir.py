@@ -3,13 +3,15 @@ Standalone script for IR Experiment
 """
 from typing import Dict, Type
 
-from docsim.ir import methods
+# methods
+from docsim.ir.methods.keyword import KeywordBaseline
+
 from docsim.ir.methods.base import Searcher
 from docsim.ir.models import QueryDataset
 
 
 searcher_classes: Dict[str, Type[Searcher]] = {
-    'keyword': methods.keyword.KeywordBaseline,
+    'keyword': KeywordBaseline,
 }
 
 def main(ds_name: str, runname: str) -> None:
