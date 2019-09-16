@@ -1,6 +1,3 @@
-"""
-Base class definition
-"""
 from dataclasses import dataclass
 import logging
 from more_itertools import flatten
@@ -10,10 +7,6 @@ from pathlib import Path
 from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, TypeVar
 
 from docsim.modles import Dataset, Document, DocumentID
-
-
-logger = logging.getLogger(__file__)
-T = TypeVar('T')
 
 
 @dataclass
@@ -66,40 +59,3 @@ class TRECConverter:
                 raise AssertionError(f'File exists. {fpath}')
         with open(self.get_fpath(), 'w') as fout:
             fout.write('\n'.join(['\t'.join(rec) for rec in records]))
-
-
-def ignore_exception(func: Callable[..., T],
-                     exceptions: Tuple[Type[Exception]]) -> Optional[T]:
-    """
-    Decorator
-    """
-    def wrapper(*args, **kwargs):
-        try:
-            val: T = func(*args, **kwargs)
-            return val
-        except exceptions as e:
-            logger.error(e, exc_info=True)
-            return
-    return wrapper
-
-
-@dataclass
-class Searcher:
-    dataset: Dataset
-    queries: List[Document]
-    runname: str
-
-    def retrieve(self, query: Document) -> RankItem:
-        raise NotImplementedError('This is an abstract class.')
-
-    def run(self) -> None:
-        items: List[RankItem] = [res
-                                 for res
-                                 in [self.retrieve(query) for query in self.queries]
-                                 if res is not None]
-        trec: TRECConverter = TRECConverter(
-            items=items,
-            dataset=self.dataset,
-            runname=self.runname,
-            is_ground_truth=False)
-        trec.dump()

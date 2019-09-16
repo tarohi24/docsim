@@ -7,7 +7,7 @@ from typing import Dict, Generator, List
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
 
-from docsim.elas.clef import CLEFConverter
+from docsim.ir.converters import CLEFConverter
 from docsim.elas.mappings import Converter
 from docsim.embedding.base import Model, return_matrix
 from docsim.settings import project_root
