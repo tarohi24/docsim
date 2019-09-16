@@ -35,4 +35,4 @@ class KeywordBaseline(Searcher):
             .add_size(size)\
             .add_filter(terms=query_doc.tags, field='tags')\
             .search()
-        
+        return res.to_rank_item(query_id=query_doc.docid)
