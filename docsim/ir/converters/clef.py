@@ -2,8 +2,7 @@ from dataclasses import dataclass
 import logging
 from pathlib import Path
 import re
-from tqdm import tqdm
-from typing import Generator, List, Optional, TypeVar
+from typing import List, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
 from docsim.elas import models
@@ -16,6 +15,7 @@ T = TypeVar('T')
 
 class NoneException(Exception):
     pass
+
 
 class CannotSplitText(Exception):
     pass
@@ -64,7 +64,7 @@ class CLEFConverter(Converter):
             xpath="bibliographic-data/technical-data/invention-title[@lang='EN']",
             default='')
         return title
-    
+
     def _get_text(self,
                   root: ET.Element) -> str:
         desc_root: ET.Element = get_or_raise_exception(
@@ -104,14 +104,15 @@ class CLEFConverter(Converter):
                             title=models.TextField(title),
                             text=models.TextField(text),
                             tags=models.KeywordListField(tags))]
-    
+
     def to_paragraph(self,
                      fpath: Path) -> List[ColParagraph]:
+        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
         # text
         try:
-            paras: List[str] = get_paragraph_list(root)
+            paras: List[str] = self.get_paragraph_list(root)
         except Exception as e:
-            loggger.warning(e, exc_info=True)
+            logger.warning(e, exc_info=True)
             logger.warning('Could not find description field in the original XML.')
         if len(paras) == 0:
             logger.warning('No paragraphs found.')

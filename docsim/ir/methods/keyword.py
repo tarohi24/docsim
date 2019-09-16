@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import List
 
 from docsim import text
-from docsim.doc_models import Document
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.ir.base import RankItem, Searcher
 from docsim.ir.mappings import IRBase
@@ -32,4 +31,4 @@ class KeywordBaseline(Searcher):
             .add_query(terms=q_words, field='text')\
             .add_size(size)\
             .add_filter(terms=query, field='tags')\
-            .add_source_fields(['docid', ])\
+            .add_source_fields(['docid', ])

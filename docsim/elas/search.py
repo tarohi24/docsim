@@ -7,6 +7,7 @@ from numbers import Real
 from typing import Dict, List, TypeVar
 
 from docsim.elas.client import EsClient
+from docsim.ir.trec import RankItem
 from docsim.settings import es
 
 
@@ -15,7 +16,7 @@ T_EsResult = TypeVar('T_EsResult', bound='EsResult')
 
 @dataclass
 class EsResultItem:
-    elas_id: str
+    docid: str
     score: Real
     source: Dict
 
@@ -23,7 +24,7 @@ class EsResultItem:
     def from_dict(cls,
                   data: Dict) -> 'EsResultItem':
         self = EsResultItem(
-            elas_id=data['_id'],
+            elas_id=data['docid'],
             score=data['_score'],
             source=data['_source']
         )
@@ -40,7 +41,14 @@ class EsResult:
         hits: List[Dict] = data['hits']['hits']  # type: ignore
         return cls([EsResultItem.from_dict(hit) for hit in hits])
 
-
+    def to_rank_item(self,
+                     query_id: str) -> RankItem:
+        scores: Dict[str, float] = {
+            hit.docid: hit.score
+            for hit in self.hits}
+        return RankItem(query_id=query_id, scores=scores)
+        
+           
 @dataclass
 class EsSearcher:
     es_index: str
