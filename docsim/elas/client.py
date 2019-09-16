@@ -8,7 +8,6 @@ from typing import Dict, Iterable, Type
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 from elasticsearch.helpers import streaming_bulk
-from tqdm import tqdm
 
 from docsim.elas.mappings import EsItem
 from docsim.settings import es

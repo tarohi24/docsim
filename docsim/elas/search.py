@@ -2,12 +2,11 @@
 Module for elasticsaerch
 """
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from numbers import Real
-from typing import Dict, List, Type, TypeVar
+from typing import Dict, List, TypeVar
 
-from dataclasses_jsonschema import JsonSchemaMixin
-
+from docsim.elas.client import EsClient
 from docsim.settings import es
 
 
@@ -21,8 +20,8 @@ class EsResultItem:
     source: Dict
 
     @classmethod
-    def from_dict(cls: EsResultItem,
-                  data: Dict) -> EsResultItem:
+    def from_dict(cls,
+                  data: Dict) -> 'EsResultItem':
         self = EsResultItem(
             elas_id=data['_id'],
             score=data['_score'],
@@ -49,13 +48,14 @@ class EsSearcher:
     es: EsClient = es
 
     def search(self) -> EsResult:
-        res: EsResult = EsResult.from_dict(es.search(index=index, body=self.query))
+        res: EsResult = EsResult.from_dict(
+            es.search(index=self.es_index, body=self.query))
         return res
 
     def add_query(self,
                   terms: List[str],
                   field: str,
-                  condition: str = 'should') -> EsSearcher:
+                  condition: str = 'should') -> 'EsSearcher':
         """
         modify self.query
         """
@@ -72,7 +72,7 @@ class EsSearcher:
         return self
 
     def add_size(self,
-                 size: int) -> EsSearcher:
+                 size: int) -> 'EsSearcher':
         """
         modify self.size
         """
@@ -80,7 +80,7 @@ class EsSearcher:
         return self
 
     def add_source_fields(self,
-                          source_fields: List[str]) -> EsSearcher:
+                          source_fields: List[str]) -> 'EsSearcher':
         """
         modify self._source
         """
@@ -90,7 +90,7 @@ class EsSearcher:
     def add_filter(self,
                    terms: List[str],
                    field: str,
-                   condition: str = 'should') -> EsSearcher:
+                   condition: str = 'should') -> 'EsSearcher':
         """
         modify self.query
         """

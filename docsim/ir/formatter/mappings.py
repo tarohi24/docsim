@@ -1,10 +1,9 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List
-
-import numpy as np
+from typing import Dict, Iterable
 
 from docsim.elas.fields import models
+from docsim.elas.models import EsItem
 
 
 @dataclass
@@ -17,21 +16,21 @@ class IRBase(EsItem):
     tags
         used for pre-filtering
     """
-    docid: KeywordField  # unique key
-    paraid: IntField
-    title: TextField
-    text: TextField
-    tags: KeywordListField
+    docid: models.KeywordField  # unique key
+    paraid: models.IntField
+    title: models.TextField
+    text: models.TextField
+    tags: models.KeywordListField
 
     @classmethod
     def mapping(cls) -> Dict:
         return {
             'properties': {
-                'docid': KeywordField.mapping(),
-                'paraid': IntField.mapping(),
-                'title': TextField.mapping(),
-                'text': TextField.mapping(),
-                'tags': KeywordListField.mapping(),
+                'docid': models.KeywordField.mapping(),
+                'paraid': models.IntField.mapping(),
+                'title': models.TextField.mapping(),
+                'text': models.TextField.mapping(),
+                'tags': models.KeywordListField.mapping(),
             }
         }
 
@@ -46,7 +45,6 @@ class IRBase(EsItem):
             'text': self.text.to_elas_value(),
             'tags': self.tags.to_elas_value(),
         }
-
 
 
 class Converter:

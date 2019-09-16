@@ -1,4 +1,4 @@
-from __future__ import annotations
+from __future__ import annotations  # noqa
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -63,6 +63,8 @@ class DocumentID:
 
     def __str__(self):
         return f'{self.dataset}_{self.docid}'
+
+
 @dataclass
 class Document(JsonSchemaMixin):
     docid: DocumentID
@@ -94,7 +96,7 @@ class EmbeddedDocumentList(JsonSchemaMixin):
     @classmethod
     def load_cache(cls,
                    dataset: Dataset,
-                   doctype: str = 'query') -> EmbeddedDocumentList:
+                   doctype: str = 'query') -> 'EmbeddedDocumentList':
         fpath: Path = cls.get_filepath(dataset=dataset, doctype=doctype)
         with open(fpath, 'r') as fin:
             dic: Dict = json.load(fin)

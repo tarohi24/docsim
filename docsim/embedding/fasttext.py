@@ -1,4 +1,8 @@
-from docsim.embedding.base import Model, return_vector
+from dataclasses import dataclass
+
+import fasttext
+
+from docsim.embedding.base import Model
 from docsim.settings import project_root
 
 

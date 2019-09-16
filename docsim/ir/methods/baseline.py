@@ -30,4 +30,4 @@ class KeywordBaseline(Searcher):
         searcher\
             .add_query(terms=q_words, field='text')\
             .add_size(size)\
-            .add_filter(terms=query.
+            .add_filter(terms=query)
