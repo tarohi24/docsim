@@ -1,5 +1,5 @@
 """
-Index module
+Client module
 """
 from dataclasses import dataclass
 import logging
