@@ -1,2 +1,6 @@
-Modules for formatting into JSON and insert to Elasticsearch
+Converters
 ===================
+
+## Summary
+These modules are for converting original datasets into JSON files which are
+exportable to Elasticsearch.
