@@ -29,7 +29,10 @@ class Dataset:
         return cls()
     
     def iter_orig_files(self) -> Generator[Path, None, None]:
-        return project_root.joinpath(f'data/{self.name}/orig').glob('**/*.xml')
+        return project_root.joinpath(f'data/{self.name}/orig/collection').glob('**/*.xml')
+
+    def iter_query_files(self) -> Generator[Path, None, None]:
+        return project_root.joinpath(f'data/{self.name}/orig/query').glob('**/*.xml')
 
     def iter_converted_docs(self) -> Generator[ColParagraph, None, None]:
         pbar_succ = tqdm(position=0)
@@ -64,7 +67,7 @@ def main(ds_name: str,
     if 'query' in operations:
         QueryDataset.create_dump(name=ds_name,
                                  converter=dataset.converter,
-                                 xml_pathes=dataset.iter_orig_files())
+                                 xml_pathes=dataset.iter_query_files())
         
 
 if __name__ == '__main__':

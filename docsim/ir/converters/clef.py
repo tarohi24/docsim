@@ -8,13 +8,16 @@ import xml.etree.ElementTree as ET
 
 from docsim.elas import models
 from docsim.ir.converters.base import Converter
-from docsim.ir.models import ColDocument, ColParagraph
+from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
 
 
 class NoneException(Exception):
+    pass
+
+class CannotSplitText(Exception):
     pass
 
 
@@ -71,10 +74,10 @@ class CLEFConverter(Converter):
 
     def get_paragraph_list(self,
                            root: ET.Element) -> List[str]:
-        desc_root: Optional[ET.Element] = root.find("description[@lang='EN']")
+        desc_root: Optional[ET.Element] = root.find("description")
         if desc_root is None:
-            logger.debug('root is not found')
-            return []
+            print([el for el in root])
+            raise CannotSplitText('root is not found')
         ps: List[ET.Element] = [tag for tag in desc_root.findall('p') if tag is not None]
         if len(ps) > 1:
             return [d.text for d in ps if d.text is not None]
@@ -87,8 +90,7 @@ class CLEFConverter(Converter):
             except NoneException:
                 li: List[ET.Element] = ps[0].findall('sl/li')
                 return [d.text for d in li if d.text is not None]
-        logger.debug('No condition is matched')
-        return []
+        raise CannotSplitText('No condition is matched')
 
     def to_document(self,
                     fpath: Path) -> List[ColParagraph]:
@@ -108,9 +110,9 @@ class CLEFConverter(Converter):
         # text
         try:
             paras: List[str] = get_paragraph_list(root)
-        except Exception:
+        except Exception as e:
+            loggger.warning(e, exc_info=True)
             logger.warning('Could not find description field in the original XML.')
-            self.pbar_fail_1.update(1)
         if len(paras) == 0:
             logger.warning('No paragraphs found.')
             return
@@ -127,21 +129,21 @@ class CLEFConverter(Converter):
 
     def to_query_dump(self,
                       fpath: Path) -> List[QueryDocument]:
+        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
+
         try:
-            paras: List[str] = get_paragraph_list(root)
-        except Exception:
-            logger.warning('Could not find description field in the original XML.')
-            self.pbar_fail_1.update(1)
+            paras: List[str] = self.get_paragraph_list(root)
+        except Exception as e:
+            logger.warning(e, exc_info=True)
+            return []
         if len(paras) == 0:
             logger.warning('No paragraphs found.')
-            return
+            return []
 
         docid: str = self._get_docid(root)
         tags: List[str] = self._get_tags(root)
-        title: str = self._get_title(root)
 
         return [
             QueryDocument(docid=docid,
-                          paras=paraid,
-                          title=title,
+                          paras=paras,
                           tags=tags)]

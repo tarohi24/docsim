@@ -15,7 +15,6 @@ class QueryDocument(JsonSchemaMixin):
     docid: str
     paras: List[str]
     tags: List[str]
-    ground_truth: List[str]
 
 
 @dataclass
@@ -25,21 +24,23 @@ class QueryDataset(JsonSchemaMixin):
 
     @classmethod
     def _get_dump_path(cls, name: str) -> Path:
-        return project_root.joinpath(f'data/query/{name}.json')
+        return project_root.joinpath(f'data/{name}/query/dump.json')
 
     @classmethod
     def load_dump(cls, name: str) -> 'QueryDocument':
         with open(cls._get_dump_path(name=name), 'r') as fin:
             dic: Dict = json.load(fin)
         return cls.from_dict(dic)
-
+    
     @classmethod
     def create_dump(cls,
                     name: str,
                     converter: Converter,
                     xml_pathes: Iterable[Path]) -> 'QueryDocument':
-        qlist: List[QueryDocument] = [converter.to_query_dump(fpath)
-                                      for fpath in xml_pathes]
+        qlist: List[QueryDocument] = sum(
+            [converter.to_query_dump(fpath) for fpath in xml_pathes],
+            []
+        )
         dic: Dict = cls(name=name, queries=qlist).to_dict()
         with open(cls._get_dump_path(name=name), 'w') as fout:
             json.dump(dic, fout)
