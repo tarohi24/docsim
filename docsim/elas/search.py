@@ -1,6 +1,7 @@
 """
 Module for elasticsaerch
 """
+from __future__ import annotations
 from dataclasses import dataclass
 from numbers import Real
 from typing import Dict, List, Type, TypeVar
@@ -45,21 +46,62 @@ class EsResult:
 class EsSearcher:
     es: EsClient
     es_index: str
+    query: Dict = field(default_factory=dict)
 
-    def search(self,
-               query: List[str],
-               tags: List[) -> EsResult:
-        body = {
+    def search(self) -> EsResult:
+        res: EsResult = EsResult.from_dict(es.search(index=index, body=self.query))
+        return res
+
+    def add_query(self,
+                  terms: List[str],
+                  field: str,
+                  condition: str = 'should') -> EsSearcher:
+        """
+        modify self.query
+        """
+        self['query'] = {
             'query': {
                 'bool': {
-                    'should': [
-                        {'match': {'documentId.keyword': ucid}}
-                        for ucid in doc_ids
+                    condition: [
+                        {'match': {field: t}}
+                        for t in terms
                     ]
                 }
-            },
-            'size': len(doc_ids),
-            '_source': ['documentId', 'description', ]
+            }
         }
-        res: EsResult = EsResult.from_dict(es.search(index=index, body=body))
-        return res
+        return self
+
+    def add_size(self,
+                 size: int) -> EsSearcher:
+        """
+        modify self.size
+        """
+        self.query['size'] = size
+        return self
+
+    def add_source_fields(self,
+                          source_fields: List[str]) -> EsSearcher:
+        """
+        modify self._source
+        """
+        self.query['_source'] = source_fields
+        return self
+
+    def add_filter(self,
+                   terms: List[str],
+                   field: str,
+                   condition: str = 'should') -> EsSearcher:
+        """
+        modify self.query
+        """
+        self['filter'] = {
+            'query': {
+                'bool': {
+                    condition: [
+                        {'match': {field: t}}
+                        for t in terms
+                    ]
+                }
+            }
+        }
+        return self
