@@ -10,7 +10,7 @@ from tqdm import tqdm
 from docsim.elas.client import EsClient
 from docsim.ir.converters.base import Converter
 from docsim.ir.converters.clef import CLEFConverter
-from docsim.ir.models import ColDocument, ColParagraph, QueryDataset
+from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
 from docsim.settings import project_root
 
 logger = logging.getLogger(__file__)
@@ -65,9 +65,13 @@ def main(ds_name: str,
     if 'para' in operations:
         raise NotImplementedError('Para is not prepared')
     if 'query' in operations:
-        QueryDataset.create_dump(name=ds_name,
-                                 converter=dataset.converter,
-                                 xml_pathes=dataset.iter_query_files())
+        qlist: List[QueryDocument] = sum(
+            [dataset.converter.to_query_dump(fpath) for fpath in dataset.iter_query_files()],
+            []
+        )
+        dic: Dict = QueryDataset(name=name, queries=qlist).to_dict()
+        with open(cls._get_dump_path(name=name), 'w') as fout:
+            json.dump(dic, fout)
         
 
 if __name__ == '__main__':

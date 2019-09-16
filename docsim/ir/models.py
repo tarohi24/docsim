@@ -2,12 +2,11 @@ from __future__ import annotations  # noqa
 from dataclasses import dataclass
 import json
 from pathlib import Path
-from typing import Dict, Iterable, List
+from typing import Dict, List
 
 from dataclasses_jsonschema import JsonSchemaMixin
 
 from docsim.elas import models
-from docsim.ir.converters.base import Converter
 from docsim.settings import project_root
 
 
@@ -39,19 +38,6 @@ class QueryDataset(JsonSchemaMixin):
 
     def get_result_dir(self) -> Path:
         return project_root.joinpath(f'results/{self.name}')
-
-    @classmethod
-    def create_dump(cls,
-                    name: str,
-                    converter: Converter,
-                    xml_pathes: Iterable[Path]) -> 'QueryDocument':
-        qlist: List[QueryDocument] = sum(
-            [converter.to_query_dump(fpath) for fpath in xml_pathes],
-            []
-        )
-        dic: Dict = cls(name=name, queries=qlist).to_dict()
-        with open(cls._get_dump_path(name=name), 'w') as fout:
-            json.dump(dic, fout)
 
 
 @dataclass

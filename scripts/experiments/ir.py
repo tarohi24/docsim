@@ -3,8 +3,8 @@ Standalone script for IR Experiment
 """
 from typing import Dict, Type
 
-from docsim.ir.base import Searcher
 from docsim.ir import methods
+from docsim.ir.methods.base import Searcher
 from docsim.ir.models import QueryDataset
 
 
