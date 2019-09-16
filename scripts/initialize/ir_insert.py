@@ -1,33 +1,62 @@
+from collections import defaultdict
+from dataclasses import dataclass
 import logging
 from pathlib import Path
 import sys
-from typing import Generator, Iterable
+from typing import Generator, Iterable, Type
 
-from docsim.dataset import Dataset, dataset_dict
-from docsim.elas.index import EsClient
-from docsim.ir.mappings import IRBase, Converter
+from tqdm import tqdm
 
+from docsim.elas.client import EsClient
+from docsim.ir.converters.base import Converter
+from docsim.ir.converters.clef import CLEFConverter
+from docsim.ir.models import ColDocument
+from docsim.settings import project_root
 
 logger = logging.getLogger(__file__)
-logging.disable(logging.CRITICAL)
+# logging.disable(logging.CRITICAL)
 
 
-def item_generator(files: Iterable[Path],
-                   converter: Converter) -> Generator[IRBase, None, None]:
-    for fpath in files:
-        for item in converter.generate_irbase(fpath):
-            yield item
+@dataclass
+class Dataset:
+    name: str
+    
+    @property
+    def converter(self) -> Converter:
+        cls: Type[Converter] = {
+            'clef': CLEFConverter
+        }[self.name]
+        return cls()
+    
+    def iter_orig_files(self) -> Generator[Path, None, None]:
+        return project_root.joinpath(f'data/{self.name}/orig').glob('**/*.xml')
+
+    def iter_converted_docs(self) -> Generator[ColDocument, None, None]:
+        pbar_succ = tqdm(position=0)
+        pbar_fails = dict()
+        converter: Converter = self.converter
+        for fpath in self.iter_orig_files():
+            try:
+                for doc in converter.to_document(fpath):
+                    yield doc
+            except Exception as e:
+                ename: str = type(e).__name__ 
+                if ename == 'NameError':
+                    logger.exception(e, exc_info=True)
+                if ename not in pbar_fails:
+                    pbar_fails[ename] = tqdm(position=len(pbar_fails), desc=ename)
+                pbar_fails[ename].update(1)
+            else:
+                pbar_succ.update(1)
 
 
 def main(ds_name: str) -> None:
-    dataset: Dataset = dataset_dict[ds_name]
+    # insert bulk
+    dataset: Dataset = Dataset(name=ds_name)
     es_client: EsClient = EsClient(
-        es_index=dataset.es_index,
-        item_cls=IRBase)
-    es_client.bulk_insert(
-        item_generator(
-            files=dataset.list_original_files(),
-            converter=dataset.converter))
+        es_index=ds_name,
+        item_cls=ColDocument)
+    es_client.bulk_insert(dataset.iter_converted_docs())
 
 
 if __name__ == '__main__':

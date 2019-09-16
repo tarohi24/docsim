@@ -6,8 +6,9 @@ from tqdm import tqdm
 from typing import Generator, List, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
-from docsim.elas import mappings as mpgs
-from docsim.elas.mappings import IRBase
+from docsim.elas import models
+from docsim.ir.converters.base import Converter
+from docsim.ir.models import ColDocument, ColParagraph
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
@@ -38,70 +39,109 @@ def find_text_or_default(root: ET.Element,
     return text
 
 
-def get_paragraph_list(root: ET.Element) -> List[str]:
-    desc_root: Optional[ET.Element] = root.find("description[@lang='EN']")
-    if desc_root is None:
-        logger.debug('root is not found')
-        return []
-    ps: List[ET.Element] = [tag for tag in desc_root.findall('p') if tag is not None]
-    if len(ps) > 1:
-        return [d.text for d in ps if d.text is not None]
-    elif len(ps) == 1:
-        try:
-            pre_text: str = get_or_raise_exception(
-                ps[0].find('pre')).text.replace('\\n', '\n')  # noqa
-            splitted = re.split('\n{2,}', pre_text)
-            return splitted
-        except NoneException:
-            li: List[ET.Element] = ps[0].findall('sl/li')
-            return [d.text for d in li if d.text is not None]
-    logger.debug('No condition is matched')
-    return []
-
-
 @dataclass
-class CLEFConverter(mpgs.Converter):
-    pbar_succ = tqdm(position=0, desc='success')
-    pbar_fail_1 = tqdm(position=1, desc='fail to fin description')
-    pbar_fail_2 = tqdm(position=2, desc='fail to retrieve paragraphs')
+class CLEFConverter(Converter):
 
-    def generate_irbase(self,
-                        fpath: Path) -> Generator[IRBase, None, None]:
+    def _get_docid(self,
+                   root: ET.Element) -> str:
+        docid: str = root.attrib['ucid'].replace('-', '')
+        return docid
+
+    def _get_tags(self,
+                  root: ET.Element) -> List[str]:
+        tags_field: str = 'bibliographic-data/technical-data/classifications-ipcr'
+        tags_orig: List[ET.Element] = root.findall(tags_field)
+        tags: List[str] = [t.text.split()[0] for t in tags_orig if t.text is not None]
+        return tags
+
+    def _get_title(self,
+                   root: ET.Element) -> str:
+        title: str = find_text_or_default(
+            root=root,
+            xpath="bibliographic-data/technical-data/invention-title[@lang='EN']",
+            default='')
+        return title
+    
+    def _get_text(self,
+                  root: ET.Element) -> str:
+        desc_root: ET.Element = get_or_raise_exception(
+            root.find("description[@lang='EN']"))
+        desc: str = ' '.join(desc_root.itertext()).replace('\n', ' ')
+        return desc
+
+    def get_paragraph_list(self,
+                           root: ET.Element) -> List[str]:
+        desc_root: Optional[ET.Element] = root.find("description[@lang='EN']")
+        if desc_root is None:
+            logger.debug('root is not found')
+            return []
+        ps: List[ET.Element] = [tag for tag in desc_root.findall('p') if tag is not None]
+        if len(ps) > 1:
+            return [d.text for d in ps if d.text is not None]
+        elif len(ps) == 1:
+            try:
+                pre_text: str = get_or_raise_exception(
+                    ps[0].find('pre')).text.replace('\\n', '\n')  # noqa
+                splitted = re.split('\n{2,}', pre_text)
+                return splitted
+            except NoneException:
+                li: List[ET.Element] = ps[0].findall('sl/li')
+                return [d.text for d in li if d.text is not None]
+        logger.debug('No condition is matched')
+        return []
+
+    def to_document(self,
+                    fpath: Path) -> List[ColParagraph]:
         root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
 
-        # docid
-        try:
-            docid: str = root.attrib['ucid'].replace('-', '')
-        except KeyError:
-            logger.warning('DocID not found')
-
+        docid: str = self._get_docid(root)
+        tags: List[str] = self._get_tags(root)
+        title: str = self._get_title(root)
+        text: str = self._get_text(root)
+        return [ColDocument(docid=models.KeywordField(docid),
+                            title=models.TextField(title),
+                            text=models.TextField(text),
+                            tags=models.KeywordListField(tags))]
+    
+    def to_paragraph(self,
+                     fpath: Path) -> List[ColParagraph]:
         # text
         try:
             paras: List[str] = get_paragraph_list(root)
         except Exception:
             logger.warning('Could not find description field in the original XML.')
             self.pbar_fail_1.update(1)
-            return
-
         if len(paras) == 0:
             logger.warning('No paragraphs found.')
-            self.pbar_fail_2.update(1)
             return
 
-        logger.info('XML successfully parsed')
-        title: str = find_text_or_default(
-            root=root,
-            xpath="bibliographic-data/technical-data/invention-title[@lang='EN']",
-            default='')
-        tags_field: str = 'bibliographic-data/technical-data/classifications-ipcr'
-        tags_orig: List[ET.Element] = root.findall(tags_field)
-        tags: List[str] = [t.text.split()[0] for t in tags_orig if t.text is not None]
+        docid: str = self._get_docid(root)
+        tags: List[str] = self._get_tags(root)
 
-        self.pbar_succ.update(1)
-        for paraid, para in enumerate(paras):
-            yield mpgs.IRBase(
-                docid=mpgs.KeywordField(docid),
-                paraid=mpgs.IntField(paraid),
-                title=mpgs.TextField(title),
-                text=mpgs.TextField(para),
-                tags=mpgs.KeywordListField(tags))
+        return [
+            ColParagraph(docid=models.KeywordField(docid),
+                         paraid=models.IntField(paraid),
+                         text=models.TextField(para),
+                         tags=models.KeywordListField(tags))
+            for paraid, para in enumerate(paras)]
+
+    def to_query_dump(self,
+                      fpath: Path) -> List[QueryDocument]:
+        try:
+            paras: List[str] = get_paragraph_list(root)
+        except Exception:
+            logger.warning('Could not find description field in the original XML.')
+            self.pbar_fail_1.update(1)
+        if len(paras) == 0:
+            logger.warning('No paragraphs found.')
+            return
+
+        docid: str = self._get_docid(root)
+        tags: List[str] = self._get_tags(root)
+        title: str = self._get_title(root)
+
+        return [
+            QueryDocument(docid=docid,
+                          paras=paraid,
+                          title=title,
+                          tags=tags)]

@@ -33,4 +33,3 @@ class KeywordBaseline(Searcher):
             .add_size(size)\
             .add_filter(terms=query, field='tags')\
             .add_source_fields(['docid', ])\
-            

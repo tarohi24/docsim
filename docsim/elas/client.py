@@ -9,7 +9,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 from elasticsearch.helpers import streaming_bulk
 
-from docsim.elas.mappings import EsItem
+from docsim.elas.models import EsItem
 from docsim.settings import es
 
 
@@ -49,6 +49,7 @@ class EsClient:
 
         self.delete_index()
         self.create_index()
+
         for ok, response in streaming_bulk(es,
                                            iter_items(items),
                                            index=self.es_index,

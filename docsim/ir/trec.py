@@ -1,12 +1,9 @@
 from dataclasses import dataclass
-import logging
 from more_itertools import flatten
 from numbers import Real
 from operator import itemgetter
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Optional, Tuple, Type, TypeVar
-
-from docsim.modles import Dataset, Document, DocumentID
+from typing import Dict, Iterable, List, Tuple
 
 
 @dataclass
