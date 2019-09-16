@@ -47,8 +47,8 @@ class EsResult:
             hit.docid: hit.score
             for hit in self.hits}
         return RankItem(query_id=query_id, scores=scores)
-        
-           
+
+
 @dataclass
 class EsSearcher:
     es_index: str
@@ -59,6 +59,10 @@ class EsSearcher:
         res: EsResult = EsResult.from_dict(
             es.search(index=self.es_index, body=self.query))
         return res
+
+    def initialize_query(self) -> 'EsSearcher':
+        self.query['_source'] = ['docid', ]
+        return self
 
     def add_query(self,
                   terms: List[str],

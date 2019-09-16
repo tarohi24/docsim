@@ -17,6 +17,10 @@ class QueryDocument(JsonSchemaMixin):
     paras: List[str]
     tags: List[str]
 
+    @property
+    def text(self) -> str:
+        return ' '.join(self.paras)
+
 
 @dataclass
 class QueryDataset(JsonSchemaMixin):
