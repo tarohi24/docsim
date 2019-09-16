@@ -8,27 +8,27 @@ from typing import Dict, List, Type, TypeVar
 
 from dataclasses_jsonschema import JsonSchemaMixin
 
+from docsim.settings import es
 
-T_JsonSchemaMixin = TypeVar('T_JsonSchemaMixin', bound='JsonSchemaMixin')
+
 T_EsResult = TypeVar('T_EsResult', bound='EsResult')
 
 
 @dataclass
-class EsResultItem(JsonSchemaMixin):
+class EsResultItem:
     elas_id: str
     score: Real
     source: Dict
 
     @classmethod
-    def from_dict(cls: Type[T_JsonSchemaMixin],
-                  data: Dict,
-                  validate: bool = True) -> T_JsonSchemaMixin:
-        new_data: Dict = {
-            'elas_id': data['_id'],
-            'score': data['_score'],
-            'source': data['_source'],
-        }
-        return super(EsResultItem, cls).from_dict(new_data)
+    def from_dict(cls: EsResultItem,
+                  data: Dict) -> EsResultItem:
+        self = EsResultItem(
+            elas_id=data['_id'],
+            score=data['_score'],
+            source=data['_source']
+        )
+        return self
 
 
 @dataclass
