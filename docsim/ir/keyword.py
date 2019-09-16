@@ -6,8 +6,8 @@ from typing import List
 
 from docsim import text
 from docsim.doc_models import Document
-from docsim.ir.base import Searcher
-from docsim.rank import RankItem
+from docsim.elas.search import EsResult, EsSearcher
+from docsim.ir.base import RankItem, Searcher
 from docsim.text import Filter
 
 
