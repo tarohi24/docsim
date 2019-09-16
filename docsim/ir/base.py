@@ -3,24 +3,33 @@ Base class definition
 """
 from dataclasses import dataclass
 import logging
+from numbers import Real
+from operator import itemgetter
+from pathlib import Path
 import traceback
+from typing import Dict, Iterable, List, Tuple
 
-from docsim.doc_models import Docuemnt
-from docsim.rank import RankItem, TRECConverter
+from docsim.dataset import Dataset
+from docsim.doc_models import Docuemnt, DocumentID
 
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
 
 
-def ignore_exception(func: Callable[..., T]) -> Optional[T]:
+def ignore_exception(func: Callable[..., T],
+                     exceptions: Tuple[Type[Exception]]) -> Optional[T]:
+    """
+    Decorator
+    """
     def wrapper(*args, **kwargs):
         try:
             val: T = func(*args, **kwargs)
             return val
-        except Exception as e:
+        except exceptions as e:
             logger.error(e, exc_info=True)
             return
+    return wrapper
 
 
 @dataclass
@@ -29,7 +38,6 @@ class Searcher:
     queries: List[Document]
     runname: str
 
-    @ignore_exception
     def retrieve(self, query: Document) -> RankItem:
         raise NotImplementedError('This is an abstract class.')
 
