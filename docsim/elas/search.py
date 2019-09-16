@@ -44,9 +44,9 @@ class EsResult:
 
 @dataclass
 class EsSearcher:
-    es: EsClient
     es_index: str
     query: Dict = field(default_factory=dict)
+    es: EsClient = es
 
     def search(self) -> EsResult:
         res: EsResult = EsResult.from_dict(es.search(index=index, body=self.query))
