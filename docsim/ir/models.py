@@ -28,11 +28,22 @@ class QueryDataset(JsonSchemaMixin):
         return project_root.joinpath(f'data/query/{name}.json')
 
     @classmethod
-    def load_dump(cls, name: str) -> Path:
+    def load_dump(cls, name: str) -> 'QueryDocument':
         with open(cls._get_dump_path(name=name), 'r') as fin:
             dic: Dict = json.load(fin)
         return cls.from_dict(dic)
 
+    @classmethod
+    def create_dump(cls,
+                    name: str,
+                    converter: Converter,
+                    xml_pathes: Iterable[Path]) -> 'QueryDocument':
+        qlist: List[QueryDocument] = [converter.to_query_dump(fpath)
+                                      for fpath in xml_pathes]
+        dic: Dict = cls(name=name, queries=qlist).to_dict()
+        with open(cls._get_dump_path(name=name), 'w') as fout:
+            json.dump(dic, fout)
+            
 
 @dataclass
 class ColDocument(models.EsItem):
