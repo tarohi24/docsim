@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 import json
 from pathlib import Path
@@ -7,8 +8,7 @@ from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
 
 from docsim.dataset import Dataset
-
-EmbeddedDocumentListType = TypeVar('EmbeddedDocumentListType', bound='EmbeddedDocumentList')
+from docsim.embedding.base import Model, return_matrix
 
 
 @dataclass
@@ -39,8 +39,9 @@ class Document(JsonSchemaMixin):
 @dataclass
 class EmbeddedDocument(Document, JsonSchemaMixin):
     mat: np.ndarray
-    model: str
+    model: Model
 
+    @return_matrix
     def normalize(self) -> np.ndarray:
         norm: float = np.linalg.norm(self.mat, axis=1)
         return (self.mat.T / norm).T
@@ -60,7 +61,7 @@ class EmbeddedDocumentList(JsonSchemaMixin):
     @classmethod
     def load_cache(cls,
                    dataset: Dataset,
-                   doctype: str = 'query') -> EmbeddedDocumentListType:
+                   doctype: str = 'query') -> EmbeddedDocumentList:
         fpath: Path = cls.get_filepath(dataset=dataset, doctype=doctype)
         with open(fpath, 'r') as fin:
             dic: Dict = json.load(fin)
