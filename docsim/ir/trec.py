@@ -23,10 +23,11 @@ class RankItem:
 
 @dataclass
 class TRECConverter:
+    dataset_name: str
     method_name: str
 
     def get_fpath(self) -> Path:
-        return project_root.joinpath(f'results/ir/{self.method_name}.prel')
+        return project_root.joinpath(f'results/ir/{self.dataset_name}/{self.method_name}.prel')
 
     def format_item(self,
                     item: RankItem) -> List[Tuple[str, ...]]:
@@ -40,5 +41,5 @@ class TRECConverter:
                          item: RankItem) -> None:
         records: List[Tuple[str, ...]] = self.format_item(item)
         with open(self.get_fpath(), 'a') as fout:
-            fout.write('\n'.join(['\t'.join(rec) for rec in records]))
+            fout.write('\n'.join([' '.join(rec) for rec in records]))
             fout.write('\n')

@@ -44,7 +44,7 @@ def main(ds_name: str,
     param: Param = param_cls.from_dict(param_dict)
     trec_converter: TRECConverter = TRECConverter(
         method_name=searcher_cls.method_name(),
-        is_ground_truth=False)
+        dataset_name=query_dataset.name)
 
     # initialize fpath
     trec_converter.get_fpath().unlink()
