@@ -4,34 +4,79 @@
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
-!_TAG_PROGRAM_VERSION	0.0.0	/8ee649f/
-Filter	docsim/text.py	/^class Filter:$/;"	c
-LowerFilter	docsim/text.py	/^class LowerFilter(Filter):$/;"	c
-RegexRemover	docsim/text.py	/^class RegexRemover(Filter):$/;"	c
-StopWordRemover	docsim/text.py	/^class StopWordRemover(Filter):$/;"	c
-T	docsim/utils.py	/^T = TypeVar('T')$/;"	v
-TFFilter	docsim/text.py	/^class TFFilter(Filter):$/;"	c
-TestDocsim	tests/test_docsim.py	/^class TestDocsim(unittest.TestCase):$/;"	c
-TextProcessor	docsim/text.py	/^class TextProcessor:$/;"	c
-__author__	docsim/__init__.py	/^__author__ = """Wataru Hirota"""$/;"	v
-__call__	docsim/text.py	/^    def __call__(self, tokens: List[str]) -> List[str]:$/;"	m	class:Filter
-__email__	docsim/__init__.py	/^__email__ = 'w-hirota@ist.osaka-u.ac.jp'$/;"	v
-__version__	docsim/__init__.py	/^__version__ = '0.1.0'$/;"	v
-apply	docsim/text.py	/^    def apply(self) -> List[str]:$/;"	m	class:TextProcessor
-apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:Filter
-apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:LowerFilter
-apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:RegexRemover
-apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:StopWordRemover
-apply	docsim/text.py	/^    def apply(self, tokens: List[str]) -> List[str]:$/;"	m	class:TFFilter
-apply_filter	docsim/text.py	/^        def apply_filter(tokens: List[str],$/;"	f	member:TextProcessor.apply	file:
-es	docsim/settings.py	/^es: Elasticsearch = Elasticsearch(os.environ['ES_URL'])$/;"	v
-filters	docsim/text.py	/^    filters: List[Filter] = [LowerFilter(), StopWordRemover(), RegexRemover()]$/;"	v	class:TextProcessor
-ignore_exception	docsim/utils.py	/^def ignore_exception(func: Callable[..., T],$/;"	f
-logger	docsim/utils.py	/^logger = logging.getLogger(__file__)$/;"	v
-project_root	docsim/settings.py	/^project_root: Path = Path(os.environ['PROJECT_ROOT'])$/;"	v
-regex	docsim/text.py	/^    regex: Pattern = re.compile('[!@#$]')$/;"	v	class:RegexRemover
-setUp	tests/test_docsim.py	/^    def setUp(self):$/;"	m	class:TestDocsim
-stop_words	docsim/text.py	/^    stop_words: Set[str] = set(stopwords.words('english'))$/;"	v	class:StopWordRemover
-tearDown	tests/test_docsim.py	/^    def tearDown(self):$/;"	m	class:TestDocsim
-test_000_something	tests/test_docsim.py	/^    def test_000_something(self):$/;"	m	class:TestDocsim
-wrapper	docsim/utils.py	/^    def wrapper(*args, **kwargs):$/;"	f	function:ignore_exception	file:
+!_TAG_PROGRAM_VERSION	0.0.0	/126781c/
+ColDocument	docsim/ir/models.py	/^class ColDocument(models.EsItem):$/;"	c
+ColParagraph	docsim/ir/models.py	/^class ColParagraph(models.EsItem):$/;"	c
+EsClient	docsim/elas/client.py	/^class EsClient:$/;"	c
+EsItem	docsim/elas/models.py	/^class EsItem:$/;"	c
+EsResult	docsim/elas/search.py	/^class EsResult:$/;"	c
+EsResultItem	docsim/elas/search.py	/^class EsResultItem:$/;"	c
+EsSearcher	docsim/elas/search.py	/^class EsSearcher:$/;"	c
+Fasttext	docsim/embedding/fasttext.py	/^class Fasttext(Model):$/;"	c
+FasttextVectorField	docsim/elas/models.py	/^class FasttextVectorField(Field):$/;"	c
+Field	docsim/elas/models.py	/^class Field:$/;"	c
+IndexCreateError	docsim/elas/client.py	/^class IndexCreateError(Exception):$/;"	c
+IntField	docsim/elas/models.py	/^class IntField(Field):$/;"	c
+KeywordField	docsim/elas/models.py	/^class KeywordField(Field):$/;"	c
+KeywordListField	docsim/elas/models.py	/^class KeywordListField(Field):$/;"	c
+Model	docsim/embedding/base.py	/^class Model:$/;"	c
+QueryDataset	docsim/ir/models.py	/^class QueryDataset(JsonSchemaMixin):$/;"	c
+QueryDocument	docsim/ir/models.py	/^class QueryDocument(JsonSchemaMixin):$/;"	c
+RankItem	docsim/ir/trec.py	/^class RankItem:$/;"	c
+TRECConverter	docsim/ir/trec.py	/^class TRECConverter:$/;"	c
+T_EsResult	docsim/elas/search.py	/^T_EsResult = TypeVar('T_EsResult', bound='EsResult')$/;"	v
+TextField	docsim/elas/models.py	/^class TextField(Field):$/;"	c
+_get_dump_path	docsim/ir/models.py	/^    def _get_dump_path(cls, name: str) -> Path:$/;"	m	class:QueryDataset
+add_filter	docsim/elas/search.py	/^    def add_filter(self,$/;"	m	class:EsSearcher
+add_query	docsim/elas/search.py	/^    def add_query(self,$/;"	m	class:EsSearcher
+add_size	docsim/elas/search.py	/^    def add_size(self,$/;"	m	class:EsSearcher
+add_source_fields	docsim/elas/search.py	/^    def add_source_fields(self,$/;"	m	class:EsSearcher
+bulk_insert	docsim/elas/client.py	/^    def bulk_insert(self,$/;"	m	class:EsClient
+create_index	docsim/elas/client.py	/^    def create_index(self) -> None:$/;"	m	class:EsClient
+delete_index	docsim/elas/client.py	/^    def delete_index(self) -> None:$/;"	m	class:EsClient
+dump	docsim/ir/trec.py	/^    def dump(self,$/;"	m	class:TRECConverter
+embed_paragraph	docsim/embedding/base.py	/^    def embed_paragraph(cls, para: str) -> np.ndarray:$/;"	m	class:Model
+es	docsim/elas/client.py	/^    es: Elasticsearch = es$/;"	v	class:EsClient
+es	docsim/elas/search.py	/^    es: EsClient = es$/;"	v	class:EsSearcher
+format	docsim/ir/trec.py	/^    def format(self,$/;"	m	class:TRECConverter
+from_dict	docsim/elas/search.py	/^    def from_dict(cls,$/;"	m	class:EsResult
+from_dict	docsim/elas/search.py	/^    def from_dict(cls,$/;"	m	class:EsResultItem
+get_fpath	docsim/ir/trec.py	/^    def get_fpath(self) -> Path:$/;"	m	class:TRECConverter
+get_ranks	docsim/ir/trec.py	/^    def get_ranks(self) -> List[str]:$/;"	m	class:RankItem
+get_result_dir	docsim/ir/models.py	/^    def get_result_dir(self) -> Path:$/;"	m	class:QueryDataset
+initialize_query	docsim/elas/search.py	/^    def initialize_query(self) -> 'EsSearcher':$/;"	m	class:EsSearcher
+is_ground_truth	docsim/ir/trec.py	/^    is_ground_truth: bool = False$/;"	v	class:TRECConverter
+iter_items	docsim/elas/client.py	/^        def iter_items(items: Iterable[EsItem]) -> Iterable[Dict]:$/;"	f	member:EsClient.bulk_insert	file:
+load_dump	docsim/ir/models.py	/^    def load_dump(cls, name: str) -> 'QueryDocument':$/;"	m	class:QueryDataset
+logger	docsim/elas/client.py	/^logger = logging.getLogger(__file__)$/;"	v
+logger	docsim/elas/search.py	/^logger = logging.getLogger(__file__)$/;"	v
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:EsItem
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:FasttextVectorField
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:Field
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:IntField
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:KeywordField
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:KeywordListField
+mapping	docsim/elas/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:TextField
+mapping	docsim/ir/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:ColDocument
+mapping	docsim/ir/models.py	/^    def mapping(cls) -> Dict:$/;"	m	class:ColParagraph
+model	docsim/embedding/fasttext.py	/^    model = fasttext.load_model($/;"	v	class:Fasttext
+np	docsim/elas/models.py	/^import numpy as np$/;"	I
+np	docsim/embedding/base.py	/^import numpy as np$/;"	I
+query	docsim/elas/search.py	/^    query: Dict = field(default_factory=dict)$/;"	v	class:EsSearcher
+return_matrix	docsim/embedding/base.py	/^def return_matrix(func: Callable[..., np.ndarray]):$/;"	f
+return_vector	docsim/embedding/base.py	/^def return_vector(func: Callable[..., np.ndarray]):$/;"	f
+search	docsim/elas/search.py	/^    def search(self) -> EsResult:$/;"	m	class:EsSearcher
+text	docsim/ir/models.py	/^    def text(self) -> str:$/;"	m	class:QueryDocument
+to_dict	docsim/elas/models.py	/^    def to_dict(self) -> Dict:$/;"	m	class:EsItem
+to_dict	docsim/ir/models.py	/^    def to_dict(self) -> Dict:$/;"	m	class:ColDocument
+to_dict	docsim/ir/models.py	/^    def to_dict(self) -> Dict:$/;"	m	class:ColParagraph
+to_elas_value	docsim/elas/models.py	/^    def to_elas_value(self) -> Any:$/;"	m	class:Field
+to_elas_value	docsim/elas/models.py	/^    def to_elas_value(self) -> List[float]:$/;"	m	class:FasttextVectorField
+to_elas_value	docsim/elas/models.py	/^    def to_elas_value(self) -> List[str]:$/;"	m	class:KeywordListField
+to_elas_value	docsim/elas/models.py	/^    def to_elas_value(self) -> int:$/;"	m	class:IntField
+to_elas_value	docsim/elas/models.py	/^    def to_elas_value(self) -> str:$/;"	m	class:KeywordField
+to_elas_value	docsim/elas/models.py	/^    def to_elas_value(self) -> str:$/;"	m	class:TextField
+to_rank_item	docsim/elas/search.py	/^    def to_rank_item(self,$/;"	m	class:EsResult
+value	docsim/elas/models.py	/^    def value(self) -> Any:$/;"	m	class:Field
+wrapper	docsim/embedding/base.py	/^    def wrapper(*args, **kwargs) -> np.ndarray:$/;"	f	function:return_matrix	file:
+wrapper	docsim/embedding/base.py	/^    def wrapper(*args, **kwargs) -> np.ndarray:$/;"	f	function:return_vector	file:

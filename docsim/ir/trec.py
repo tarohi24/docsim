@@ -5,7 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple
 
-from docsim.ir.models import QueryDataset
+from docsim.settings import project_root
 
 
 @dataclass
@@ -24,13 +24,12 @@ class RankItem:
 
 @dataclass
 class TRECConverter:
-    query_dataset: QueryDataset
-    runname: str
+    method_name: str
     is_ground_truth: bool = False
 
     def get_fpath(self) -> Path:
         ext: str = 'qrel' if self.is_ground_truth else 'prel'
-        return self.dataset.get_result_dir().joinpath(f'{self.runname}.{ext}')
+        return project_root.joinpath(f'result/ir/{self.method_name}.{ext}')
 
     def format(self,
                items: Iterable[RankItem]) -> List[Tuple[str, ...]]:
@@ -40,7 +39,7 @@ class TRECConverter:
         return list(
             flatten([
                 [
-                    (str(item.query_id), docid, str(score), self.runname)
+                    (str(item.query_id), docid, str(score), self.method_name)
                     for docid, score
                     in sorted(item.scores.items(), key=itemgetter(1), reverse=True)
                 ]

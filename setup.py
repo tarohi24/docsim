@@ -5,12 +5,6 @@
 
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
-
-with open('HISTORY.rst') as history_file:
-    history = history_file.read()
-
 requirements = [ ]
 
 setup_requirements = [ ]
@@ -30,7 +24,6 @@ setup(
     description="The tool for estimating document similarity",
     install_requires=requirements,
     license="MIT license",
-    long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='docsim',
     name='docsim',

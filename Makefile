@@ -88,6 +88,6 @@ install: clean ## install the package to the active Python's site-packages
 	python setup.py install
 
 tags: FORCE  ## make tags
-	ctags **/*.py
+	ctags docsim/**/*.py
 
 FORCE:

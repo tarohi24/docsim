@@ -108,3 +108,6 @@ data/*
 # models
 models/*
 !models/.gitkeep
+
+results/*
+!results/.gitkeep

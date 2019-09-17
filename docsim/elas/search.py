@@ -1,7 +1,7 @@
 """
 Module for elasticsaerch
 """
-from __future__ import annotations
+from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 import logging
 from numbers import Real
@@ -45,7 +45,7 @@ class EsResult:
 
     def to_rank_item(self,
                      query_id: str) -> RankItem:
-        scores: Dict[str, float] = {
+        scores: Dict[str, Real] = {
             hit.docid: hit.score
             for hit in self.hits}
         return RankItem(query_id=query_id, scores=scores)

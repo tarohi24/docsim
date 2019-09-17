@@ -83,8 +83,7 @@ class CLEFConverter(Converter):
             return [d.text for d in ps if d.text is not None]
         elif len(ps) == 1:
             try:
-                pre_text: str = get_or_raise_exception(
-                    ps[0].find('pre')).text.replace('\\n', '\n')  # noqa
+                pre_text: str = get_or_raise_exception(ps[0].find('pre')).text.replace('\\n', '\n')  # noqa
                 splitted = re.split('\n{2,}', pre_text)
                 return splitted
             except NoneException:
@@ -116,7 +115,7 @@ class CLEFConverter(Converter):
             logger.warning('Could not find description field in the original XML.')
         if len(paras) == 0:
             logger.warning('No paragraphs found.')
-            return
+            return []
 
         docid: str = self._get_docid(root)
         tags: List[str] = self._get_tags(root)
