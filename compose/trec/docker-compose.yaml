@@ -1,0 +1,7 @@
+version: '2.4'
+services:
+  trec:
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    container_name: "trec_hirota"
