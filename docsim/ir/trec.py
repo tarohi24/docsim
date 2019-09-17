@@ -32,9 +32,9 @@ class TRECConverter:
     def format_item(self,
                     item: RankItem) -> List[Tuple[str, ...]]:
         return [
-            (str(item.query_id), docid, str(score), self.method_name)
-            for docid, score
-            in sorted(item.scores.items(), key=itemgetter(1), reverse=True)
+            (str(item.query_id), 'Q0', docid, str(rank + 1), str(int(score)), self.method_name)
+            for rank, (docid, score)
+            in enumerate(sorted(item.scores.items(), key=itemgetter(1), reverse=True))
         ]
 
     def incremental_dump(self,
