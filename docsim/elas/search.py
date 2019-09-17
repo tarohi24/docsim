@@ -58,7 +58,6 @@ class EsSearcher:
     es: EsClient = es
 
     def search(self) -> EsResult:
-        logger.error(self.query)
         res: EsResult = EsResult.from_dict(
             es.search(index=self.es_index, body=self.query))
         return res
