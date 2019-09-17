@@ -1,17 +1,19 @@
 """
 Standalone script for IR Experiment
 """
+import sys
 from typing import Dict, Type
 
 # methods
 from docsim.ir.methods.keyword import KeywordBaseline
 
-from docsim.ir.methods.base import Searcher
+from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDataset
 
 
-searcher_classes: Dict[str, Type[Searcher]] = {
-    'keyword': KeywordBaseline,
+
+searcher_classes: Dict[str, Tuple[Type[Param], Type[Searcher]] = {
+    'keyword': (KeywordBaselineParam, KeywordBaseline),
 }
 
 def main(ds_name: str, runname: str) -> None:
@@ -20,3 +22,7 @@ def main(ds_name: str, runname: str) -> None:
     searcher: Searcher = searcher_cls(query_dataset=query_dataset,
                                       runname=runname)
     searcher.run()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2])

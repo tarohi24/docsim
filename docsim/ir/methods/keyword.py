@@ -4,18 +4,25 @@ Keyword search
 from dataclasses import dataclass
 from typing import List
 
+from dataclasses_jsonschema import JsonSchemaMixin
+
 from docsim import text
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.ir.methods.base import Searcher
+from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDocument
 from docsim.ir.trec import RankItem
 from docsim.text import Filter
 
 
 @dataclass
-class KeywordBaseline(Searcher):
+class KeywordBaselineParam(Param, JsonSchemaMixin):
     n_words: int
     es_index: str
+
+
+@dataclass
+class KeywordBaseline(Searcher, JsonSchemaMixin):
+    param: KeywordBaselineParam
 
     def retrieve(self,
                  query_doc: QueryDocument,

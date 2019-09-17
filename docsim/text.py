@@ -47,6 +47,7 @@ class TFFilter(Filter):
     def apply(self, tokens: List[str]) -> List[str]:
         return [token for token, _ in Counter(tokens).most_common(self.n_words)]
 
+
 @dataclass
 class TextProcessor:
     text: str
