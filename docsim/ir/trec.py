@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import math
 from numbers import Real
 from operator import itemgetter
 from pathlib import Path
@@ -32,7 +33,7 @@ class TRECConverter:
     def format_item(self,
                     item: RankItem) -> List[Tuple[str, ...]]:
         return [
-            (str(item.query_id), 'Q0', docid, str(rank + 1), str(int(score)), self.method_name)
+            (str(item.query_id), 'Q0', docid, str(rank + 1), str(math.floor(score)), self.method_name)
             for rank, (docid, score)
             in enumerate(sorted(item.scores.items(), key=itemgetter(1), reverse=True))
         ]
