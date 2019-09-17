@@ -54,6 +54,7 @@ def main(ds_name: str,
 
     # execute
     searcher.run()
+    trec_converter.get_fpath().chmod('-w')
 
 
 if __name__ == '__main__':
