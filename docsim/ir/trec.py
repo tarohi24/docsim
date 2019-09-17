@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from more_itertools import flatten
 from numbers import Real
 from operator import itemgetter
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, List, Tuple
 
 from docsim.settings import project_root
 
@@ -29,31 +28,20 @@ class TRECConverter:
 
     def get_fpath(self) -> Path:
         ext: str = 'qrel' if self.is_ground_truth else 'prel'
-        return project_root.joinpath(f'result/ir/{self.method_name}.{ext}')
+        return project_root.joinpath(f'results/ir/{self.method_name}.{ext}')
 
-    def format(self,
-               items: Iterable[RankItem]) -> List[Tuple[str, ...]]:
-        """
-        Convert items to TREC-eval input format
-        """
-        return list(
-            flatten([
-                [
-                    (str(item.query_id), docid, str(score), self.method_name)
-                    for docid, score
-                    in sorted(item.scores.items(), key=itemgetter(1), reverse=True)
-                ]
-                for item in items
-            ])
-        )
+    def format_item(self,
+                    item: RankItem) -> List[Tuple[str, ...]]:
 
-    def dump(self,
-             items: Iterable[RankItem],
-             ignore_existence: bool = False) -> None:
-        records: List[Tuple[str, ...]] = self.format(items)
-        fpath: Path = self.get_fpath()
-        if not ignore_existence:
-            if fpath.exists():
-                raise AssertionError(f'File exists. {fpath}')
-        with open(self.get_fpath(), 'w') as fout:
+        return [
+            (str(item.query_id), docid, str(score), self.method_name)
+            for docid, score
+            in sorted(item.scores.items(), key=itemgetter(1), reverse=True)
+        ]
+
+    def incremental_dump(self,
+                         item: RankItem) -> None:
+        records: List[Tuple[str, ...]] = self.format_item(item)
+        with open(self.get_fpath(), 'a') as fout:
             fout.write('\n'.join(['\t'.join(rec) for rec in records]))
+            fout.write('\n')

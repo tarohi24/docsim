@@ -25,7 +25,6 @@ class KeywordBaseline(Searcher, JsonSchemaMixin):
     param: KeywordBaselineParam
 
     @classmethod
-    @property
     def method_name(cls) -> str:
         return 'keyword'
 

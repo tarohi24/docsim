@@ -15,9 +15,9 @@ class Param:
 class Searcher:
     query_dataset: QueryDataset
     param: Param
+    trec_converter: TRECConverter
 
     @classmethod
-    @property
     def method_name(cls) -> str:
         raise NotImplementedError('This is an abstract class.')
 
@@ -31,10 +31,7 @@ class Searcher:
             items.append(res)
 
             # dump result
-            self.dump_trec(items)
+            self.dump_trec(res)
 
-    def dump_trec(self, items: List[RankItem]) -> None:
-        trec: TRECConverter = TRECConverter(
-            query_dataset=self.query_dataset,
-            is_ground_truth=False)
-        trec.dump()
+    def dump_trec(self, item: RankItem) -> None:
+        self.trec_converter.incremental_dump(item)

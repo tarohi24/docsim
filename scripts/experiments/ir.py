@@ -11,6 +11,7 @@ from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
 
 from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDataset
+from docsim.ir.trec import TRECConverter
 from docsim.settings import project_root
 
 
@@ -36,12 +37,22 @@ def main(ds_name: str,
          param_file: Path) -> None:
     query_dataset: QueryDataset = QueryDataset.load_dump(name=ds_name)
     searcher_cls, param_cls = searcher_classes[runname]
+
     # load param
     with open(project_root.joinpath(param_file), 'r') as fin:
         param_dict: Dict = json.load(fin)
     param: Param = param_cls.from_dict(param_dict)
+    trec_converter: TRECConverter = TRECConverter(
+        method_name=searcher_cls.method_name(),
+        is_ground_truth=False)
+
+    # initialize fpath
+    trec_converter.get_fpath().unlink()
     searcher: Searcher = searcher_cls(query_dataset=query_dataset,
-                                      param=param)
+                                      param=param,
+                                      trec_converter=trec_converter)
+
+    # execute
     searcher.run()
 
 
