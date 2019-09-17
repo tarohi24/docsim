@@ -26,17 +26,16 @@ class KeywordBaseline(Searcher, JsonSchemaMixin):
 
     def retrieve(self,
                  query_doc: QueryDocument,
-                 size: int) -> RankItem:
+                 size: int = 100) -> RankItem:
         filters: List[Filter] = [
             text.LowerFilter(),
             text.StopWordRemover(),
             text.RegexRemover(),
-            text.TFFilter(n_words=self.n_words)]
-        q_words: List[str] = text.TextProcessor(
-            text=query_doc.text,
-            filters=filters)
+            text.TFFilter(n_words=self.param.n_words)]
+        q_words: List[str] = text.TextProcessor(filters=filters)\
+            .apply(query_doc.text)
         # search elasticsearch
-        searcher: EsSearcher = EsSearcher(es_index=self.es_index)
+        searcher: EsSearcher = EsSearcher(es_index=self.param.es_index)
         res: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=q_words, field='text')\

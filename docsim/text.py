@@ -22,6 +22,7 @@ class LowerFilter(Filter):
         return [w.lower() for w in tokens]
 
 
+@dataclass
 class StopWordRemover(Filter):
     stop_words: Set[str] = field(default_factory=lambda: set(stopwords.words('english')))
 
@@ -50,10 +51,9 @@ class TFFilter(Filter):
 
 @dataclass
 class TextProcessor:
-    text: str
-    filters: List[Filter] = field(default_factory=lambda: [LowerFilter(), StopWordRemover(), RegexRemover()])
+    filters: List[Filter]
 
-    def apply(self) -> List[str]:
+    def apply(self, text: str) -> List[str]:
 
         def apply_filter(tokens: List[str],
                          filters: List[Filter]) -> List[str]:
@@ -64,5 +64,5 @@ class TextProcessor:
                 head_applied: List[str] = head.apply(tokens)
                 return apply_filter(head_applied, tail)
 
-        tokenized: List[str] = word_tokenize(self.text)
+        tokenized: List[str] = word_tokenize(text)
         return apply_filter(tokenized, self.filters)

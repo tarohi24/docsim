@@ -12,6 +12,10 @@ class Field:
     def to_elas_value(self) -> Any:
         raise NotImplementedError('This is an abstract class.')
 
+    @property
+    def value(self) -> Any:
+        return self.to_elas_value()
+
 
 class EsItem:
     """

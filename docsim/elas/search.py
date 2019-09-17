@@ -3,6 +3,7 @@ Module for elasticsaerch
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
+import logging
 from numbers import Real
 from typing import Dict, List, TypeVar
 
@@ -12,6 +13,7 @@ from docsim.settings import es
 
 
 T_EsResult = TypeVar('T_EsResult', bound='EsResult')
+logger = logging.getLogger(__file__)
 
 
 @dataclass
@@ -24,7 +26,7 @@ class EsResultItem:
     def from_dict(cls,
                   data: Dict) -> 'EsResultItem':
         self = EsResultItem(
-            elas_id=data['docid'],
+            docid=data['_source']['docid'],
             score=data['_score'],
             source=data['_source']
         )
@@ -56,6 +58,7 @@ class EsSearcher:
     es: EsClient = es
 
     def search(self) -> EsResult:
+        logger.error(self.query)
         res: EsResult = EsResult.from_dict(
             es.search(index=self.es_index, body=self.query))
         return res
@@ -71,14 +74,12 @@ class EsSearcher:
         """
         modify self.query
         """
-        self['query'] = {
-            'query': {
-                'bool': {
-                    condition: [
-                        {'match': {field: t}}
-                        for t in terms
-                    ]
-                }
+        self.query['query'] = {
+            'bool': {
+                condition: [
+                    {'match': {field: t}}
+                    for t in terms
+                ]
             }
         }
         return self
@@ -106,14 +107,5 @@ class EsSearcher:
         """
         modify self.query
         """
-        self['filter'] = {
-            'query': {
-                'bool': {
-                    condition: [
-                        {'match': {field: t}}
-                        for t in terms
-                    ]
-                }
-            }
-        }
+        self.query['query']['bool']['filter'] = [{'match': {field: t}} for t in terms]
         return self
