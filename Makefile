@@ -2,8 +2,7 @@
 .DEFAULT_GOAL := help
 
 define BROWSER_PYSCRIPT
-import os, webbrowser, sys
-
+import os, webbrowser, sys 
 try:
 	from urllib import pathname2url
 except:
