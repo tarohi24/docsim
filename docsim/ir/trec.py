@@ -24,15 +24,12 @@ class RankItem:
 @dataclass
 class TRECConverter:
     method_name: str
-    is_ground_truth: bool = False
 
     def get_fpath(self) -> Path:
-        ext: str = 'qrel' if self.is_ground_truth else 'prel'
-        return project_root.joinpath(f'results/ir/{self.method_name}.{ext}')
+        return project_root.joinpath(f'results/ir/{self.method_name}.prel')
 
     def format_item(self,
                     item: RankItem) -> List[Tuple[str, ...]]:
-
         return [
             (str(item.query_id), docid, str(score), self.method_name)
             for docid, score

@@ -104,15 +104,13 @@ ENV/
 # data
 data/*
 !data/.gitkeep
-!data/clef/convert.py
-!data/clef/name_mapping.json
-!data/clef/en.qrel
-
+#
 # models
 models/*
 !models/.gitkeep
 
 results/*
 !results/.gitkeep
+!results/ir/clef.qrel
 
 tags
