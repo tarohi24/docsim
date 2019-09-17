@@ -111,3 +111,5 @@ models/*
 
 results/*
 !results/.gitkeep
+
+tags

@@ -1,9 +1,9 @@
-from collections import defaultdict
 from dataclasses import dataclass
 import logging
+import json
 from pathlib import Path
 import sys
-from typing import Generator, Iterable, Type
+from typing import Dict, Generator, Iterable, List, Type
 
 from tqdm import tqdm
 
@@ -20,14 +20,14 @@ logger = logging.getLogger(__file__)
 @dataclass
 class Dataset:
     name: str
-    
+
     @property
     def converter(self) -> Converter:
         cls: Type[Converter] = {
             'clef': CLEFConverter
         }[self.name]
         return cls()
-    
+
     def iter_orig_files(self) -> Generator[Path, None, None]:
         return project_root.joinpath(f'data/{self.name}/orig/collection').glob('**/*.xml')
 
@@ -35,15 +35,15 @@ class Dataset:
         return project_root.joinpath(f'data/{self.name}/orig/query').glob('**/*.xml')
 
     def iter_converted_docs(self) -> Generator[ColParagraph, None, None]:
-        pbar_succ = tqdm(position=0)
-        pbar_fails = dict()
+        pbar_succ: tqdm = tqdm(position=0)
+        pbar_fails: Dict[str, tqdm] = dict()
         converter: Converter = self.converter
         for fpath in self.iter_orig_files():
             try:
                 for doc in converter.to_document(fpath):
                     yield doc
             except Exception as e:
-                ename: str = type(e).__name__ 
+                ename: str = type(e).__name__
                 if ename == 'NameError':
                     logger.exception(e, exc_info=True)
                 if ename not in pbar_fails:
@@ -69,10 +69,10 @@ def main(ds_name: str,
             [dataset.converter.to_query_dump(fpath) for fpath in dataset.iter_query_files()],
             []
         )
-        dic: Dict = QueryDataset(name=name, queries=qlist).to_dict()
-        with open(cls._get_dump_path(name=name), 'w') as fout:
+        dic: Dict = QueryDataset(name=ds_name, queries=qlist).to_dict()
+        with open(project_root.joinpath(f'data/{ds_name}/query/dump.json'), 'w') as fout:
             json.dump(dic, fout)
-        
+
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2:])
