@@ -92,7 +92,7 @@ class CLEFConverter(Converter):
         raise CannotSplitText('No condition is matched')
 
     def to_document(self,
-                    fpath: Path) -> List[ColParagraph]:
+                    fpath: Path) -> List[ColDocument]:
         root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
 
         docid: str = self._get_docid(root)

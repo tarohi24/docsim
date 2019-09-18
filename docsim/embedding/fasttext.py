@@ -9,7 +9,7 @@ from docsim.settings import project_root
 
 @dataclass
 class FastText(Model):
-    model: fasttext._FastText
+    model: fasttext.FastText._FastText
 
     @classmethod
     def create(cls) -> 'FastText':

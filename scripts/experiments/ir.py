@@ -8,6 +8,7 @@ from typing import Dict, Type, Tuple
 
 # methods
 from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
+from docsim.ir.methods.paa import PAA, PAAParam
 
 from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDataset
@@ -29,6 +30,7 @@ parser.add_argument('param_file',
 
 searcher_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
     'keyword': (KeywordBaseline, KeywordBaselineParam),
+    'paa': (PAA, PAAParam),
 }
 
 
@@ -47,7 +49,10 @@ def main(ds_name: str,
         dataset_name=query_dataset.name)
 
     # initialize fpath
-    trec_converter.get_fpath().unlink()
+    try:
+        trec_converter.get_fpath().unlink()
+    except FileNotFoundError:
+        pass
     searcher: Searcher = searcher_cls(query_dataset=query_dataset,
                                       param=param,
                                       trec_converter=trec_converter)
