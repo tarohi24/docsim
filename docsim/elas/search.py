@@ -96,7 +96,7 @@ class EsSearcher:
         """
         modify self._source
         """
-        self.query['_source'] = source_fields
+        self.query['_source'].extend(source_fields)
         return self
 
     def add_filter(self,

@@ -50,7 +50,7 @@ class PAA(Searcher):
         A_ort, _ = np.linalg.qr(A)
         B_ort, _ = np.linalg.qr(B)
         _, s, _ = np.linalg.svd(np.dot(A_ort.T, B_ort), full_matrices=True)
-        return s
+        return s[0]
 
     def retrieve(self,
                  query_doc: QueryDocument,
