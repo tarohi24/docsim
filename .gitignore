@@ -114,3 +114,5 @@ results/*
 !results/ir/clef.qrel
 
 tags
+
+*.sqlite3?

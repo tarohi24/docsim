@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
@@ -19,7 +20,9 @@ def return_matrix(func: Callable[..., np.ndarray]):
     return wrapper
 
 
+@dataclass
 class Model:
+    dim: int
 
     @return_vector
     def embed_paragraph(cls, para: str) -> np.ndarray:
