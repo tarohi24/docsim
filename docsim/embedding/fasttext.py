@@ -13,11 +13,5 @@ class Fasttext(Model):
         str(project_root.joinpath('models/fasttext/wiki.en.bin').resolve()))
 
     @return_vector
-    def embed_paragraph(self, para: str) -> np.ndarray:
-        return self.model.get_sentence_vector(para)
-
-    @classmethod
-    @return_vector
-    def load_collection_dump(cls,
-                             docid: str) -> np.ndarray:
-        pass
+    def embed(self, word: str) -> np.ndarray:
+        return model.get_word_vector(word)

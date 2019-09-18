@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Tuple
+from typing import List[Tuple]
 
 import faiss
 import numpy as np
@@ -13,6 +13,8 @@ from docsim.settings import project_root
 class Faiss:
     name: str
     index: faiss.Index
+    docid_to_indices: Dict[str, List[int]] = field(default_factory=dict)
+    counter: int = 0
 
     def dump_path(self) -> Path:
         return self.__class__.dump_path_from_name(self.name)
@@ -34,7 +36,12 @@ class Faiss:
         return cls(name=name, index=faiss.IndexFlatL2(dim))
 
     def add(self,
+            docid: str,
             matrix: np.ndarray) -> 'Faiss':
+        doclen: int = matrix.shape[0]
+        docid_to_indices[docid] = list(range(self.counter,
+                                             self.counter + doclen))
+        self.counter += doclen
         self.index.add(matrix)
         return self
 
