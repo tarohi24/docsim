@@ -21,7 +21,7 @@ class KeywordBaselineParam(Param, JsonSchemaMixin):
 
 
 @dataclass
-class KeywordBaseline(Searcher, JsonSchemaMixin):
+class KeywordBaseline(Searcher):
     param: KeywordBaselineParam
 
     @classmethod

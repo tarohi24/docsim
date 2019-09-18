@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List[Tuple]
+from typing import Dict, List, Tuple
 
 import faiss
 import numpy as np
@@ -39,8 +39,8 @@ class Faiss:
             docid: str,
             matrix: np.ndarray) -> 'Faiss':
         doclen: int = matrix.shape[0]
-        docid_to_indices[docid] = list(range(self.counter,
-                                             self.counter + doclen))
+        self.docid_to_indices[docid] = list(range(self.counter,
+                                                  self.counter + doclen))
         self.counter += doclen
         self.index.add(matrix)
         return self

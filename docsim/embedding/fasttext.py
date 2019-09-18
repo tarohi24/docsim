@@ -8,10 +8,15 @@ from docsim.settings import project_root
 
 
 @dataclass
-class Fasttext(Model):
-    model = fasttext.load_model(
-        str(project_root.joinpath('models/fasttext/wiki.en.bin').resolve()))
+class FastText(Model):
+    model: fasttext._FastText
+
+    @classmethod
+    def create(cls) -> 'FastText':
+        model = fasttext.load_model(
+            str(project_root.joinpath('models/fasttext/wiki.en.bin').resolve()))
+        return cls(model=model)
 
     @return_vector
     def embed(self, word: str) -> np.ndarray:
-        return model.get_word_vector(word)
+        return self.model.get_word_vector(word)
