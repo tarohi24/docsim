@@ -53,10 +53,10 @@ class CLEFConverter(Converter):
 
     def _get_tags(self,
                   root: ET.Element) -> List[str]:
-        tags_field: str = 'bibliographic-data/technical-data/classifications-ipcr'
+        tags_field: str = 'bibliographic-data/technical-data/classifications-ipcr/classification-ipcr'
         tags_orig: List[ET.Element] = root.findall(tags_field)
         tags: List[str] = [t.text.split()[0] for t in tags_orig if t.text is not None]
-        return tags
+        return list(set(tags))
 
     def _get_title(self,
                    root: ET.Element) -> str:
@@ -77,7 +77,6 @@ class CLEFConverter(Converter):
                            root: ET.Element) -> List[str]:
         desc_root: Optional[ET.Element] = root.find("description")
         if desc_root is None:
-            print([el for el in root])
             raise CannotSplitText('root is not found')
         ps: List[ET.Element] = [tag for tag in desc_root.findall('p') if tag is not None]
         if len(ps) > 1:
