@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import logging
 from pathlib import Path
 import re
+import sys
 from typing import List, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
@@ -147,3 +148,9 @@ class CLEFConverter(Converter):
             QueryDocument(docid=docid,
                           paras=paras,
                           tags=tags)]
+
+
+if __name__ == '__main__':
+    converter = CLEFConverter()
+    fpath: Path = Path(sys.argv[1])
+    print(converter.to_document(fpath))
