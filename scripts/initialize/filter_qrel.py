@@ -33,5 +33,5 @@ if __name__ == '__main__':
             items: List[str] = line.split()
             docid: str = items[2].replace('-', '')
             if check_existence(docid, dataset):
-                query_docid: str = mapping[items[0]]
+                query_docid: str = mapping[items[0]].replace('-', '')
                 fout.write(f'{query_docid} {items[1]} {docid} {items[3]}\n')
