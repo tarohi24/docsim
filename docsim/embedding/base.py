@@ -20,6 +20,13 @@ def return_matrix(func: Callable[..., np.ndarray]):
     return wrapper
 
 
+@return_matrix
+def mat_normalize(mat: np.ndarray) -> np.ndarray:
+    assert len(mat.shape) == 2
+    norm = np.linalg.norm(mat, axis=1)
+    return (mat.T / norm).T
+
+
 @dataclass
 class Model:
     dim: int

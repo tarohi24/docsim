@@ -3,7 +3,6 @@ Text Similarity Estimation Based on Word Embeddings and
 MatrixNorms for Targeted Marketing. NAACL. 2019
 """
 from dataclasses import dataclass, field
-from enum import Enum
 from typing import Dict, List
 
 from dataclasses_jsonschema import JsonSchemaMixin
@@ -47,8 +46,8 @@ class Norm(Searcher):
         return np.array([self.fasttext.embed(w) for w in words])
 
     def norm(self,
-            A: np.ndarray,
-            B: np.ndarray) -> float:
+             A: np.ndarray,
+             B: np.ndarray) -> float:
         assert A.shape[1] == B.shape[1]
         aa: float = np.linalg.norm(np.dot(A, A.T), ord=self.param.norm)
         bb: float = np.linalg.norm(np.dot(B, B.T), ord=self.param.norm)

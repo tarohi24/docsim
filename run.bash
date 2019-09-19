@@ -10,7 +10,7 @@ case $1 in
         METHOD=$3
         RESULT_FILE="/workplace/results/ir/${DATASET}/${METHOD}.prel"
         GT="/workplace/results/ir/${DATASET}/gt.qrel"
-        docker-compose -f compose/trec/docker-compose.yaml run trec trec_eval $GT $RESULT_FILE
+        docker-compose -f compose/trec/docker-compose.yaml run trec trec_eval -q -m "recall"  $GT $RESULT_FILE
         ;;
     * )
         echo "Invalid option ${1}" ;;

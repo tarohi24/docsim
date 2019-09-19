@@ -15,7 +15,7 @@ class FastText(Model):
     def create(cls) -> 'FastText':
         model = fasttext.load_model(
             str(project_root.joinpath('models/fasttext/wiki.en.bin').resolve()))
-        return cls(dim=300, model=model)
+        return cls(dim=300, model=model)  # noqa
 
     @return_vector
     def embed(self, word: str) -> np.ndarray:
