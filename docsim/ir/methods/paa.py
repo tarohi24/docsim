@@ -51,9 +51,7 @@ class PAA(Searcher):
         Projection matrix
         """
         angles: np.ndarray = np.radians(scipy.linalg.subspace_angles(A.T, B.T))
-        print(angles)
-        print(np.cos(angles))
-        return np.sqrt(300 - np.sum(np.cos(angles[:1]) ** 2))
+        return np.sqrt(300 - np.sum(np.cos(angles) ** 2))
 
     def retrieve(self,
                  query_doc: QueryDocument,
