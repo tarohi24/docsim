@@ -106,5 +106,9 @@ class EsSearcher:
         """
         modify self.query
         """
-        self.query['query']['bool']['filter'] = [{'match': {field: t}} for t in terms]
+        self.query['query']['bool']['filter'] = {
+            'bool': {
+                'should': [{'match': {field: t}} for t in terms]
+            }
+        }
         return self
