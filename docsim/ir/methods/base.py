@@ -16,6 +16,7 @@ class Searcher:
     query_dataset: QueryDataset
     param: Param
     trec_converter: TRECConverter
+    is_fake: bool
 
     @classmethod
     def method_name(cls) -> str:
@@ -31,7 +32,8 @@ class Searcher:
             items.append(res)
 
             # dump result
-            self.dump_trec(res)
+            if not self.is_fake:
+                self.dump_trec(res)
 
     def dump_trec(self, item: RankItem) -> None:
         self.trec_converter.incremental_dump(item)

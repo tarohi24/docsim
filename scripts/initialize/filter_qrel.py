@@ -2,8 +2,6 @@ import json
 import sys
 from typing import Dict, List
 
-from tqdm import tqdm
-
 from docsim.settings import es, project_root
 
 

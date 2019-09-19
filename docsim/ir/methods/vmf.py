@@ -8,7 +8,6 @@ from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
 import scipy
 from spherecluster import VonMisesFisherMixture
-from spherecluster.von_mises_fisher_mixture import _vmf_log
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix, mat_normalize
@@ -50,13 +49,15 @@ class VMF(Searcher):
             vec: np.ndarray,
             mu: np.ndarray,
             kappa: float) -> float:
+        """
+        DEPRECATE: overflow frequently happens
+        """
         n: int = 300
         i: float = scipy.special.jv(n // 2 - 1, kappa)
         c1: float = np.power(2 * np.pi, -n // 2)
-        # k: float = np.power(kappa, n // 2 - 1)
-        k = 1
+        k: float = np.power(kappa, n // 2 - 1)
         c: float = c1 * k / i
-        score: float = np.exp(kappa * np.dot(mu.T, vec))
+        score: float = c * np.exp(kappa * np.dot(mu.T, vec))
         return score
 
     def retrieve(self,
@@ -92,7 +93,7 @@ class VMF(Searcher):
             model: VonMisesFisherMixture = VonMisesFisherMixture(
                 n_clusters=1,
                 posterior_type='soft')
-            model.fit(mat_normalize(q_matrix))
+            model.fit(mat_normalize(mat))
             mu: np.ndarray = model.cluster_centers_[0]
             kappa: float = model.concentrations_[0]
 

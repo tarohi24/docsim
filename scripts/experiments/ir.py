@@ -28,6 +28,10 @@ parser.add_argument('runname',
 parser.add_argument('param_file',
                     type=str,
                     help='A parameter file')
+parser.add_argument('-f', '--fake',
+                    nargs='?',
+                    default=None,
+                    help="Specify this flag when you won't save the result")
 
 
 searcher_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
@@ -40,7 +44,8 @@ searcher_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
 
 def main(ds_name: str,
          runname: str,
-         param_file: Path) -> None:
+         param_file: Path,
+         is_fake: bool) -> None:
     query_dataset: QueryDataset = QueryDataset.load_dump(name=ds_name)
     searcher_cls, param_cls = searcher_classes[runname]
 
@@ -53,13 +58,15 @@ def main(ds_name: str,
         dataset_name=query_dataset.name)
 
     # initialize fpath
-    try:
-        trec_converter.get_fpath().unlink()
-    except FileNotFoundError:
-        pass
+    if not is_fake:
+        try:
+            trec_converter.get_fpath().unlink()
+        except FileNotFoundError:
+            pass
     searcher: Searcher = searcher_cls(query_dataset=query_dataset,
                                       param=param,
-                                      trec_converter=trec_converter)
+                                      trec_converter=trec_converter,
+                                      is_fake=is_fake)
 
     # execute
     searcher.run()
@@ -68,4 +75,8 @@ def main(ds_name: str,
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    main(args.dataset, args.runname, Path(args.param_file))
+    is_fake: bool = True if args.fake is not None else False
+    main(ds_name=args.dataset,
+         runname=args.runname,
+         param_file=Path(args.param_file),
+         is_fake=is_fake)
