@@ -4,6 +4,7 @@ Standalone script for IR Experiment
 import argparse
 import json
 from pathlib import Path
+from stat import S_IROTH
 from typing import Dict, Type, Tuple
 
 # methods
@@ -70,7 +71,8 @@ def main(ds_name: str,
 
     # execute
     searcher.run()
-    trec_converter.get_fpath().chmod('-w')
+    # Everyone can only read
+    trec_converter.get_fpath().chmod(S_IROTH)
 
 
 if __name__ == '__main__':
