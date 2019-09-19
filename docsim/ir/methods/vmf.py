@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
+import scipy
 from spherecluster import VonMisesFisherMixture
 from spherecluster.von_mises_fisher_mixture import _vmf_log
 
@@ -49,8 +50,13 @@ class VMF(Searcher):
             vec: np.ndarray,
             mu: np.ndarray,
             kappa: float) -> float:
-        # c: float = np.pow(2 * pi, -n / 2} *  kappa^{n/2-1}
-        score = np.exp(kappa * np.dot(mu.T, x))
+        n: int = 300
+        i: float = scipy.special.jv(n // 2 - 1, kappa)
+        c1: float = np.power(2 * np.pi, -n // 2)
+        # k: float = np.power(kappa, n // 2 - 1)
+        k = 1
+        c: float = c1 * k / i
+        score: float = np.exp(kappa * np.dot(mu.T, vec))
         return score
 
     def retrieve(self,
@@ -63,14 +69,6 @@ class VMF(Searcher):
             TFFilter(n_words=self.param.n_words)]
         q_words: List[str] = TextProcessor(filters=filters).apply(query_doc.text)
         q_matrix: np.ndarray = self.embed_words(q_words)
-
-        # fit distribution
-        model: VonMisesFisherMixture = VonMisesFisherMixture(
-            n_clusters=1,
-            posterior_type='soft')
-        model.fit(mat_normalize(q_matrix))
-        mu: np.ndarray = model.cluster_centers_[0]
-        kappa: float = model.concentrations_[0]
 
         # pre_filtering
         searcher: EsSearcher = EsSearcher(es_index=self.param.es_index)
@@ -90,7 +88,15 @@ class VMF(Searcher):
         for docid, text in pre_filtered_text.items():
             words: List[str] = TextProcessor(filters=filters).apply(text)
             mat: np.ndarray = mat_normalize(self.embed_words(words))
-            probs: float = np.sum(vmf.prob(mat_normalize(mat)))
+
+            model: VonMisesFisherMixture = VonMisesFisherMixture(
+                n_clusters=1,
+                posterior_type='soft')
+            model.fit(mat_normalize(q_matrix))
+            mu: np.ndarray = model.cluster_centers_[0]
+            kappa: float = model.concentrations_[0]
+
+            probs: float = np.sum([self.vmf(vec=vec, mu=mu, kappa=kappa) for vec in q_matrix])
             scores[docid] = probs
 
         return RankItem(query_id=query_doc.docid, scores=scores)

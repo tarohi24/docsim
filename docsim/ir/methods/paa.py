@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
+import scipy
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix
@@ -43,26 +44,16 @@ class PAA(Searcher):
                     words: List[str]) -> np.ndarray:
         return np.array([self.fasttext.embed(w) for w in words])
 
-    @return_matrix
-    def _projection_matrix(self,
-                           A: np.ndarray) -> np.ndarray:
-        second: np.ndarray = np.linalg.inv(np.dot(A.T, A))
-        return np.dot(np.dot(A, second), A.T)
-
     def paa(self,
             A: np.ndarray,
             B: np.ndarray) -> float:
         """
         Projection matrix
         """
-        assert A.shape == B.shape
-        A_proj: np.ndarray = self._projection_matrix(A)
-        B_proj: np.ndarray = self._projection_matrix(B)
-        return 1 / np.linalg.norm(A_proj - B_proj)
-        # A_ort, _ = np.linalg.qr(A, mode='complete')
-        # B_ort, _ = np.linalg.qr(B, mode='complete')
-        # _, s, _ = np.linalg.svd(np.dot(A_ort.T, B_ort))
-        # return np.sqrt(1 - s[0] ** 2)
+        angles: np.ndarray = np.radians(scipy.linalg.subspace_angles(A.T, B.T))
+        print(angles)
+        print(np.cos(angles))
+        return np.sqrt(300 - np.sum(np.cos(angles[:1]) ** 2))
 
     def retrieve(self,
                  query_doc: QueryDocument,
@@ -80,7 +71,7 @@ class PAA(Searcher):
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=q_words, field='text')\
-            .add_size(size * 5)\
+            .add_size(size)\
             .add_filter(terms=query_doc.tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
@@ -93,6 +84,8 @@ class PAA(Searcher):
         for docid, text in pre_filtered_text.items():
             words: List[str] = TextProcessor(filters=filters).apply(text)
             mat: np.ndarray = self.embed_words(words)
-            scores[docid] = self.paa(mat, q_matrix)
+            score: float = self.paa(mat, q_matrix)
+            print(score)
+            scores[docid] = score
 
         return RankItem(query_id=query_doc.docid, scores=scores)
