@@ -1,9 +1,12 @@
 #!/bin/bash
 
+
+COMPOSE_FILE="compose/python/docker-compose.yaml"
+
 case $1 in
     "ir" )
         IR_SCRIPT="scripts/experiments/ir.py"
-        docker-compose -f compose/python/docker-compose.yaml run --rm python python "/workplace/${IR_SCRIPT}" ${@:2}
+        docker-compose -f ${COMPOSE_FILE} run --rm python python "/workplace/${IR_SCRIPT}" ${@:2}
         ;;
     "trec" )
         DATASET=$2
@@ -13,7 +16,13 @@ case $1 in
         docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q -m "recall"  $GT $RESULT_FILE
         ;;
     "test" )
-        docker-compose -f compose/python/docker-compose.yaml run --workdir="/workplace" --rm python make test
+        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" --rm python make test
+        ;;
+    "bash" )
+        docker-compose -f ${COMPOSE_FILE} run --rm python bash
+        ;;
+    "jnote" )
+        docker-compose -f ${COMPOSE_FILE} up -d jnote
         ;;
     * )
         echo "Invalid option ${1}" ;;
