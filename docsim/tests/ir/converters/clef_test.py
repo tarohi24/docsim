@@ -33,12 +33,14 @@ class CLEFConverterTest(unittest.TestCase):
         self.converter: CLEFConverter = CLEFConverter()
         self.docids: List[str] = [
             'EP-0050001-A2',
+            'EP-1010180-B1'
         ]
         self.roots: List[ET.Element] = [self.to_xml_root(docid) for docid in self.docids]
 
     def test_get_title(self):
         titles: List[str] = [
             'A golf aid.',
+            'A READ-ONLY MEMORY AND READ-ONLY MEMORY DEVICE',
         ]
         self.assertListEqual(
             titles,
@@ -51,10 +53,12 @@ class CLEFConverterTest(unittest.TestCase):
 
     def test_get_tags(self):
         self.assertListEqual(
-            [['A63B', ], ],
+            ['A63B'.split(),
+             'H01L G11C'.split()],
             [self.converter._get_tags(root) for root in self.roots])
 
     def tes_get_text(self):
         self.assertListEqual(
-            ['', ],
-            [self.converter._get_text(root) for root in self.roots])
+            [''.split(),
+             'The present invention'.split()],
+            [self.converter._get_text(root).split()[:3] for root in self.roots])
