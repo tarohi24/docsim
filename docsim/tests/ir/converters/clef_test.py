@@ -28,16 +28,28 @@ class CLEFConverterTest(unittest.TestCase):
         root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
         return root
 
-    def setUp(self):
+    def __init__(self, *args, **kwargs):
+        super(CLEFConverterTest, self).__init__(*args, **kwargs)
         self.converter: CLEFConverter = CLEFConverter()
-        self.roots: List[ET.Element] = [
-            self.to_xml_root('EP-0050001-A2'),
+        self.docids: List[str] = [
+            'EP-0050001-A2',
         ]
+        self.roots: List[ET.Element] = [self.to_xml_root(docid) for docid in self.docids]
 
     def test_get_title(self):
-        titles = [
+        titles: List[str] = [
             'A golf aid.',
         ]
         self.assertListEqual(
             titles,
             [self.converter._get_title(root) for root in self.roots])
+
+    def test_get_docid(self):
+        self.assertListEqual(
+            [docid.replace('-', '') for docid in self.docids],
+            [self.converter._get_docid(root) for root in self.roots])
+
+    def test_get_tags(self):
+        self.assertListEqual(
+            [['A63B', ], ],
+            [self.converter._get_tags(root) for root in self.roots])
