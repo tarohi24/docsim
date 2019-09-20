@@ -30,7 +30,6 @@ class EmbeddingBaseTest(DocsimTestCase):
         np.testing.assert_array_equal(
             self.identity_vec_mapping(self.vec),
             self.vec)
-        
 
     def test_return_mat(self):
         with pytest.raises(InvalidShape):
