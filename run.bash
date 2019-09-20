@@ -16,7 +16,7 @@ case $1 in
         docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q -m "recall"  $GT $RESULT_FILE
         ;;
     "test" )
-        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" --rm python make test
+        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" --rm python pytest ${@:2}
         ;;
     "bash" )
         docker-compose -f ${COMPOSE_FILE} run --rm python bash
