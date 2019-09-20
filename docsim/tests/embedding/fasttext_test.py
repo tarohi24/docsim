@@ -1,7 +1,4 @@
-import pytest
-
 from docsim.embedding.fasttext import FastText
-from docsim.settings import project_root
 from docsim.tests.test_case import DocsimTestCase
 
 
@@ -20,4 +17,4 @@ class FastTextTest(DocsimTestCase):
 
     def test_get_embedding(self):
         word: str = 'hello'
-        FastTextTest.model.embed(word)      
+        FastTextTest.model.embed(word)     
