@@ -39,7 +39,9 @@ class EsClient:
             logger.info(f'{self.es_index} does not exist')
 
     def bulk_insert(self,
-                    items: Iterable[EsItem]) -> None:
+                    items: Iterable[EsItem],
+                    delete_index: bool = True,
+                    create_index: bool = True) -> None:
         """
         CAUTION: This initializes the index.
         """
@@ -47,8 +49,10 @@ class EsClient:
             for item in items:
                 yield item.to_dict()
 
-        self.delete_index()
-        self.create_index()
+        if delete_index:
+            self.delete_index()
+        if create_index:
+            self.create_index()
 
         for ok, response in streaming_bulk(es,
                                            iter_items(items),
