@@ -67,6 +67,21 @@ class ColDocument(models.EsItem):
             'tags': self.tags.to_elas_value(),
         }
 
+    @classmethod
+    def _create_doc_from_values(cls,
+                                docid: str,
+                                title: str,
+                                text: str,
+                                tags: List[str]) -> 'ColDocument':
+        """
+        for testing
+        """
+        return ColDocument(
+            docid=models.KeywordField(docid),
+            title=models.TextField(title),
+            text=models.TextField(text),
+            tags=models.KeywordListField(tags))
+
 
 @dataclass
 class ColParagraph(models.EsItem):
