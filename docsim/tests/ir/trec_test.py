@@ -2,13 +2,13 @@ import unittest
 from typing import Dict
 
 from docsim.ir.trec import RankItem
-from docsim.tests.test_case import DocsimTestCase, TestCase
+from docsim.tests.test_case import TestCase
 
 
 class TestRankItem(TestCase):
-    
+
     def setUp(self):
-        super().setUp()
+        super(TestRankItem, self).setUp()
         self.dummy_score: Dict[str, float] = {
             'ABC': 33,
             'TREC': 12,

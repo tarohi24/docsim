@@ -6,7 +6,8 @@ from docsim.settings import project_root
 
 class DocsimTestCase(TestCase):
     """
-    Not dataclass. Therefore the following variables are class variables.
+    Now inheritance seems to fail...
+    Don't use this.
     """
     TESTS_ROOT = project_root.joinpath('tests')
 
@@ -14,7 +15,6 @@ class DocsimTestCase(TestCase):
         self.logger = logging.getLogger()
 
     def setUp(self):
-        super().setUp()
         self.logger.basicConfig(
             format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
             level=logging.DEBUG)
