@@ -66,3 +66,9 @@ class CLEFConverterTest(unittest.TestCase):
         self.assertListEqual(
             'The present invention'.split(),
             self.converter._get_text(self.roots[1]).split()[:3])
+
+    def test_get_paras(self):
+        with pytest.raises(NoneException):
+            self.converter.get_paragraph_list(self.roots[0])
+
+        assert len(self.converter.get_paragraph_list(self.roots[1])) == 40

@@ -77,7 +77,7 @@ class CLEFConverter(Converter):
                            root: ET.Element) -> List[str]:
         desc_root: Optional[ET.Element] = root.find("description")
         if desc_root is None:
-            raise CannotSplitText('root is not found')
+            raise NoneException('root is not found')
         ps: List[ET.Element] = [tag for tag in desc_root.findall('p') if tag is not None]
         if len(ps) > 1:
             return [d.text for d in ps if d.text is not None]
