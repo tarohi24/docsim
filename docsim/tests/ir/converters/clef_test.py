@@ -3,7 +3,9 @@ import unittest
 from typing import List
 import xml.etree.ElementTree as ET
 
-from docsim.ir.converters.clef import CLEFConverter
+import pytest
+
+from docsim.ir.converters.clef import CLEFConverter, NoneException
 from docsim.settings import project_root
 
 
@@ -53,12 +55,14 @@ class CLEFConverterTest(unittest.TestCase):
 
     def test_get_tags(self):
         self.assertListEqual(
-            ['A63B'.split(),
-             'H01L G11C'.split()],
-            [self.converter._get_tags(root) for root in self.roots])
+            [set('A63B'.split()),
+             set('H01L G11C'.split())],
+            [set(self.converter._get_tags(root)) for root in self.roots])
 
-    def tes_get_text(self):
+    def test_get_text(self):
+        with pytest.raises(NoneException):
+            self.converter._get_text(self.roots[0])
+            
         self.assertListEqual(
-            [''.split(),
-             'The present invention'.split()],
-            [self.converter._get_text(root).split()[:3] for root in self.roots])
+            'The present invention'.split(),
+            self.converter._get_text(self.roots[1]).split()[:3])
