@@ -62,7 +62,7 @@ class CLEFConverterTest(unittest.TestCase):
     def test_get_text(self):
         with pytest.raises(NoneException):
             self.converter._get_text(self.roots[0])
-            
+
         self.assertListEqual(
             'The present invention'.split(),
             self.converter._get_text(self.roots[1]).split()[:3])

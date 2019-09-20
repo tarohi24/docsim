@@ -4,10 +4,15 @@ from typing import Callable
 import numpy as np
 
 
+class InvalidShape(Exception):
+    pass
+
+
 def return_vector(func: Callable[..., np.ndarray]):
     def wrapper(*args, **kwargs) -> np.ndarray:
         vec: np.ndarray = func(*args, **kwargs)
-        assert vec.ndim == 1
+        if vec.ndim != 1:
+            raise InvalidShape()
         return vec
     return wrapper
 
@@ -15,7 +20,8 @@ def return_vector(func: Callable[..., np.ndarray]):
 def return_matrix(func: Callable[..., np.ndarray]):
     def wrapper(*args, **kwargs) -> np.ndarray:
         vec: np.ndarray = func(*args, **kwargs)
-        assert vec.ndim == 2
+        if vec.ndim != 2:
+            raise InvalidShape()
         return vec
     return wrapper
 
