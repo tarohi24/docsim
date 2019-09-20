@@ -11,10 +11,10 @@ class DocsimTestCase(TestCase):
     """
     TESTS_ROOT = project_root.joinpath('tests')
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(DocsimTestCase, self).__init__(*args, **kwargs)
         self.logger = logging.getLogger()
 
-    def setUp(self):
-        self.logger.basicConfig(
-            format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
-            level=logging.DEBUG)
+    def setUp(self, *args, **kwargs):
+        super(DocsimTestCase, self).setUp()
+        pass

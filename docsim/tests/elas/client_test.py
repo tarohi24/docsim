@@ -1,13 +1,14 @@
-import unittest
+import unittest  # noqa
 from typing import List
 
 from docsim.elas.client import EsClient
 from docsim.ir.models import ColDocument
+from docsim.tests.test_case import DocsimTestCase
 
 
-class TestEsClient(unittest.TestCase):
+class TestEsClient(DocsimTestCase):
 
-    def setUp(self):
+    def setUp(self, *args, **kwargs):
         super(TestEsClient, self).setUp()
         dummy_index: str = 'dummy'
         self.client: EsClient = EsClient(es_index=dummy_index,
