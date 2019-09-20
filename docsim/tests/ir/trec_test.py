@@ -2,10 +2,9 @@ import unittest
 from typing import Dict
 
 from docsim.ir.trec import RankItem
-from docsim.tests.test_case import TestCase
 
 
-class TestRankItem(TestCase):
+class TestRankItem(unittest.TestCase):
 
     def setUp(self):
         super(TestRankItem, self).setUp()
