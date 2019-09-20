@@ -14,6 +14,7 @@ class DocsimTestCase(TestCase):
         self.logger = logging.getLogger()
 
     def setUp(self):
+        super().setUp()
         self.logger.basicConfig(
             format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
             level=logging.DEBUG)

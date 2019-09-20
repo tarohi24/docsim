@@ -2,10 +2,10 @@ import unittest
 from typing import Dict
 
 from docsim.ir.trec import RankItem
-from docsim.testing import DocsimTestCase
+from docsim.tests.test_case import DocsimTestCase, TestCase
 
 
-class TestRankItem(DocsimTestCase):
+class TestRankItem(TestCase):
     
     def setUp(self):
         super().setUp()
@@ -18,6 +18,6 @@ class TestRankItem(DocsimTestCase):
         rankitem: RankItem = RankItem(
             query_id='dummy',
             scores=self.dummy_score)
-        unittest.assertListEqual(
+        self.assertListEqual(
             ['ABC', 'TREC', ],
             rankitem.get_ranks())
