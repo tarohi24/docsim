@@ -19,7 +19,8 @@ class RankItem:
 
     def get_ranks(self) -> List[str]:
         return [docid for docid, _ in sorted(self.scores.items(),
-                                             key=itemgetter(1))]
+                                             key=itemgetter(1),
+                                             reverse=True)]
 
 
 @dataclass
