@@ -53,3 +53,8 @@ class CLEFConverterTest(unittest.TestCase):
         self.assertListEqual(
             [['A63B', ], ],
             [self.converter._get_tags(root) for root in self.roots])
+
+    def tes_get_text(self):
+        self.assertListEqual(
+            ['', ],
+            [self.converter._get_text(root) for root in self.roots])
