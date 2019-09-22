@@ -55,6 +55,17 @@ class Converter:
 
     def _get_paragraph_list(self,
                             root: ET.Element) -> List[str]:
+        raise NotImplementedError('This is an abstract function')
+
+    def is_valid_text(self,
+                      fpath: Path) -> bool:
+        """
+        Return
+        --------------
+        True if it is an invalid document (the condition depends on the dataset)
+        default: all documents are valid (True)
+        """
+        return True
 
     def to_document(self,
                     fpath: Path) -> List[ColDocument]:
