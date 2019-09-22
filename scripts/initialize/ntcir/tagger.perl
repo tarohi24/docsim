@@ -55,7 +55,7 @@ foreach $file (@ARGV) {
     close(IN);
 
     $line--;
-    print STDERR "file = $file: #records = $line\n";
+    # print STDERR "file = $file: #records = $line\n";
 }
 
 sub tagging (\@) {
