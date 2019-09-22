@@ -5,18 +5,18 @@ import argparse
 from pathlib import Path
 from typing import Generator, List
 
+from tqdm import tqdm
+
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-i',
                     dest='input_file',
                     type=str,
-                    nrags='+',
-                    description='Input file path')
+                    help='Input file path')
 parser.add_argument('-o',
                     dest='output_dir',
                     type=str,
-                    nrags='+',
-                    description='Output Directory')
+                    help='Output Directory')
 
 
 def iter_docs(fpath) -> Generator[List[str], None, None]:
@@ -31,13 +31,14 @@ def iter_docs(fpath) -> Generator[List[str], None, None]:
 
 if __name__ == '__main__':
     args = parser.parse_args()
+    print(args.input_file)
     in_path: Path = Path(args.input_file)
     assert in_path.exists()
 
     out_dir: Path = Path(args.output_dir)
     assert out_dir.exists()
-    assert list(out_dir.glob('*')) == 0  # contains no files
+    assert len(list(out_dir.glob('*'))) == 0  # contains no files
 
-    for i, doc in enumerate(iter_docs(in_path)):
+    for i, doc in tqdm(enumerate(iter_docs(in_path))):
         with open(out_dir.joinpath(f'{i}.xml'), 'w') as fout:
             fout.write('\n'.join(doc))
