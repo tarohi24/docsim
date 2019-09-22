@@ -116,3 +116,5 @@ results/*
 tags
 
 *.sqlite3?
+
+notebooks
