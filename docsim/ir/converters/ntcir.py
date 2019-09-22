@@ -1,45 +1,61 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
-import xml.etree.ElementTree as ET
+from typing import Dict, Generator, List
 
-import chardet
-
+from docsim.elas import models
 from docsim.ir.converters import base
+from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
+
+ATTRS: List[str] = [
+    'DOC',  # Document
+    'DOCNO',  # Document identifier (*)
+    'APP-NO',  # Application number
+    'APP-DATE',  # Application date
+    'PUB-NO',  # Publication number
+    'PUB-TYPE',  # Publication type
+    'PAT-NO',  # Patent number
+    'PAT-TYPE',  # Patent type (**)
+    'PUB-DATE',  # Publication date
+    'PRI-IPC',  # Primary IPC
+    'IPC-VER',  # IPC version
+    'PRI-USPC',  # Primary USPC
+    'PRIORITY',  # Priority information
+    'CITATION',  # Citation(s) (***)
+    'INVENTOR',  # Inventor(s)
+    'ASSIGNEE',  # Assignee(s)
+    'TITLE',  # Title
+    'ABST',  # Abstract
+    'SPEC',  # Specification
+    'CLAIM',  # Claim(s)
+]
 
 
 @dataclass
 class NTCIRConverter(base.Converter):
-    def _get_docid(self,
-                   root: ET.Element) -> str:
-        pass
 
-    def _get_tags(self,
-                  root: ET.Element) -> List[str]:
-        pass
-
-    def _get_title(self,
-                   root: ET.Element) -> str:
-        pass
-
-    def _get_text(self,
-                  root: ET.Element) -> str:
-        pass
-
-    def _get_paragraph_list(self,
-                            root: ET.Element) -> List[str]:
-        pass
-
-    def is_valid_text(self,
-                      fpath: Path) -> bool:
-        """
-        EUC_JP -> invalid (we have to get rid of ja docs)
-        """
+    def to_document(self,
+                    fpath: Path) -> Generator[ColDocument, None, None]:
         with open(fpath, 'r') as fin:
-            enc: str = chardet.detect(fin.read())['encoding']
-        if enc == 'EUC-JP':
-            return False
-        elif enc == 'ASCII':
-            return True
-        else:
-            raise AssertionError(f'{enc} is unknow')
+            for line in fin.readlines():
+                doc: Dict[str, str] = {
+                    attr: body
+                    for attr, body
+                    in zip(ATTRS, line[:-1].split())
+                }
+                docid: str = doc['DOCNO']
+                tags: List[str] = [doc['PRI-IPC'], ]
+                title: str = doc['TITLE']
+                # NOTE: text is the abstract
+                text: str = doc['ABST']
+                yield ColDocument(docid=models.KeywordField(docid),
+                                  title=models.TextField(title),
+                                  text=models.TextField(text),
+                                  tags=models.KeywordListField(tags))
+
+    def to_paragraph(self,
+                     fpath: Path) -> List[ColParagraph]:
+        raise NotImplementedError('This is an abstract method.')
+
+    def to_query_dump(self,
+                      fpath: Path) -> List[QueryDocument]:
+        raise NotImplementedError('This is an abstract method.')
