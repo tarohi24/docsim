@@ -66,6 +66,10 @@ class EsSearcher:
         self.query['_source'] = ['docid', ]
         return self
 
+    def add_match_all(self) -> 'EsSearcher':
+        self.query['query'] = {'match_all': {}}
+        return self
+
     def add_query(self,
                   terms: List[str],
                   field: str = 'text',
