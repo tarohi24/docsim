@@ -83,18 +83,18 @@ sub tagging (\@) {
     }
     $$ref_cont[12] = join("\t", @buf);
 
-    print "<DOC>\n";
-    print "<DOCNO>$docno</DOCNO>\n";
+    print "<DOC>";
+    print "<DOCNO>$docno</DOCNO>";
     $i = 0;
     while ($i < 17) {
 	$field = shift(@$ref_cont);
 	if ($field ne '\N') {
-	    print "<$tag[$i]>$field</$tag[$i]>\n";
+	    print "<$tag[$i]>$field</$tag[$i]>";
 	}
 	$i++;
     }
     $spec = join("\t", @$ref_cont);
-    print "<SPEC>$spec</SPEC>\n";
-    print "<CLAIM>$claim</CLAIM>\n";
-    print "</DOC>\n";
+    print "<SPEC>$spec</SPEC>";
+    print "<CLAIM>$claim</CLAIM>";
+    print "</DOC>";
 }
