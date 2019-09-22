@@ -3,10 +3,9 @@ import logging
 from pathlib import Path
 import re
 import sys
-from typing import List, Optional, TypeVar
+from typing import List, Optional
 import xml.etree.ElementTree as ET
 
-from docsim.elas import models
 from docsim.ir.converters.base import (
     Converter,
     CannotSplitText,
@@ -14,10 +13,8 @@ from docsim.ir.converters.base import (
     get_or_raise_exception,
     find_text_or_default
 )
-from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
 
 logger = logging.getLogger(__file__)
-T = TypeVar('T')
 
 
 @dataclass

@@ -1,4 +1,5 @@
 allennlp
+chardet
 cython
 dataclasses-jsonschema[fast-validation]
 elasticsearch

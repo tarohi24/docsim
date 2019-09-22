@@ -17,4 +17,4 @@ class FastTextTest(DocsimTestCase):
 
     def test_get_embedding(self):
         word: str = 'hello'
-        FastTextTest.model.embed(word)     
+        FastTextTest.model.embed(word)

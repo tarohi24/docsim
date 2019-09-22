@@ -1,7 +1,14 @@
+import logging
 from pathlib import Path
-from typing import Iterable, List
+from typing import List, Optional, TypeVar
+import xml.etree.ElementTree as ET
 
+from docsim.elas import models
 from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
+
+
+logger = logging.getLogger(__file__)
+T = TypeVar('T')
 
 
 class NoneException(Exception):
