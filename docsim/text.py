@@ -32,7 +32,7 @@ class StopWordRemover(Filter):
 
 @dataclass
 class RegexRemover(Filter):
-    regex: Pattern = field(default_factory=lambda: re.compile('[!@#$]'))
+    regex: Pattern = field(default_factory=lambda: re.compile('[\.,!@#$]'))
 
     def apply(self, tokens: List[str]) -> List[str]:
         return [w for w in [re.sub(self.regex, '', w) for w in tokens] if w != '']
