@@ -7,40 +7,17 @@ from typing import List, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
 from docsim.elas import models
-from docsim.ir.converters.base import Converter
+from docsim.ir.converters.base import (
+    Converter,
+    CannotSplitText,
+    NoneException,
+    get_or_raise_exception,
+    find_text_or_default
+)
 from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
-
-
-class NoneException(Exception):
-    pass
-
-
-class CannotSplitText(Exception):
-    pass
-
-
-def get_or_raise_exception(obj: Optional[T]) -> T:
-    if obj is None:
-        raise NoneException
-    else:
-        return obj
-
-
-def find_text_or_default(root: ET.Element,
-                         xpath: str,
-                         default: str) -> str:
-    try:
-        content: ET.Element = get_or_raise_exception(root.find(xpath))
-    except NoneException:
-        return default
-    try:
-        text: str = get_or_raise_exception(content.text)
-    except NoneException:
-        return default
-    return text
 
 
 @dataclass
@@ -73,7 +50,7 @@ class CLEFConverter(Converter):
         desc: str = ' '.join(desc_root.itertext()).replace('\n', ' ')
         return desc
 
-    def get_paragraph_list(self,
+    def _get_paragraph_list(self,
                            root: ET.Element) -> List[str]:
         desc_root: Optional[ET.Element] = root.find("description")
         if desc_root is None:
@@ -109,7 +86,7 @@ class CLEFConverter(Converter):
         root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
         # text
         try:
-            paras: List[str] = self.get_paragraph_list(root)
+            paras: List[str] = self._get_paragraph_list(root)
         except Exception as e:
             logger.warning(e, exc_info=True)
             logger.warning('Could not find description field in the original XML.')
@@ -132,7 +109,7 @@ class CLEFConverter(Converter):
         root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
 
         try:
-            paras: List[str] = self.get_paragraph_list(root)
+            paras: List[str] = self._get_paragraph_list(root)
         except Exception as e:
             logger.warning(e, exc_info=True)
             return []
