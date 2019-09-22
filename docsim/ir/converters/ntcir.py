@@ -33,20 +33,27 @@ ATTRS: List[str] = [
 @dataclass
 class NTCIRConverter(base.Converter):
 
+    def _to_attr_dict(self, line: str) -> Dict[str, str]:
+        if line[-1] == '\n':
+            line: str = line[:-1]  # noqa
+
+        doc: Dict[str, str] = {
+            attr: body
+            for attr, body
+            in zip(ATTRS, line.split('\t'))
+        }
+        return doc
+
     def to_document(self,
                     fpath: Path) -> Generator[ColDocument, None, None]:
         with open(fpath, 'r') as fin:
             for line in fin.readlines():
-                doc: Dict[str, str] = {
-                    attr: body
-                    for attr, body
-                    in zip(ATTRS, line[:-1].split())
-                }
+                doc: Dict[str, str] = self._to_attr_dict(line)
                 docid: str = doc['DOCNO']
                 tags: List[str] = [doc['PRI-IPC'], ]
                 title: str = doc['TITLE']
                 # NOTE: text is the abstract
-                text: str = doc['ABST']
+                text: str = doc['SPEC']
                 yield ColDocument(docid=models.KeywordField(docid),
                                   title=models.TextField(title),
                                   text=models.TextField(text),
