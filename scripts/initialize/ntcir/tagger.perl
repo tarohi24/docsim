@@ -96,5 +96,5 @@ sub tagging (\@) {
     $spec = join("\t", @$ref_cont);
     print "<SPEC>$spec</SPEC>";
     print "<CLAIM>$claim</CLAIM>";
-    print "</DOC>";
+    print "</DOC>\n";
 }
