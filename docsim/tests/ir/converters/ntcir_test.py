@@ -17,15 +17,15 @@ class NTCIRConverterTest(unittest.TestCase):
         self.docs: List[ColDocument] = list(self.converter.to_document(self.test_file))
 
     def test_get_title(self):
-        assert self.docs[0].title.value == 'Golf gloves'
+        assert self.docs[0].title.value == 'Process for making improved corrosion preventive zinc cyanamide'
 
     def test_get_docid(self):
-        assert self.docs[0].docid.value == '19910801'
+        assert self.docs[0].docid.value == '199305176894'
 
     def test_get_tags(self):
         self.assertListEqual(
             self.docs[0].tags.value,
-            ['A41D'])
+            ['C01C'])
 
     def test_get_text(self):
-        assert self.docs[0].text.value.split()[:3] == 'DETAILED DESCRIPTION OF'.split()
+        assert self.docs[0].text.value.split()[:3] == 'The invention will'.split()
