@@ -45,13 +45,14 @@ class Dataset:
         return project_root.joinpath(f'data/{self.name}/orig/query').glob(f'**/*.{self.extension}')
 
     def iter_converted_docs(self) -> Generator[ColParagraph, None, None]:
-        pbar_succ: tqdm = tqdm(position=0)
+        pbar_succ: tqdm = tqdm(position=0, desc='Success')
         pbar_fails: Dict[str, tqdm] = dict()
         converter: Converter = self.converter
         for fpath in self.iter_orig_files():
             try:
                 for doc in converter.to_document(fpath):
                     yield doc
+                    pbar_succ.update(1)
             except Exception as e:
                 ename: str = type(e).__name__
                 if ename == 'NameError':
@@ -59,8 +60,6 @@ class Dataset:
                 if ename not in pbar_fails:
                     pbar_fails[ename] = tqdm(position=len(pbar_fails), desc=ename)
                 pbar_fails[ename].update(1)
-            else:
-                pbar_succ.update(1)
 
 
 def main(ds_name: str,
