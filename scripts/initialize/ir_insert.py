@@ -4,11 +4,12 @@ import json
 from pathlib import Path
 import sys
 from typing import Dict, Generator, Iterable, List, Type
+import xml.etree.ElementTree as ET
 
 from tqdm import tqdm
 
 from docsim.elas.client import EsClient
-from docsim.ir.converters.base import Converter
+from docsim.ir.converters.base import Converter, find_text_or_default
 from docsim.ir.converters.clef import CLEFConverter
 from docsim.ir.converters.ntcir import NTCIRConverter
 from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
@@ -75,8 +76,10 @@ def main(ds_name: str,
             es_index=ds_name,
             item_cls=ColDocument)
         es_client.bulk_insert(dataset.iter_converted_docs())
+
     if 'para' in operations:
         raise NotImplementedError('Para is not prepared')
+
     if 'query' in operations:
         qlist: List[QueryDocument] = sum(
             [dataset.converter.to_query_dump(fpath) for fpath in dataset.iter_query_files()],
@@ -85,6 +88,21 @@ def main(ds_name: str,
         dic: Dict = QueryDataset(name=ds_name, queries=qlist).to_dict()
         with open(project_root.joinpath(f'data/{ds_name}/query/dump.json'), 'w') as fout:
             json.dump(dic, fout)
+
+    if 'mapping' in operations:
+        # CAUTION: This is only for NTCIR
+        mpg: Dict[str, str] = dict()
+        for fpath in dataset.iter_query_files():
+            with open(fpath, 'r') as fin:
+                xml_body: str = dataset.converter.escape(fin.read())
+            root: ET.Element = ET.fromstring(xml_body)
+            topic_num: str = find_text_or_default(root, 'NUM', '')
+            docid: str = find_text_or_default(root, 'DOC/DOCNO', '')
+            if topic_num == '' or docid == '':
+                raise AssertionError
+            mpg[topic_num] = docid
+        with open(project_root.joinpath(f'data/{ds_name}/name_mapping.json'), 'w') as fout:
+            json.dump(mpg, fout)
 
 
 if __name__ == '__main__':
