@@ -16,7 +16,8 @@ class NTCIRConverterTest(unittest.TestCase):
         self.test_file: Path = NTCIRConverterTest.source_dir.joinpath('collection/sample.txt')
         self.docs: List[ColDocument] = list(self.converter.to_document(self.test_file))
         self.queries: List[QueryDocument] = [
-            self.converter.to_query_dump(NTCIRConverterTest.source_dir.joinpath(f'100{i}.xml'))
+            self.converter.to_query_dump(
+                NTCIRConverterTest.source_dir.joinpath(f'query/100{i}.xml'))[0]
             for i in range(1, 4)]
 
     def test_get_title(self):
@@ -34,5 +35,5 @@ class NTCIRConverterTest(unittest.TestCase):
         assert self.docs[0].text.value.split()[:3] == 'The invention will'.split()
 
     def test_get_paras(self):
-        assert self.queires[0].paras[0][:3] == 'DETAILED DESCRIPTION OF'.split()
-        assert self.queires[0].paras[1][:3] == 'On the contrary'.split()
+        assert self.queries[0].paras[0].split()[:3] == 'DETAILED DESCRIPTION OF'.split()
+        assert self.queries[0].paras[1].split()[:3] == 'On the contrary,'.split()

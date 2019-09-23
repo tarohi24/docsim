@@ -87,7 +87,9 @@ class NTCIRConverter(base.Converter):
 
     def to_query_dump(self,
                       fpath: Path) -> List[QueryDocument]:
-        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
+        with open(fpath, 'r') as fin:
+            xml_body: str = self.escape(fin.read())
+        root: ET.Element = base.get_or_raise_exception(ET.fromstring(xml_body).find('DOC'))
         docid: str = self._get_docid(root)
         tags: List[str] = self._get_tags(root)
         paras: List[str] = self._get_paragraph_list(root)
