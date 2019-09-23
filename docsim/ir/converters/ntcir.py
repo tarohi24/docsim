@@ -55,7 +55,12 @@ class NTCIRConverter(base.Converter):
     def to_document(self,
                     fpath: Path) -> Generator[ColDocument, None, None]:
         with open(fpath, 'r') as fin:
-            lines: List[str] = fin.read().splitlines()
+            lines: List[str] = [line\
+                                .replace('<tab>', '\t')\
+                                .replace('"', '&quot;')\
+                                .replace("&", "&amp;")\
+                                .replace("\"", "&quot;")
+                                for line in fin.read().splitlines()]
 
         roots: List[ET.Element] = [ET.fromstring(line) for line in lines]
         for root in roots:
