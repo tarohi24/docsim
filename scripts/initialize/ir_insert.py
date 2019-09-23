@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from tqdm import tqdm
 
 from docsim.elas.client import EsClient
-from docsim.ir.converters.base import Converter, find_text_or_default
+from docsim.ir.converters.base import Converter, find_text_or_default, get_or_raise_exception
 from docsim.ir.converters.clef import CLEFConverter
 from docsim.ir.converters.ntcir import NTCIRConverter
 from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
@@ -97,7 +97,8 @@ def main(ds_name: str,
                 xml_body: str = dataset.converter.escape(fin.read())
             root: ET.Element = ET.fromstring(xml_body)
             topic_num: str = find_text_or_default(root, 'NUM', '')
-            docid: str = find_text_or_default(root, 'DOC/DOCNO', '')
+            doc_root: ET.Element = get_or_raise_exception(root.find('DOC'))
+            docid: str = dataset.converter._get_docid(doc_root)
             if topic_num == '' or docid == '':
                 raise AssertionError
             mpg[topic_num] = docid
