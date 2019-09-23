@@ -27,7 +27,6 @@ from docsim.text import (
 @dataclass
 class PAAParam(Param, JsonSchemaMixin):
     n_words: int
-    es_index: str
 
 
 @dataclass
@@ -65,7 +64,7 @@ class PAA(Searcher):
         q_matrix: np.ndarray = self.embed_words(q_words)
 
         # pre_filtering
-        searcher: EsSearcher = EsSearcher(es_index=self.param.es_index)
+        searcher: EsSearcher = EsSearcher(es_index=self.query_dataset.name)
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=q_words, field='text')\

@@ -17,7 +17,6 @@ from docsim.text import Filter
 @dataclass
 class KeywordBaselineParam(Param, JsonSchemaMixin):
     n_words: int
-    es_index: str
 
 
 @dataclass
@@ -39,7 +38,7 @@ class KeywordBaseline(Searcher):
         q_words: List[str] = text.TextProcessor(filters=filters)\
             .apply(query_doc.text)
         # search elasticsearch
-        searcher: EsSearcher = EsSearcher(es_index=self.param.es_index)
+        searcher: EsSearcher = EsSearcher(es_index=self.query_dataset.name)
         res: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=q_words, field='text')\
