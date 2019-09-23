@@ -69,6 +69,6 @@ class CLEFConverterTest(unittest.TestCase):
 
     def test_get_paras(self):
         with pytest.raises(NoneException):
-            self.converter.get_paragraph_list(self.roots[0])
+            self.converter._get_paragraph_list(self.roots[0])
 
-        assert len(self.converter.get_paragraph_list(self.roots[1])) == 40
+        assert len(self.converter._get_paragraph_list(self.roots[1])) == 40
