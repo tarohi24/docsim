@@ -13,6 +13,15 @@ jobs:
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - run:
+           name: Compose build
+           command: |
+             docker-compose -f compose/elas/docker-compose.yaml build
+             docker-compose -f compose/python/docker-compose.yaml build
+      - run:
+            name: Start Elasticsearch
+            command: |
+              ELAS_MEM="4g" docker-compose -f compose/elas/docker-compose.yaml up -d
+      - run:
             name: Unittest
             command: ./run.bash test
             working_directory: ~/project
