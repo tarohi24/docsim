@@ -3,7 +3,7 @@ jobs:
   build:
     machine:
       image: circleci/classic:latest
-    working_directory: ~/repo
+    working_directory: ~/project
     steps:
       - run:
           name: Install Docker Compose
@@ -14,3 +14,4 @@ jobs:
       - run:
             name: Unittest
             command: ./run.bash test
+            working_directory: ~/project
