@@ -15,6 +15,7 @@ from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocum
 from docsim.settings import project_root
 
 logger = logging.getLogger(__file__)
+logger.setLevel(logging.INFO)
 # logging.disable(logging.CRITICAL)
 
 
@@ -60,6 +61,9 @@ class Dataset:
                 if ename not in pbar_fails:
                     pbar_fails[ename] = tqdm(position=len(pbar_fails), desc=ename)
                 pbar_fails[ename].update(1)
+                logger.error('Bulk insert: failes')
+            else:
+                logger.info('Bulk insert: succeed')
 
 
 def main(ds_name: str,

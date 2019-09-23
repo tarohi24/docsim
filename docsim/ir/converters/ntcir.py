@@ -62,8 +62,8 @@ class NTCIRConverter(base.Converter):
                                 .replace("\"", "&quot;")
                                 for line in fin.read().splitlines()]
 
-        roots: List[ET.Element] = [ET.fromstring(line) for line in lines]
-        for root in roots:
+        for line in lines:
+            root: ET.Element = ET.fromstring(line)
             docid: str = self._get_docid(root)
             tags: List[str] = self._get_tags(root)
             title: str = self._get_title(root)
