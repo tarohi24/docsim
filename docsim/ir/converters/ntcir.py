@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Generator, List
 import xml.etree.ElementTree as ET
 
+import nltk
+
 from docsim.elas import models
 from docsim.ir.converters import base
 from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
@@ -85,4 +87,10 @@ class NTCIRConverter(base.Converter):
 
     def to_query_dump(self,
                       fpath: Path) -> List[QueryDocument]:
-        raise NotImplementedError('Yet implemented.')
+        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
+        docid: str = self._get_docid(root)
+        tags: List[str] = self._get_tags(root)
+        paras: List[str] = self._get_paragraph_list(root)
+        return [QueryDocument(docid=docid,
+                              paras=paras,
+                              tags=tags)]
