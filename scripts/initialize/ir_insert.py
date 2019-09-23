@@ -10,6 +10,7 @@ from tqdm import tqdm
 from docsim.elas.client import EsClient
 from docsim.ir.converters.base import Converter
 from docsim.ir.converters.clef import CLEFConverter
+from docsim.ir.converters.ntcir import NTCIRConverter
 from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
 from docsim.settings import project_root
 
@@ -24,15 +25,24 @@ class Dataset:
     @property
     def converter(self) -> Converter:
         cls: Type[Converter] = {
-            'clef': CLEFConverter
+            'clef': CLEFConverter,
+            'ntcir': NTCIRConverter,
         }[self.name]
         return cls()
 
+    @property
+    def extension(self) -> str:
+        ext: str = {
+            'clef': 'xml',
+            'ntcir': 'txt',
+        }[self.name]
+        return ext
+
     def iter_orig_files(self) -> Generator[Path, None, None]:
-        return project_root.joinpath(f'data/{self.name}/orig/collection').glob('**/*.xml')
+        return project_root.joinpath(f'data/{self.name}/orig/collection').glob(f'**/*.{self.extension}')
 
     def iter_query_files(self) -> Generator[Path, None, None]:
-        return project_root.joinpath(f'data/{self.name}/orig/query').glob('**/*.xml')
+        return project_root.joinpath(f'data/{self.name}/orig/query').glob(f'**/*.{self.extension}')
 
     def iter_converted_docs(self) -> Generator[ColParagraph, None, None]:
         pbar_succ: tqdm = tqdm(position=0)
