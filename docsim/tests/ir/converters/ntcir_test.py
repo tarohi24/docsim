@@ -2,7 +2,7 @@ from pathlib import Path
 import unittest
 from typing import List
 
-from docsim.ir.converters.clef import NTCIRConverter
+from docsim.ir.converters.ntcir import NTCIRConverter
 from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
 from docsim.settings import project_root
 
