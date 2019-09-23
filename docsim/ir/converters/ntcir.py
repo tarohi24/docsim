@@ -49,17 +49,23 @@ class NTCIRConverter(base.Converter):
                             root: ET.Element) -> List[str]:
         """
         NOTE: is it possible to separate NTCIR patent into paragraphs?
+              -> Seems impossible. Altanatively this method separates text into sentences.
         """
-        raise NotImplementedError('Yet implemented.')
+        text: str = self._get_text(root)
+        tokenized: List[str] = nltk.sent_tokenize(text)
+        return tokenized
+
+    def escape(self, orig: str) -> str:
+        return orig\
+            .replace('<tab>', '\t')\
+            .replace('"', '&quot;')\
+            .replace("&", "&amp;")\
+            .replace("\"", "&quot;")
 
     def to_document(self,
                     fpath: Path) -> Generator[ColDocument, None, None]:
         with open(fpath, 'r') as fin:
-            lines: List[str] = [line\
-                                .replace('<tab>', '\t')\
-                                .replace('"', '&quot;')\
-                                .replace("&", "&amp;")\
-                                .replace("\"", "&quot;")
+            lines: List[str] = [self.escape(line)
                                 for line in fin.read().splitlines()]
 
         for line in lines:
