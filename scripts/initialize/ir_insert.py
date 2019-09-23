@@ -43,7 +43,7 @@ class Dataset:
         return project_root.joinpath(f'data/{self.name}/orig/collection').glob(f'**/*.{self.extension}')
 
     def iter_query_files(self) -> Generator[Path, None, None]:
-        return project_root.joinpath(f'data/{self.name}/orig/query').glob(f'**/*.{self.extension}')
+        return project_root.joinpath(f'data/{self.name}/orig/query').glob(f'**/*.xml')
 
     def iter_converted_docs(self) -> Generator[ColParagraph, None, None]:
         pbar_succ: tqdm = tqdm(position=0, desc='Success')
