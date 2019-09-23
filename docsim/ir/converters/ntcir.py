@@ -1,68 +1,77 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Generator, List
+from typing import Generator, List
+import xml.etree.ElementTree as ET
 
 from docsim.elas import models
 from docsim.ir.converters import base
 from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
 
-ATTRS: List[str] = [
-    'DOC',  # Document
-    'DOCNO',  # Document identifier (*)
-    'APP-NO',  # Application number
-    'APP-DATE',  # Application date
-    'PUB-NO',  # Publication number
-    'PUB-TYPE',  # Publication type
-    'PAT-NO',  # Patent number
-    'PAT-TYPE',  # Patent type (**)
-    'PUB-DATE',  # Publication date
-    'PRI-IPC',  # Primary IPC
-    'IPC-VER',  # IPC version
-    'PRI-USPC',  # Primary USPC
-    'PRIORITY',  # Priority information
-    'CITATION',  # Citation(s) (***)
-    'INVENTOR',  # Inventor(s)
-    'ASSIGNEE',  # Assignee(s)
-    'TITLE',  # Title
-    'ABST',  # Abstract
-    'SPEC',  # Specification
-    'CLAIM',  # Claim(s)
-]
-
 
 @dataclass
 class NTCIRConverter(base.Converter):
 
-    def _to_attr_dict(self, line: str) -> Dict[str, str]:
-        if line[-1] == '\n':
-            line: str = line[:-1]  # noqa
+    def _get_title(self,
+                   root: ET.Element) -> str:
+        title: str = base.find_text_or_default(root, 'TITLE', '')
+        return title
 
-        doc: Dict[str, str] = {
-            attr: body
-            for attr, body
-            in zip(ATTRS, line.split('\t'))
-        }
-        return doc
+    def _get_docid(self,
+                   root: ET.Element) -> str:
+        def convert_docid(orig: str) -> str:
+            """
+            >>> converters('PATENT-US-GRT-1993-05176894')
+            '199305176894'
+            """
+            return ''.join(orig.split('-')[-2:])
+
+        docid: str = base.find_text_or_default(root, 'DOCNO', '')
+        return convert_docid(docid)
+
+    def _get_tags(self,
+                  root: ET.Element) -> List[str]:
+        def convert_tags(orig: str) -> List[str]:
+            """
+            >>> convert_tags('C01C 03/16')
+            'C01C'
+            """
+            return orig.split(' ')[:1]
+
+        clfs: str = base.find_text_or_default(root, 'PRI-IPC', '')
+        return convert_tags(clfs)
+
+    def _get_text(self,
+                  root: ET.Element) -> str:
+        text: str = base.find_text_or_default(root, 'SPEC', '')
+        return text
+
+    def _get_paragraph_list(self,
+                            root: ET.Element) -> List[str]:
+        """
+        NOTE: is it possible to separate NTCIR patent into paragraphs?
+        """
+        raise NotImplementedError('Yet implemented.')
 
     def to_document(self,
                     fpath: Path) -> Generator[ColDocument, None, None]:
         with open(fpath, 'r') as fin:
-            for line in fin.readlines():
-                doc: Dict[str, str] = self._to_attr_dict(line)
-                docid: str = doc['DOCNO']
-                tags: List[str] = [doc['PRI-IPC'], ]
-                title: str = doc['TITLE']
-                # NOTE: text is the abstract
-                text: str = doc['SPEC']
-                yield ColDocument(docid=models.KeywordField(docid),
-                                  title=models.TextField(title),
-                                  text=models.TextField(text),
-                                  tags=models.KeywordListField(tags))
+            lines: List[str] = fin.read().splitlines()
+
+        roots: List[ET.Element] = [ET.fromstring(line) for line in lines]
+        for root in roots:
+            docid: str = self._get_docid(root)
+            tags: List[str] = self._get_tags(root)
+            title: str = self._get_title(root)
+            text: str = self._get_text(root)
+            yield ColDocument(docid=models.KeywordField(docid),
+                              title=models.TextField(title),
+                              text=models.TextField(text),
+                              tags=models.KeywordListField(tags))
 
     def to_paragraph(self,
                      fpath: Path) -> List[ColParagraph]:
-        raise NotImplementedError('This is an abstract method.')
+        raise NotImplementedError('Yet implemented.')
 
     def to_query_dump(self,
                       fpath: Path) -> List[QueryDocument]:
-        raise NotImplementedError('This is an abstract method.')
+        raise NotImplementedError('Yet implemented.')
