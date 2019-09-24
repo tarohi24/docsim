@@ -35,7 +35,7 @@ class Proj(Searcher):
 
     @classmethod
     def method_name(cls) -> str:
-        return 'paa'
+        return 'proj'
 
     @return_matrix
     def embed_words(self,
