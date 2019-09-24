@@ -51,7 +51,7 @@ class Proj(Searcher):
         """
         assert A.shape[0] == B.shape[0]
         # generate the projection matrix
-        P: np.ndarray = np.linalg.inv(B @ (B.T @ B)) @ B.T
+        P: np.ndarray = B @ np.linalg.inv(B.T @ B) @ B.T
         personalized_A: np.ndarray = P @ A
         return personalized_A
 
@@ -84,7 +84,7 @@ class Proj(Searcher):
         for docid, text in pre_filtered_text.items():
             words: List[str] = TextProcessor(filters=filters).apply(text)
             mat: np.ndarray = self.embed_words(words)
-            score: float = 1 - np.linalg.norm(self.project(mat, q_matrix))
+            score: float = 1 - np.linalg.norm(self.project(mat, q_matrix) @ q_matrix.T)
             print(score)
             scores[docid] = score
 
