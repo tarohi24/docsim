@@ -9,9 +9,10 @@ from typing import Dict, Type, Tuple
 
 # methods
 from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
-from docsim.ir.methods.paa import PAA, PAAParam
-from docsim.ir.methods.vmf import VMF, VMFParam
 from docsim.ir.methods.norm import Norm, NormParam
+from docsim.ir.methods.paa import PAA, PAAParam
+from docsim.ir.methods.proj import Proj, ProjParam
+from docsim.ir.methods.vmf import VMF, VMFParam
 
 from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDataset
@@ -37,9 +38,10 @@ parser.add_argument('-f', '--fake',
 
 searcher_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
     'keyword': (KeywordBaseline, KeywordBaselineParam),
-    'paa': (PAA, PAAParam),
-    'vmf': (VMF, VMFParam),
     'norm': (Norm, NormParam),
+    'paa': (PAA, PAAParam),
+    'proj': (Proj, ProjParam),
+    'vmf': (VMF, VMFParam),
 }
 
 
