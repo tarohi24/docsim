@@ -75,7 +75,7 @@ class Proj(Searcher):
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=q_words, field='text')\
-            .add_size(size)\
+            .add_size(size * 5)\
             .add_filter(terms=query_doc.tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
