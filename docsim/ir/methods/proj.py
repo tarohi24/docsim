@@ -1,6 +1,7 @@
 """
 Personalization by projection matrix
 """
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Dict, List
 
@@ -48,11 +49,12 @@ class Proj(Searcher):
                 B: np.ndarray) -> np.ndarray:
         """
         return projected A personalized by B
+        A @ P = A
         """
         assert A.shape[0] == B.shape[0]
         # generate the projection matrix
-        P: np.ndarray = B @ np.linalg.inv(B.T @ B) @ B.T
-        personalized_A: np.ndarray = P @ A
+        P: np.ndarray = B.T @ np.linalg.inv(B @ B.T) @ B
+        personalized_A: np.ndarray = A @ P
         return personalized_A
 
     def retrieve(self,
@@ -64,6 +66,8 @@ class Proj(Searcher):
             RegexRemover(),
             TFFilter(n_words=self.param.n_words)]
         q_words: List[str] = TextProcessor(filters=filters).apply(query_doc.text)
+        counter: Dict = Counter(TextProcessor(filters=filters[:-1]).apply(query_doc.text))
+        bow: np.ndarray = np.array([counter[w] for w in q_words])
         q_matrix: np.ndarray = self.embed_words(q_words)
 
         # pre_filtering
@@ -84,8 +88,11 @@ class Proj(Searcher):
         for docid, text in pre_filtered_text.items():
             words: List[str] = TextProcessor(filters=filters).apply(text)
             mat: np.ndarray = self.embed_words(words)
-            score: float = 1 - np.linalg.norm(self.project(mat, q_matrix) @ q_matrix.T)
+            pers_mat: np.ndarray = self.project(mat, q_matrix)
+            diff_m: np.ndarray = pers_mat - q_matrix
+            score = -np.linalg.norm(diff_m.T @ diff_m)
             print(score)
+            # score = np.dot(pers_mat.sum(axis=1), bow)
             scores[docid] = score
 
         return RankItem(query_id=query_doc.docid, scores=scores)
