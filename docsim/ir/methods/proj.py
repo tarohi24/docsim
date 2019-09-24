@@ -90,7 +90,8 @@ class Proj(Searcher):
             mat: np.ndarray = self.embed_words(words)
             pers_mat: np.ndarray = self.project(mat, q_matrix)
             diff_m: np.ndarray = pers_mat - q_matrix
-            score = -np.linalg.norm(diff_m.T @ diff_m)
+            score = -np.linalg.norm(diff_m, axis=1).sum()
+            # score = -np.linalg.norm(diff_m.T @ diff_m)
             print(score)
             # score = np.dot(pers_mat.sum(axis=1), bow)
             scores[docid] = score
