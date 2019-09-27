@@ -3,7 +3,7 @@ jobs:
   build:
     machine:
       image: circleci/classic:latest
-    working_directory: ~/project
+    working_directory: /workplace
     steps:
       - checkout
       - run:
