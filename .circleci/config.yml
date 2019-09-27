@@ -3,9 +3,12 @@ jobs:
   build:
     machine:
       image: circleci/classic:latest
-    working_directory: /workplace
+    working_directory: ~/project
     steps:
       - checkout
+      - run:
+        name: Set PROJECT_ROOT
+        command: set PROJECT_ROOT=~/project
       - run:
           name: Install Docker Compose
           command: |
