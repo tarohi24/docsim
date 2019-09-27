@@ -9,8 +9,8 @@ services:
     env_file:
       - ./env
     volumes:
-      - ../../../docsim:/workplace
-      - ../../docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro
+      - "${HOME}/docsim:/workplace"
+      - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
 
   jnote:
     build:
