@@ -7,36 +7,36 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Set PROJECT_ROOT
-        command: set PROJECT_ROOT=~/project
+          name: Set PROJECT_ROOT
+          command: set PROJECT_ROOT=~/project
       - run:
-        name: Install Docker Compose
-        command: |
-          curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" > ~/docker-compose
-          chmod +x ~/docker-compose
-          sudo mv ~/docker-compose /usr/local/bin/docker-compose
+          name: Install Docker Compose
+          command: |
+            curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
       - run:
-        name: Compose build
-        command: |
-          docker-compose -f compose/elas/docker-compose.yaml build
-          docker-compose -f compose/python/docker-compose.yaml build
+          name: Compose build
+          command: |
+            docker-compose -f compose/elas/docker-compose.yaml build
+            docker-compose -f compose/python/docker-compose.yaml build
       - run:
-        name: Start Elasticsearch
-        command: |
-          ELAS_MEM="4g" docker-compose -f compose/elas/docker-compose.yaml up -d
+          name: Start Elasticsearch
+          command: |
+            ELAS_MEM="4g" docker-compose -f compose/elas/docker-compose.yaml up -d
       - run:
-        name: Install self app
-        command: pip install .
+          name: Install self app
+          command: pip install .
       - run:
-        name: CP tests
-        command: |
-          # create a dummy container which will hold a volume with config
-          docker create -v /workplace --name project alpine:3.4 /bin/true
-          # copy a config file into this volume
-          docker cp docsim project:/workplace
-          # start an application container using this volume
-          docker run --volumes-from project --env-file compose/python/env compose/python/Dockerfile
+          name: CP tests
+          command: |
+            # create a dummy container which will hold a volume with config
+            docker create -v /workplace --name project alpine:3.4 /bin/true
+            # copy a config file into this volume
+            docker cp docsim project:/workplace
+            # start an application container using this volume
+            docker run --volumes-from project --env-file compose/python/env compose/python/Dockerfile
       - run:
-        name: Unittest
-        command: ./run.bash test
-        working_directory: ~/project
+          name: Unittest
+          command: ./run.bash test
+          working_directory: ~/project
