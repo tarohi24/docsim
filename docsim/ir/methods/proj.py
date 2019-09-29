@@ -1,7 +1,6 @@
 """
 Personalization by projection matrix
 """
-from collections import Counter
 from dataclasses import dataclass, field
 from typing import Dict, List
 
@@ -66,8 +65,6 @@ class Proj(Searcher):
             RegexRemover(),
             TFFilter(n_words=self.param.n_words)]
         q_words: List[str] = TextProcessor(filters=filters).apply(query_doc.text)
-        counter: Dict = Counter(TextProcessor(filters=filters[:-1]).apply(query_doc.text))
-        bow: np.ndarray = np.array([counter[w] for w in q_words])
         q_matrix: np.ndarray = self.embed_words(q_words)
 
         # pre_filtering
