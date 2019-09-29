@@ -11,6 +11,7 @@ jobs:
           command: |
             set PROJECT_ROOT=~/project
             set ES_URL=localhost
+            set IS_TEST=1
       - run:
           name: Install Docker Compose
           command: |
