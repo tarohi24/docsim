@@ -31,7 +31,7 @@ class AANConverter(Converter):
     def to_document(self,
                     fpath: Path) -> List[ColDocument]:
         docid: str = fpath.stem
-        tags: List[str] = [docid[0], ]  # the first alphabet
+        tags: List[str] = [docid.split('-')[0], ]  # the first alphabet
         title: str = title_dic[docid]
         with open(fpath, 'r') as fin:
             text: str = fin.read()
