@@ -25,7 +25,6 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" --rm python pytest ${options}
         ;;
     "python" )
-        
         docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" --rm python python ${@:2}
         ;;
     "bash" )
