@@ -8,7 +8,9 @@ jobs:
       - checkout
       - run:
           name: Set PROJECT_ROOT
-          command: set PROJECT_ROOT=~/project
+          command: |
+            set PROJECT_ROOT=~/project
+            set ES_URL=localhost
       - run:
           name: Install Docker Compose
           command: |
