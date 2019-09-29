@@ -6,7 +6,7 @@ from elasticsearch import Elasticsearch
 
 project_root: Path = Path(os.environ['PROJECT_ROOT'])
 
-is_test: bool = bool(os.environ['IS_TEST'])
+is_test: bool = bool(int(os.environ['IS_TEST']))
 if is_test:
     test_dir: Path = project_root.joinpath('docsim/tests')
     data_dir: Path = test_dir.joinpath('data')

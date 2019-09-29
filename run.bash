@@ -22,10 +22,10 @@ case $1 in
         else
             options=${@:2}
         fi
-        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=true --rm python pytest ${options}
+        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=1 --rm python pytest ${options}
         ;;
     "python" )
-        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=false--rm python python ${@:2}
+        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=0 --rm python python ${@:2}
         ;;
     "bash" )
         docker-compose -f ${COMPOSE_FILE} run --rm python bash
