@@ -35,7 +35,7 @@ jobs:
             # copy a config file into this volume
             docker cp docsim project:/workplace
             # start an application container using this volume
-            docker run --volumes-from project --env-file compose/python/env compose/python/Dockerfile
+            docker run --volumes-from project --env-file compose/python/env hirota/python
       - run:
           name: Unittest
           command: ./run.bash test
