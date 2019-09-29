@@ -23,10 +23,10 @@ if __name__ == '__main__':
     with open(data_dir.joinpath(f'{dataset}/en.qrel')) as fin:
         lines: List[str] = fin.read().splitlines()
 
-    with open(project_root.joinpath(f'data/{dataset}/name_mapping.json')) as fin:
+    with open(data_dir.joinpath(f'{dataset}/name_mapping.json')) as fin:
         mapping: Dict[str, str] = json.load(fin)
 
-    with open(project_root.joinpath(f'data/{dataset}/en.valid.qrel'), 'w') as fout:
+    with open(data_dir.joinpath(f'{dataset}/en.valid.qrel'), 'w') as fout:
         for line in lines:
             items: List[str] = line.split()
             docid: str = items[2].replace('-', '')

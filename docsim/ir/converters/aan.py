@@ -2,8 +2,10 @@ from dataclasses import dataclass
 import logging
 from pathlib import Path
 import sys
-from typing import Dict, List
+from typing import Dict, List, Tuple
 import xml.etree.ElementTree as ET
+
+import nltk
 
 from docsim.elas import models
 from docsim.ir.converters.base import (
@@ -28,8 +30,8 @@ class AANConverter(Converter):
                             root: ET.Element) -> List[str]:
         pass
 
-    def to_document(self,
-                    fpath: Path) -> List[ColDocument]:
+    def _get_info(self,
+                  fpath: Path) -> Tuple[str, List[str], str, str]:
         docid: str = fpath.stem
         tags: List[str] = [docid.split('-')[0], ]  # the first alphabet
         try:
@@ -39,6 +41,11 @@ class AANConverter(Converter):
             title: str = ''  # noqa
         with open(fpath, 'r') as fin:
             text: str = fin.read()
+        return docid, tags, title, text
+
+    def to_document(self,
+                    fpath: Path) -> List[ColDocument]:
+        docid, tags, title, text = self._get_info(fpath)
         return [ColDocument(docid=models.KeywordField(docid),
                             title=models.TextField(title),
                             text=models.TextField(text),
@@ -50,7 +57,14 @@ class AANConverter(Converter):
 
     def to_query_dump(self,
                       fpath: Path) -> List[QueryDocument]:
-        pass
+        """
+        NOTE: paras are made by sent_tokenizer
+        """
+        docid, tags, _, text = self._get_info(fpath)
+        tokenized: List[str] = nltk.sent_tokenize(text)
+        return [QueryDocument(docid=docid,
+                              paras=tokenized,
+                              tags=tags)]
 
 
 if __name__ == '__main__':
