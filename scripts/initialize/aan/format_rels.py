@@ -5,7 +5,7 @@ into prels format specified by TREC eval
 from pathlib import Path
 from typing import List, Tuple
 
-from docsim.settings import project_root
+from docsim.settings import data_dir, results_dir
 
 
 def extract_citations(fpath: Path) -> List[Tuple[str, str]]:
@@ -24,7 +24,7 @@ def dump_citations_as_rels(citations: List[Tuple[str, str]],
 
 
 if __name__ == '__main__':
-    in_file: Path = project_root.joinpath('data/aan/orig/citations.txt')
-    out_file: Path = project_root.joinpath('results/ir/aan/en.valid.qrels')
+    in_file: Path = data_dir.joinpath('aan/orig/citations.txt')
+    out_file: Path = results_dir.joinpath('ir/aan/en.valid.qrels')
     citations: List[Tuple[str, str]] = extract_citations(in_file)
     dump_citations_as_rels(citations, out_file)
