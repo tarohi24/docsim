@@ -32,7 +32,11 @@ class AANConverter(Converter):
                     fpath: Path) -> List[ColDocument]:
         docid: str = fpath.stem
         tags: List[str] = [docid.split('-')[0], ]  # the first alphabet
-        title: str = title_dic[docid]
+        try:
+            title: str = title_dic[docid]
+        except KeyError:
+            logger.warn(f'The title of {docid} is not found')
+            title: str = ''  # noqa
         with open(fpath, 'r') as fin:
             text: str = fin.read()
         return [ColDocument(docid=models.KeywordField(docid),
