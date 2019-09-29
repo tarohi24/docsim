@@ -12,11 +12,11 @@ if is_test:
     test_dir: Path = project_root.joinpath('docsim/tests')
     data_dir: Path = test_dir.joinpath('data')
     models_dir: Path = test_dir.joinpath('models')
-    result_dir: Path = test_dir.joinpath('results')
+    results_dir: Path = test_dir.joinpath('results')
 else:
     data_dir: Path = project_root.joinpath('data')
     models_dir: Path = project_root.joinpath('models')
-    result_dir: Path = project_root.joinpath('results')
+    results_dir: Path = project_root.joinpath('results')
 
 # Elasticsearch
 es: Elasticsearch = Elasticsearch(os.environ['ES_URL'])

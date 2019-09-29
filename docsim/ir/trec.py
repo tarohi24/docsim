@@ -5,7 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from docsim.settings import result_dir
+from docsim.settings import results_dir
 
 
 @dataclass
