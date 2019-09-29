@@ -10,6 +10,7 @@ from tqdm import tqdm
 
 from docsim.elas.client import EsClient
 from docsim.ir.converters.base import Converter, find_text_or_default, get_or_raise_exception
+from docsim.ir.converters.aan import AANConverter
 from docsim.ir.converters.clef import CLEFConverter
 from docsim.ir.converters.ntcir import NTCIRConverter
 from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
@@ -29,6 +30,7 @@ class Dataset:
         cls: Type[Converter] = {
             'clef': CLEFConverter,
             'ntcir': NTCIRConverter,
+            'aan': AANConverter,
         }[self.name]
         return cls()
 
@@ -37,6 +39,7 @@ class Dataset:
         ext: str = {
             'clef': 'xml',
             'ntcir': 'txt',
+            'aan': 'txt',
         }[self.name]
         return ext
 
