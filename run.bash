@@ -18,7 +18,7 @@ case $1 in
     "test" )
         if [ "${#@}" -eq 1 ]
         then
-            options="./docsim/tests"
+            options="/workplace/docsim/tests"
         else
             options=${@:2}
         fi
