@@ -7,7 +7,7 @@ from typing import Dict, List
 from dataclasses_jsonschema import JsonSchemaMixin
 
 from docsim.elas import models
-from docsim.settings import project_root
+from docsim.settings import data_dir, results_dir
 
 
 @dataclass
@@ -28,7 +28,7 @@ class QueryDataset(JsonSchemaMixin):
 
     @classmethod
     def _get_dump_path(cls, name: str) -> Path:
-        return project_root.joinpath(f'data/{name}/query/dump.json')
+        return data_dir.joinpath(f'{name}/query/dump.json')
 
     @classmethod
     def load_dump(cls, name: str) -> 'QueryDocument':
@@ -37,7 +37,7 @@ class QueryDataset(JsonSchemaMixin):
         return cls.from_dict(dic)
 
     def get_result_dir(self) -> Path:
-        return project_root.joinpath(f'results/{self.name}')
+        return results_dir.joinpath(f'{self.name}')
 
 
 @dataclass

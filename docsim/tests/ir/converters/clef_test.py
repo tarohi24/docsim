@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 import pytest
 
 from docsim.ir.converters.clef import CLEFConverter, NoneException
-from docsim.settings import project_root
+from docsim.settings import data_dir
 
 
 class CLEFConverterTest(unittest.TestCase):
@@ -24,8 +24,8 @@ class CLEFConverterTest(unittest.TestCase):
         third: str = docid[6:8]
         forth: str = docid[8:10]
 
-        fpath: Path = project_root.joinpath(
-            f'data/clef/orig/collection/00000{first}/{second}/{third}/{forth}/{docid}.xml')
+        fpath: Path = data_dir.joinpath(
+            f'clef/orig/collection/00000{first}/{second}/{third}/{forth}/{docid}.xml')
 
         root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
         return root

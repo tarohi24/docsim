@@ -6,7 +6,7 @@ import faiss
 import numpy as np
 
 from docsim.embedding.base import return_matrix
-from docsim.settings import project_root
+from docsim.settings import data_dir
 
 
 @dataclass
@@ -21,7 +21,7 @@ class Faiss:
 
     @classmethod
     def dump_path_from_name(cls, name: str) -> Path:
-        return project_root.joinpath(f'data/{name}.faiss')
+        return data_dir.joinpath(f'{name}.faiss')
 
     @classmethod
     def load(cls, name: str) -> 'Faiss':

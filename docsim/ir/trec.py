@@ -5,7 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from docsim.settings import project_root
+from docsim.settings import result_dir
 
 
 @dataclass
@@ -29,7 +29,7 @@ class TRECConverter:
     method_name: str
 
     def get_fpath(self) -> Path:
-        return project_root.joinpath(f'results/ir/{self.dataset_name}/{self.method_name}.prel')
+        return results_dir.joinpath(f'ir/{self.dataset_name}/{self.method_name}.prel')
 
     def format_item(self,
                     item: RankItem) -> List[Tuple[str, ...]]:

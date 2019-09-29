@@ -4,7 +4,7 @@ import fasttext
 import numpy as np
 
 from docsim.embedding.base import Model, return_vector
-from docsim.settings import project_root
+from docsim.settings import models_dir
 
 
 @dataclass
@@ -14,7 +14,7 @@ class FastText(Model):
     @classmethod
     def create(cls) -> 'FastText':
         model = fasttext.load_model(
-            str(project_root.joinpath('models/fasttext/wiki.en.bin').resolve()))
+            str(models_dir.joinpath('fasttext/wiki.en.bin').resolve()))
         return cls(dim=300, model=model)  # noqa
 
     @return_vector

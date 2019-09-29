@@ -2,7 +2,7 @@ import json
 import sys
 from typing import Dict, List
 
-from docsim.settings import es, project_root
+from docsim.settings import es, data_dir
 
 
 def check_existence(docid: str,
@@ -20,7 +20,7 @@ def check_existence(docid: str,
 
 if __name__ == '__main__':
     dataset: str = sys.argv[1]
-    with open(project_root.joinpath(f'data/{dataset}/en.qrel')) as fin:
+    with open(data_dir.joinpath(f'{dataset}/en.qrel')) as fin:
         lines: List[str] = fin.read().splitlines()
 
     with open(project_root.joinpath(f'data/{dataset}/name_mapping.json')) as fin:

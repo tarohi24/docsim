@@ -10,10 +10,10 @@ from docsim.ir.converters.base import (
     Converter
 )
 from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
-from docsim.settings import project_root
+from docsim.settings import data_dir
 
 logger = logging.getLogger(__file__)
-with open(project_root.joinpath('data/aan/orig/titles.txt'), 'r') as fin:
+with open(data_dir.joinpath('aan/orig/titles.txt'), 'r') as fin:
     title_dic: Dict[str, str] = {
         line[0]: line[1]
         for line
