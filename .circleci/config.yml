@@ -7,8 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Set PROJECT_ROOT
-        command: set PROJECT_ROOT=~/project
+          name: Set PROJECT_ROOT
+          command: set PROJECT_ROOT=~/project
       - run:
           name: Install Docker Compose
           command: |
