@@ -1,0 +1,6 @@
+[submodule "docsim/InferSent"]
+	path = docsim/InferSent
+	url = https://github.com/facebookresearch/InferSent.git
+[submodule "docsim/BinarySentEmb"]
+	path = docsim/BinarySentEmb
+	url = https://github.com/Linear95/BinarySentEmb.git
