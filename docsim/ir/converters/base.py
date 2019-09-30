@@ -53,3 +53,7 @@ class Converter:
     def to_query_dump(self,
                       fpath: Path) -> List[QueryDocument]:
         raise NotImplementedError('This is an abstract method.')
+
+
+class DummyConverter(Converter):
+    pass

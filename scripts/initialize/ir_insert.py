@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from tqdm import tqdm
 
 from docsim.elas.client import EsClient
-from docsim.ir.converters.base import Converter, find_text_or_default, get_or_raise_exception
+from docsim.ir.converters.base import Converter, DummyConverter, find_text_or_default, get_or_raise_exception
 from docsim.ir.converters.aan import AANConverter
 from docsim.ir.converters.clef import CLEFConverter
 from docsim.ir.converters.ntcir import NTCIRConverter
@@ -37,14 +37,11 @@ parser.add_argument('-f', '--fake',
 
 
 class Dataset:
+    converter: Converter = field(default_factory=DummyConverter)
 
     @property
     def mapping_fpath(self) -> Path:
         return data_dir.joinpath(f'ntcir/name_mapping.json')
-
-    @property
-    def converter(self) -> Converter:
-        raise NotImplementedError('This is an abstract class')
 
     def iter_orig_files(self) -> Iterable[Path]:
         raise NotImplementedError('This is an abstract class')
@@ -136,8 +133,8 @@ dataset_dict: Dict[str, Type[Dataset]] = {
 
 def main(ds_name: str,
          operations: Iterable[str]) -> None:
-    # insert bulk
-    dataset: Dataset = dataset_dict[ds_name]()
+    ds_cls: Type[Dataset] = dataset_dict[ds_name]
+    dataset: Dataset = ds_cls()
     if 'doc' in operations:
         es_client: EsClient = EsClient(
             es_index=ds_name,
