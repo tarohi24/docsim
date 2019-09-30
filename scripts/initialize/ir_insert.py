@@ -1,8 +1,8 @@
-from dataclasses import dataclass
+import argparse
+from dataclasses import dataclass, field
 import logging
 import json
 from pathlib import Path
-import sys
 from typing import Dict, Generator, Iterable, List, Type
 import xml.etree.ElementTree as ET
 
@@ -14,40 +14,46 @@ from docsim.ir.converters.aan import AANConverter
 from docsim.ir.converters.clef import CLEFConverter
 from docsim.ir.converters.ntcir import NTCIRConverter
 from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
-from docsim.settings import project_root
+from docsim.settings import data_dir
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
-# logging.disable(logging.CRITICAL)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-d',
+                    '--dataset',
+                    nargs=1,
+                    type=str,
+                    help='The name of the dataset')
+parser.add_argument('-o',
+                    '--operations',
+                    nargs='+',
+                    type=str,
+                    help='Operations')
+parser.add_argument('-f', '--fake',
+                    nargs='?',
+                    default=None,
+                    help="Specify this flag when you won't save the result")
 
 
-@dataclass
 class Dataset:
-    name: str
+
+    @property
+    def mapping_fpath(self) -> Path:
+        return data_dir.joinpath(f'ntcir/name_mapping.json')
 
     @property
     def converter(self) -> Converter:
-        cls: Type[Converter] = {
-            'clef': CLEFConverter,
-            'ntcir': NTCIRConverter,
-            'aan': AANConverter,
-        }[self.name]
-        return cls()
+        raise NotImplementedError('This is an abstract class')
 
-    @property
-    def extension(self) -> str:
-        ext: str = {
-            'clef': 'xml',
-            'ntcir': 'txt',
-            'aan': 'txt',
-        }[self.name]
-        return ext
+    def iter_orig_files(self) -> Iterable[Path]:
+        raise NotImplementedError('This is an abstract class')
 
-    def iter_orig_files(self) -> Generator[Path, None, None]:
-        return project_root.joinpath(f'data/{self.name}/orig/collection').glob(f'**/*.{self.extension}')
+    def iter_query_files(self) -> Iterable[Path]:
+        raise NotImplementedError('This is an abstract class')
 
-    def iter_query_files(self) -> Generator[Path, None, None]:
-        return project_root.joinpath(f'data/{self.name}/orig/query').glob(f'**/*.xml')
+    def create_name_mapping(self) -> Dict[str, str]:
+        raise NotImplementedError('This is an abstract class')
 
     def iter_converted_docs(self) -> Generator[ColParagraph, None, None]:
         pbar_succ: tqdm = tqdm(position=0, desc='Success')
@@ -70,10 +76,68 @@ class Dataset:
                 logger.info('Bulk insert: succeed')
 
 
+@dataclass
+class CLEFDataset(Dataset):
+    converter: Converter = field(default_factory=CLEFConverter)
+
+    def iter_orig_files(self) -> Generator[Path, None, None]:
+        return data_dir.joinpath(f'clef/orig/collection').glob(f'**/*.xml')
+
+    def iter_query_files(self) -> Generator[Path, None, None]:
+        return data_dir.joinpath(f'clef/orig/query').glob(f'**/*.xml')
+
+
+@dataclass
+class NTCIRDataset(Dataset):
+    converter: Converter = field(default_factory=NTCIRConverter)
+
+    @property
+    def mapping_fpath(self) -> Path:
+        return data_dir.joinpath(f'ntcir/name_mapping.json')
+
+    def iter_orig_files(self) -> Generator[Path, None, None]:
+        return data_dir.joinpath(f'ntcir/orig/collection').glob(f'**/*.xml')
+
+    def iter_query_files(self) -> Generator[Path, None, None]:
+        return data_dir.joinpath(f'ntcir/orig/query').glob(f'**/*.xml')
+
+    def create_name_mapping(self) -> Dict[str, str]:
+        mpg: Dict[str, str] = dict()
+        for fpath in self.iter_query_files():
+            with open(fpath, 'r') as fin:
+                xml_body: str = self.converter.escape(fin.read())
+            root: ET.Element = ET.fromstring(xml_body)
+            topic_num: str = find_text_or_default(root, 'NUM', '')
+            doc_root: ET.Element = get_or_raise_exception(root.find('DOC'))
+            docid: str = self.converter._get_docid(doc_root)
+            if topic_num == '' or docid == '':
+                raise AssertionError
+            mpg[topic_num] = docid
+        return mpg
+
+
+@dataclass
+class AANDataset(Dataset):
+    converter: Converter = field(default_factory=AANConverter)
+
+    def iter_orig_files(self) -> Generator[Path, None, None]:
+        return data_dir.joinpath(f'aan/orig/collection').glob(f'*.txt')
+
+    def iter_query_files(self) -> Generator[Path, None, None]:
+        return self.iter_orig_files()
+
+
+dataset_dict: Dict[str, Type[Dataset]] = {
+    'clef': CLEFDataset,
+    'ntcir': NTCIRDataset,
+    'aan': AANDataset,
+}
+
+
 def main(ds_name: str,
          operations: Iterable[str]) -> None:
     # insert bulk
-    dataset: Dataset = Dataset(name=ds_name)
+    dataset: Dataset = dataset_dict[ds_name]()
     if 'doc' in operations:
         es_client: EsClient = EsClient(
             es_index=ds_name,
@@ -89,25 +153,15 @@ def main(ds_name: str,
             []
         )
         dic: Dict = QueryDataset(name=ds_name, queries=qlist).to_dict()
-        with open(project_root.joinpath(f'data/{ds_name}/query/dump.json'), 'w') as fout:
+        with open(data_dir.joinpath(f'{ds_name}/query/dump.json'), 'w') as fout:
             json.dump(dic, fout)
 
     if 'mapping' in operations:
-        # CAUTION: This is only for NTCIR
-        mpg: Dict[str, str] = dict()
-        for fpath in dataset.iter_query_files():
-            with open(fpath, 'r') as fin:
-                xml_body: str = dataset.converter.escape(fin.read())
-            root: ET.Element = ET.fromstring(xml_body)
-            topic_num: str = find_text_or_default(root, 'NUM', '')
-            doc_root: ET.Element = get_or_raise_exception(root.find('DOC'))
-            docid: str = dataset.converter._get_docid(doc_root)
-            if topic_num == '' or docid == '':
-                raise AssertionError
-            mpg[topic_num] = docid
-        with open(project_root.joinpath(f'data/{ds_name}/name_mapping.json'), 'w') as fout:
+        mpg: Dict[str, str] = dataset.create_name_mapping()
+        with open(dataset.mapping_fpath, 'w') as fout:
             json.dump(mpg, fout)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2:])
+    args = parser.parse_args()
+    main(args.dataset[0], args.operations)
