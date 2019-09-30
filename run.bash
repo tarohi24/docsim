@@ -6,7 +6,7 @@ COMPOSE_FILE="compose/python/docker-compose.yaml"
 case $1 in
     "ir" )
         IR_SCRIPT="scripts/experiments/ir.py"
-        docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=false python python "/workplace/${IR_SCRIPT}" ${@:2}
+        docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=0 python python "/workplace/${IR_SCRIPT}" ${@:2}
         ;;
     "trec" )
         DATASET=$2
