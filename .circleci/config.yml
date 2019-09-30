@@ -38,4 +38,4 @@ jobs:
             # copy a config file into this volume
             docker cp . project:/workplace
             # start an application container using this volume
-            docker run --volumes-from project --env-file compose/python/env -w="/workplace" hirota/python pytest
+            docker run --volumes-from project --env IS_TEST=1 --env-file compose/python/env -w="/workplace" hirota/python pytest
