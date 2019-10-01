@@ -1,9 +1,10 @@
 import unittest
+from unittest.mock import MagicMock
 from typing import Type
 
 from docsim.ir.methods.base import Param, Searcher
 from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
-from docsim.ir.trec import TRECConverter
+from docsim.ir.trec import RankItem, TRECConverter
 from docsim.ir.models import QueryDataset
 
 
@@ -38,3 +39,20 @@ class BaseMethodTest(unittest.TestCase):
         self.assertListEqual(
             ['test', 'patent', ],
             self.searcher.get_query_words(text, n_words=2))
+
+    def test_retrieve(self):
+        dummy_score: Dict[str, float] = {
+            'ABC': 33,
+            'TREC': 12,
+        }
+        rankitem: RankItem = RankItem(
+            query_id='dummy',
+            scores=dummy_score)
+        searcher: Searcher = Searcher(query_dataset=self.query_dataset,
+                                      param=self.param,
+                                      trec_converter=self.trec_converter,
+                                      is_fake=True)
+        searcher.retrieve = MagicMock(return_value=lambda self, query: rankitem)
+        searcher.run()
+
+        
