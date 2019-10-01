@@ -11,23 +11,31 @@ NOTE: This is used mainly for conducting experiments (not for producions).
 
 ### Requirements
 
-- Docker (18.09~), Docker Compose(12.04~)
+- Docker (18.09~)
+- Docker Compose(12.04~)
 - Python (3.7~)
 
-### Installation
+### Installation and execution
+At first, clone this repository. `git clone https://github.com/tarohi24/docsim`
 
-1. Clone this repository. `git clone https://github.com/tarohi24/docsim`
-2. Install this using pip. `pip install .`
-3. Modify environment variables in `compose/python/env` to fit your environment.
+Next, Modify environment variables in `compose/python/env` to tell your environment.
 
 - `ES_URL` is the url of Elasticsearch (for most cases `ES_URL=localhost` works).
 - `PROJECT_ROOT` is the root directory path of this project in the docker container. Basically you don't have to change this value.
+
+Assume you cloned this package in your ${HOME} directory,  you can use your python program.
+
+```bash
+$ ELAS_MEM="4g" # Set maximum memory capacity allocated to Elasticsearch
+$ ELAS_MEM=ELAS_MEM docker-compose -f compose/elas/docker-compose.yaml up -d # launch Elasticsearch (if you don't have launched any ES servers)
+$ bash run.bash python path/to/script.py  # run python script
+```
 
 
 ## Modules
 
 ### Elasticsearch wrapper
-You can create/execute Elasticsearch query by chaining methods like:
+You can create/execute an Elasticsearch query by chaining methods like:
 
 ```python
 from docsim.elas.search import EsResult, EsSearcher
