@@ -42,6 +42,8 @@ class BaseMethodTest(DocsimTestCase):
             self.searcher.get_query_words(text, n_words=2))
 
     def test_retrieve(self):
+        prel_path: Path = self.trec_converter.get_fpath()
+        assert not prel_path.exists()
         dummy_score: Dict[str, float] = {
             'ABC': 33,
             'TREC': 12,
@@ -56,4 +58,7 @@ class BaseMethodTest(DocsimTestCase):
         searcher.retrieve = MagicMock(return_value=lambda self, query: rankitem)
         searcher.run()
 
-        
+        assert prel_path.exists()
+        with open(prel_path, 'r') as fin:
+            lines = fin.read().splitlines()
+        assert len(lines) == (len(dummy_score) * len(self.query_dataset))
