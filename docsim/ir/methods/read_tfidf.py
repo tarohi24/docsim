@@ -3,7 +3,7 @@ TFIDF for word embeddings
 #45
 """
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import List
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
@@ -32,7 +32,7 @@ class RealTFIDFParam(Param, JsonSchemaMixin):
 
 @dataclass
 class RealTFIDF(Searcher):
-    param: NormParam
+    param: RealTFIDFParam
     fasttext: FastText = field(default_factory=FastText.create)
 
     @classmethod
@@ -55,38 +55,4 @@ class RealTFIDF(Searcher):
     def retrieve(self,
                  query_doc: QueryDocument,
                  size: int = 100) -> RankItem:
-        filters: List[Filter] = [
-            LowerFilter(),
-            StopWordRemover(),
-            RegexRemover(),
-            TFFilter(n_words=self.param.n_words)]
-        q_words: List[str] = TextProcessor(filters=filters).apply(query_doc.text)
-        q_matrix: np.ndarray = self.embed_words(q_words)
-
-        # pre_filtering
-        searcher: EsSearcher = EsSearcher(es_index=self.query_dataset.name)
-        candidates: EsResult = searcher\
-            .initialize_query()\
-            .add_query(terms=q_words, field='text')\
-            .add_size(size)\
-            .add_filter(terms=query_doc.tags, field='tags')\
-            .add_source_fields(['text'])\
-            .search()
-        pre_filtered_text: Dict[str, str] = {
-            hit.docid: hit.source['text']
-            for hit in candidates.hits}
-
-        tp: TextProcessor = TextProcessor(filters=filters)
-        all_text: List[str] = [tp.apply(text) for text in pre_filtered_text.values()]
-        kde = np.array([self.embed_words(words) for words in all_text])
-
-        # Like negative sampling, it computes distribution of the collection
-        # by samples randomly choosen
-
-        scores: Dict[str, float] = dict()
-        for docid, text in pre_filtered_text.items():
-            words: List[str] = tp.apply(text)
-            mat: np.ndarray = self.embed_words(words)
-            scores[docid] = self.prob(kde=kde, mat=mat)
-
-        return RankItem(query_id=query_doc.docid, scores=scores)
+        pass
