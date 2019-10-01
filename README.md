@@ -1,7 +1,7 @@
 docsim
 =========
 
-docsim is a package for estimating ways of document retrieval.
+docsim is a package for estimating methods of document retrieval.
 If you have both a set of documents and citations (ground truth) among them,
 you can easily evaluate your retrieval method.
 
