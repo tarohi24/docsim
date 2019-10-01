@@ -1,9 +1,11 @@
 docsim
 =========
 
-docsim is the tool to estimate document simiarity for document ranking.
+docsim is a package for estimating ways of document retrieval.
 If you have both a set of documents and citations (ground truth) among them,
-you can easily use our advanced method.
+you can easily evaluate your retrieval method.
+
+NOTE: This is used mainly for conducting experiments (not for producions).
 
 ## How to use
 
@@ -27,12 +29,18 @@ You can create/execute Elasticsearch query by chaining methods like:
 from docsim.elas.search import EsResult, EsSearcher
 
 candidates: EsResult = searcher\
-    .initialize_query()\  # initialize
-    .add_query(terms=q_words, field='text')\  # term query
-    .add_size(size)\  # specify the number of docs returned
-    .add_filter(terms=query_doc.tags, field='tags')\  # filtering
-    .add_source_fields(['text'])\  # specify field name where terms exist
-    .search()  # execute search
+    # initialize
+    .initialize_query()\
+    # add search query
+    .add_query(terms=q_words, field='text')\
+    # specify the number of docs returned
+    .add_size(size)\
+    # filtering
+    .add_filter(terms=query_doc.tags, field='tags')\
+    # specify field name where terms exist
+    .add_source_fields(['text'])\
+    # execute search
+    .search()
 ```
 
 For more defailed information, see [implementation](https://github.com/tarohi24/docsim/blob/master/docsim/elas/search.py).
