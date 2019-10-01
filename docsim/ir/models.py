@@ -39,6 +39,9 @@ class QueryDataset(JsonSchemaMixin):
     def get_result_dir(self) -> Path:
         return results_dir.joinpath(f'{self.name}')
 
+    def __len__(self):
+        return len(self.queries)
+
 
 @dataclass
 class ColDocument(models.EsItem):
