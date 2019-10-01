@@ -1,11 +1,12 @@
-import unittest
+from pathlib import Path
+from typing import Dict, Type
 from unittest.mock import MagicMock
-from typing import Type
 
 from docsim.ir.methods.base import Param, Searcher
 from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
 from docsim.ir.trec import RankItem, TRECConverter
 from docsim.ir.models import QueryDataset
+from docsim.settings import results_dir
 from docsim.tests.test_case import DocsimTestCase
 
 
@@ -23,6 +24,9 @@ class BaseMethodTest(DocsimTestCase):
                                            param=self.param,
                                            trec_converter=self.trec_converter,
                                            is_fake=False)
+
+    def setUp(self):
+        results_dir.joinpath('ir/clef').mkdir(parents=True)
 
     def test_method_name(self):
         assert self.searcher_cls.method_name() == 'base'
@@ -54,11 +58,13 @@ class BaseMethodTest(DocsimTestCase):
         searcher: Searcher = Searcher(query_dataset=self.query_dataset,
                                       param=self.param,
                                       trec_converter=self.trec_converter,
-                                      is_fake=True)
-        searcher.retrieve = MagicMock(return_value=lambda self, query: rankitem)
+                                      is_fake=False)
+        searcher.retrieve = MagicMock(return_value=rankitem)
         searcher.run()
 
         assert prel_path.exists()
         with open(prel_path, 'r') as fin:
             lines = fin.read().splitlines()
         assert len(lines) == (len(dummy_score) * len(self.query_dataset))
+        # clearn file in order to use rm_dir
+        prel_path.unlink()
