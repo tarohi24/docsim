@@ -1,7 +1,7 @@
 import logging
 from unittest import TestCase
 
-from docsim.settings import project_root
+from docsim.settings import project_root, results_dir
 
 
 class DocsimTestCase(TestCase):
@@ -15,6 +15,12 @@ class DocsimTestCase(TestCase):
         super(DocsimTestCase, self).__init__(*args, **kwargs)
         self.logger = logging.getLogger()
 
-    def setUp(self, *args, **kwargs):
-        super(DocsimTestCase, self).setUp()
-        pass
+    def clean_results(self):
+        # assertion to prevent from deleting from production results
+        assert results_dir != project_root.joinpath('results')
+        for fpath in results_dir.glob('**/*.prel'):
+            fpath.unlink()
+
+    def tearDown(self):
+        self.clean_results()
+        

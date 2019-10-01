@@ -6,9 +6,10 @@ from docsim.ir.methods.base import Param, Searcher
 from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
 from docsim.ir.trec import RankItem, TRECConverter
 from docsim.ir.models import QueryDataset
+from docsim.tests.test_case import DocsimTestCase
 
 
-class BaseMethodTest(unittest.TestCase):
+class BaseMethodTest(DocsimTestCase):
 
     def __init__(self, *args, **kwargs):
         super(BaseMethodTest, self).__init__(*args, **kwargs)
@@ -21,7 +22,7 @@ class BaseMethodTest(unittest.TestCase):
         self.searcher: Searcher = Searcher(query_dataset=self.query_dataset,
                                            param=self.param,
                                            trec_converter=self.trec_converter,
-                                           is_fake=True)
+                                           is_fake=False)
 
     def test_method_name(self):
         assert self.searcher_cls.method_name() == 'base'
