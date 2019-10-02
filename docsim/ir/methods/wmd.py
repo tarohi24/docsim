@@ -1,10 +1,10 @@
 """
 Word Mover Distance
 """
-from collectinos import Counter
+from collections import Counter
 from dataclasses import dataclass, field
 from itertools import product
-from typing import Dict, List, Type
+from typing import Dict, List
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
@@ -46,7 +46,7 @@ class WMD(Searcher):
         ---------------------
         Similarity
         """
-        all_tokens: List[str] = list(set(A_tokens) & set(B_tokens))
+        all_tokens: List[str] = list(set(A_tokens) | set(B_tokens))
 
         A_prob: Dict[str, float] = self.count_prob(A_tokens)
         B_prob: Dict[str, float] = self.count_prob(B_tokens)
@@ -58,6 +58,7 @@ class WMD(Searcher):
         prob = pulp.LpProblem('WMD', sense=pulp.LpMinimize)
         prob += pulp.lpSum([var_dict[token1, token2] * euclidean(wv[token1], wv[token2])
                             for token1, token2 in product(all_tokens, all_tokens)])
+
         for token2 in B_prob.keys():
             prob += pulp.lpSum(
                 [var_dict[token1, token2] for token1 in B_prob.keys()]
@@ -65,7 +66,7 @@ class WMD(Searcher):
         for token1 in A_prob.keys():
             prob += pulp.lpSum(
                 [var_dict[token1, token2] for token2 in A_prob.keys()]
-            ) == A_prob[token2]
+            ) == A_prob[token1]
         prob.solve()
         return -pulp.value(prob.objective)
 
@@ -76,8 +77,8 @@ class WMD(Searcher):
             n_words=self.param.n_words)
         processor: TextProcessor = TextProcessor(filters=filters)
         q_words: List[str] = processor.apply(query_doc.text)
-        candidates: EsResult = Type[self].filter_by_terms(
-            text=query_doc.text,
+        candidates: EsResult = self.filter_by_terms(
+            query_doc=query_doc,
             n_words=self.param.n_words,
             size=size)
         tokens_dict: Dict[str, List[str]] = {

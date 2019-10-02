@@ -83,6 +83,7 @@ class Searcher:
             .initialize_query()\
             .add_query(terms=q_words, field='text')\
             .add_size(size)\
+            .add_source_fields(['text', ])\
             .add_filter(terms=query_doc.tags, field='tags')\
             .search()
         return res
