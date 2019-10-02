@@ -56,14 +56,19 @@ class Searcher:
             .apply(text)
         return q_words
 
-    def get_query_words(self,
-                        text: str,
-                        n_words: int) -> List[str]:
+    def get_default_filtes(self,
+                           n_words: int) -> List[Filter]:
         filters: List[Filter] = [
             LowerFilter(),
             StopWordRemover(),
             RegexRemover(),
             TFFilter(n_words=n_words)]
+        return filters
+
+    def get_query_words(self,
+                        text: str,
+                        n_words: int) -> List[str]:
+        filters: List[Filter] = self.get_default_filtes(n_words=n_words)
         return self._get_query_with_custom_filters(text=text,
                                                    filters=filters)
 

@@ -8,20 +8,13 @@ from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
 import scipy
 
-from docsim.elas.search import EsResult, EsSearcher
+from docsim.elas.search import EsResult
 from docsim.embedding.base import return_matrix
 from docsim.embedding.fasttext import FastText
 from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDocument
 from docsim.ir.trec import RankItem
-from docsim.text import (
-    Filter,
-    LowerFilter,
-    StopWordRemover,
-    RegexRemover,
-    TFFilter,
-    TextProcessor
-)
+from docsim.text import Filter, TextProcessor
 
 
 @dataclass
@@ -33,10 +26,6 @@ class PAAParam(Param, JsonSchemaMixin):
 class PAA(Searcher):
     param: PAAParam
     fasttext: FastText = field(default_factory=FastText.create)
-
-    @classmethod
-    def method_name(cls) -> str:
-        return 'paa'
 
     @return_matrix
     def embed_words(self,
@@ -55,23 +44,13 @@ class PAA(Searcher):
     def retrieve(self,
                  query_doc: QueryDocument,
                  size: int = 100) -> RankItem:
-        filters: List[Filter] = [
-            LowerFilter(),
-            StopWordRemover(),
-            RegexRemover(),
-            TFFilter(n_words=self.param.n_words)]
-        q_words: List[str] = TextProcessor(filters=filters).apply(query_doc.text)
-        q_matrix: np.ndarray = self.embed_words(q_words)
-
-        # pre_filtering
-        searcher: EsSearcher = EsSearcher(es_index=self.query_dataset.name)
-        candidates: EsResult = searcher\
-            .initialize_query()\
-            .add_query(terms=q_words, field='text')\
-            .add_size(size)\
-            .add_filter(terms=query_doc.tags, field='tags')\
-            .add_source_fields(['text'])\
-            .search()
+        filters: List[Filter] = self.get_default_filtes(
+            n_words=self.param.n_words)
+        processor: TextProcessor = TextProcessor(filters=filters)
+        candidates: EsResult = self.filter_by_terms(
+            text=query_doc.text,
+            n_words=self.param.n_words,
+            size=size)
 
         pre_filtered_text: Dict[str, str] = {
             hit.docid: hit.source['text']
@@ -79,10 +58,9 @@ class PAA(Searcher):
 
         scores: Dict[str, float] = dict()
         for docid, text in pre_filtered_text.items():
-            words: List[str] = TextProcessor(filters=filters).apply(text)
+            words: List[str] = processor.apply(text)
             mat: np.ndarray = self.embed_words(words)
             score: float = self.paa(mat, q_matrix)
-            print(score)
             scores[docid] = score
 
         return RankItem(query_id=query_doc.docid, scores=scores)
