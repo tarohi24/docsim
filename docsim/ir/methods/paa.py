@@ -56,6 +56,8 @@ class PAA(Searcher):
             hit.docid: hit.source['text']
             for hit in candidates.hits}
 
+        q_matrix: np.ndarray = self.embed_words(processor.apply(query_doc.text))
+
         scores: Dict[str, float] = dict()
         for docid, text in pre_filtered_text.items():
             words: List[str] = processor.apply(text)
