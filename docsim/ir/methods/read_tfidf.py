@@ -9,20 +9,11 @@ from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
 from scipy import stats
 
-from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix
 from docsim.embedding.fasttext import FastText
 from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDocument
 from docsim.ir.trec import RankItem
-from docsim.text import (
-    Filter,
-    LowerFilter,
-    StopWordRemover,
-    RegexRemover,
-    TFFilter,
-    TextProcessor
-)
 
 
 @dataclass
