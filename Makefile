@@ -50,6 +50,8 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 lint: ## check style with flake8
+	autoflake --in-place --remove-all-unused-imports -r docsim|| true
+	autoflake --in-place --remove-all-unused-imports -r scripts || true
 	flake8 docsim scripts || true
 
 test: ## run tests quickly with the default Python
