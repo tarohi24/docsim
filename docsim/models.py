@@ -23,10 +23,10 @@ class RankItem:
     scores: Dict[Tuple[str, str], Real]  # (docid, tag) -> score
 
     def get_doc_scores(self) -> Dict[str, Real]:
-        return {docid: score for (docid, _), score in self.scores.items()}
+        return {key[0]: score for key, score in self.scores.items()}
 
     def get_tag_scores(self) -> Dict[str, Real]:
-        return {tag: score for (_, tag), score in self.scores.items()}
+        return {key[1]: score for key, score in self.scores.items()}
 
     def pred_tag(self,
                  n_top: int) -> List[str]:
