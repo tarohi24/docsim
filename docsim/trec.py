@@ -9,21 +9,6 @@ from docsim.settings import results_dir
 
 
 @dataclass
-class RankItem:
-    """
-    both a prediction result or a ground truth
-    recall, precision and ap considere self as a ground truth
-    """
-    query_id: str
-    scores: Dict[str, Real]
-
-    def get_ranks(self) -> List[str]:
-        return [docid for docid, _ in sorted(self.scores.items(),
-                                             key=itemgetter(1),
-                                             reverse=True)]
-
-
-@dataclass
 class TRECConverter:
     dataset_name: str
     method_name: str

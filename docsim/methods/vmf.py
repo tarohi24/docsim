@@ -13,8 +13,7 @@ from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix, mat_normalize
 from docsim.embedding.fasttext import FastText
 from docsim.methods.base import Searcher, Param
-from docsim.models import QueryDocument
-from docsim.trec import RankItem
+from docsim.models import QueryDocument, RankItem
 from docsim.text import (
     Filter,
     LowerFilter,

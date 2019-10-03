@@ -9,7 +9,7 @@ from typing import Dict, List, TypeVar
 
 from docsim.elas.client import EsClient
 from docsim.settings import es
-from docsim.trec import RankItem
+from docsim.models import RankItem
 
 
 T_EsResult = TypeVar('T_EsResult', bound='EsResult')

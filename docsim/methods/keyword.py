@@ -8,7 +8,7 @@ from dataclasses_jsonschema import JsonSchemaMixin
 from docsim.elas.search import EsResult
 from docsim.methods.base import Searcher, Param
 from docsim.models import QueryDocument
-from docsim.trec import RankItem
+from docsim.models import RankItem
 
 
 @dataclass
