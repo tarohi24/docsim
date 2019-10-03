@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from number import Real
+from numbers import Real
 from pathlib import Path
 import sys
 from typing import Dict, List

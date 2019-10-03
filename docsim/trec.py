@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import math
-from number import Real
+from numbers import Real
 from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple

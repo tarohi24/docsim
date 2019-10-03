@@ -1,7 +1,7 @@
 from __future__ import annotations  # noqa
 from dataclasses import dataclass
 import json
-from number import Real
+from numbers import Real
 from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
