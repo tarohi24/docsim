@@ -22,14 +22,16 @@ def ignore_exception(func: Callable[..., T],
     return wrapper
 
 
-def uniq(lst: List[T_has],
-         orig: List[T_has],
-         n_top: int) -> List[T_has]:
-    if len(lst) == n_top or len(orig) == 0:
+def uniq(orig: List[T_has],
+         n_top: int,
+         lst: Optional[List[T_has]] = None) -> List[T_has]:
+    if lst is None:
+        return uniq(orig, n_top, [])
+    elif len(lst) == n_top or len(orig) == 0:
         return lst
     else:
         head, *tail = orig
         if head in lst:
-            return uniq(lst, tail, n_top)
+            return uniq(orig=tail, n_top=n_top, lst=lst)
         else:
-            return uniq([head] + lst, tail, n_top)
+            return uniq(orig=tail, n_top=n_top, lst=[head] + lst)

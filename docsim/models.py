@@ -34,7 +34,7 @@ class RankItem:
             tag for tag, _ in sorted(self.get_tag_scores().items(),
                                      key=itemgetter(1),
                                      reverse=True)]
-        unique_tags: List[str] = uniq(sorted_score, n_top=n_top)
+        unique_tags: List[str] = uniq(orig=sorted_score, n_top=n_top)
         return unique_tags
 
 
