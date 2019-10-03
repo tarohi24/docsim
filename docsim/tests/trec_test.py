@@ -16,16 +16,16 @@ class TestRankItem(unittest.TestCase):
         }
         self.query_id: str = 'EPTopic1000'
         self.ri: RankItem = RankItem(query_id=self.query_id,
-                                     socres=self.dummy_scores)
+                                     scores=self.dummy_scores)
 
     def test_pred_tags_just_n_top(self):
         pred = self.ri.pred_tag(n_top=2)
-        self.assertListEqual(pred, ['A', 'B'])
+        self.assertSetEqual(set(pred), {'A', 'B'})
 
     def test_pred_tags_less_n_top(self):
         pred = self.ri.pred_tag(n_top=1)
-        self.assertListEqual(pred, ['A', ])
+        self.assertSetEqual(set(pred), {'A', })
 
     def test_pred_tags_more_n_top(self):
         pred = self.ri.pred_tag(n_top=3)
-        self.assertListEqual(pred, ['A', 'B'])
+        self.assertSetEqual(set(pred), {'A', 'B'})
