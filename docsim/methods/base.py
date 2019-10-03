@@ -44,9 +44,8 @@ class Method:
         """
         raise NotImplementedError('This is an abstract method')
 
-    def run_retrieve(self,
-                     query: QueryDocument,
-                     trec_converter: TRECConverter) -> None:
+    def run_retrieval(self,
+                      trec_converter: TRECConverter) -> None:
         for query in tqdm(self.query_dataset.queries):
             ri: RankItem = self.apply(query)
             scores: Dict[str, Real] = ri.get_doc_scores()
@@ -56,7 +55,7 @@ class Method:
                                scores=scores,
                                trec_converter=trec_converter)
 
-    def run_clf(self, query: QueryDocument) -> RankItem:
+    def run_clf(self) -> RankItem:
         clf_res: ClfResult = ClfResult(
             dataset_name=self.query_dataset.name,
             method_name=self.__class__.method_name)

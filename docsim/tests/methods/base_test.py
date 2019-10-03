@@ -22,7 +22,6 @@ class BaseMethodTest(DocsimTestCase):
             dataset_name=self.query_dataset.name)
         self.searcher: Method = Method(query_dataset=self.query_dataset,
                                        param=self.param,
-                                       trec_converter=self.trec_converter,
                                        is_fake=False)
 
     def setUp(self):
@@ -35,7 +34,6 @@ class BaseMethodTest(DocsimTestCase):
         param: KeywordBaselineParam = KeywordBaselineParam(n_words=2)
         sc: KeywordBaseline = KeywordBaseline(query_dataset=self.query_dataset,
                                               param=param,
-                                              trec_converter=self.trec_converter,
                                               is_fake=True)
         assert sc.method_name() == 'keyword'
 
@@ -57,10 +55,9 @@ class BaseMethodTest(DocsimTestCase):
             scores=dummy_score)
         searcher: Method = Method(query_dataset=self.query_dataset,
                                   param=self.param,
-                                  trec_converter=self.trec_converter,
                                   is_fake=False)
         searcher.apply = MagicMock(return_value=rankitem)
-        searcher.run()
+        searcher.run_retrieval(trec_converter=self.trec_converter)
 
         assert prel_path.exists()
         with open(prel_path, 'r') as fin:
