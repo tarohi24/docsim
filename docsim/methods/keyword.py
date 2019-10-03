@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from dataclasses_jsonschema import JsonSchemaMixin
 
 from docsim.elas.search import EsResult
-from docsim.methods.base import Searcher, Param
+from docsim.methods.base import Method, Param
 from docsim.models import QueryDocument
 from docsim.models import RankItem
 
@@ -17,12 +17,12 @@ class KeywordBaselineParam(Param, JsonSchemaMixin):
 
 
 @dataclass
-class KeywordBaseline(Searcher):
+class KeywordBaseline(Method):
     param: KeywordBaselineParam
 
-    def retrieve(self,
-                 query_doc: QueryDocument,
-                 size: int = 100) -> RankItem:
+    def apply(self,
+              query_doc: QueryDocument,
+              size: int = 100) -> RankItem:
         # search elasticsearch
         res: EsResult = self.filter_by_terms(text=query_doc.text,
                                              n_words=self.param.n_words,

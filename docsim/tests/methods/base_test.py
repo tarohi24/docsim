@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict, Type
 from unittest.mock import MagicMock
 
-from docsim.methods.base import Param, Searcher
+from docsim.methods.base import Param, Method
 from docsim.methods.keyword import KeywordBaseline, KeywordBaselineParam
 from docsim.trec import TRECConverter
 from docsim.models import QueryDataset, RankItem
@@ -15,15 +15,15 @@ class BaseMethodTest(DocsimTestCase):
     def __init__(self, *args, **kwargs):
         super(BaseMethodTest, self).__init__(*args, **kwargs)
         self.param: Param = Param()
-        self.searcher_cls: Type[Searcher] = Searcher
+        self.searcher_cls: Type[Method] = Method
         self.query_dataset: QueryDataset = QueryDataset.load_dump(name='clef')
         self.trec_converter: TRECConverter = TRECConverter(
             method_name=self.searcher_cls.method_name(),
             dataset_name=self.query_dataset.name)
-        self.searcher: Searcher = Searcher(query_dataset=self.query_dataset,
-                                           param=self.param,
-                                           trec_converter=self.trec_converter,
-                                           is_fake=False)
+        self.searcher: Method = Method(query_dataset=self.query_dataset,
+                                       param=self.param,
+                                       trec_converter=self.trec_converter,
+                                       is_fake=False)
 
     def setUp(self):
         results_dir.joinpath('ir/clef').mkdir(parents=True)
@@ -55,11 +55,11 @@ class BaseMethodTest(DocsimTestCase):
         rankitem: RankItem = RankItem(
             query_id='dummy',
             scores=dummy_score)
-        searcher: Searcher = Searcher(query_dataset=self.query_dataset,
-                                      param=self.param,
-                                      trec_converter=self.trec_converter,
-                                      is_fake=False)
-        searcher.retrieve = MagicMock(return_value=rankitem)
+        searcher: Method = Method(query_dataset=self.query_dataset,
+                                  param=self.param,
+                                  trec_converter=self.trec_converter,
+                                  is_fake=False)
+        searcher.apply = MagicMock(return_value=rankitem)
         searcher.run()
 
         assert prel_path.exists()
