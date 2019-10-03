@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from number import Real
 from pathlib import Path
 import sys
-from typing import List
+from typing import Dict, List
 
 from tqdm import tqdm
 
+from docsim.clf import ClfResult
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.trec import TRECConverter
 from docsim.models import RankItem, QueryDataset, QueryDocument
@@ -23,27 +25,53 @@ class Param:
 
 
 @dataclass
-class Searcher:
+class Method:
     query_dataset: QueryDataset
     param: Param
-    trec_converter: TRECConverter
     is_fake: bool
 
-    def retrieve(self, query: QueryDocument) -> RankItem:
-        raise NotImplementedError('This is an abstract class.')
+    def apply(self,
+              query: QueryDocument) -> RankItem:
+        """
+        Methob body (in common among all tasks)
 
-    def run(self) -> None:
-        items: List[RankItem] = []
+        Retutn
+        -----------
+        (key)
+            (Docid, tag)
+        (value)
+            The probability the key emerges.
+        """
+        raise NotImplementedError('This is an abstract method')
+
+    def run_retrieve(self,
+                     query: QueryDocument,
+                     trec_converter: TRECConverter) -> None:
         for query in tqdm(self.query_dataset.queries):
-            res: RankItem = self.retrieve(query)
-            items.append(res)
-
+            ri: RankItem = self.apply(query)
+            scores: Dict[str, Real] = ri.get_doc_scores()
             # dump result
             if not self.is_fake:
-                self.dump_trec(res)
+                self.dump_trec(query_id=query.docid,
+                               scores=scores,
+                               trec_converter=trec_converter)
 
-    def dump_trec(self, item: RankItem) -> None:
-        self.trec_converter.incremental_dump(item)
+    def run_clf(self, query: QueryDocument) -> RankItem:
+        clf_res: ClfResult = ClfResult(
+            dataset_name=self.query_dataset.name,
+            method_name=self.__class__.method_name)
+        for query in tqdm(self.query_dataset.queries):
+            ri: RankItem = self.apply(query)
+            clf_res.result[query.docid] = ri.pred_tags(n_top=3)
+            # dump result
+            if not self.is_fake:
+                clf_res.dump()
+
+    def dump_trec(self,
+                  query_id: str,
+                  scores: Dict[str, Real],
+                  trec_converter: TRECConverter) -> None:
+        trec_converter.incremental_dump(query_id, scores)
 
     @classmethod
     def method_name(cls) -> str:

@@ -1,13 +1,16 @@
 from __future__ import annotations  # noqa
 from dataclasses import dataclass
 import json
+from number import Real
+from operator import itemgetter
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from dataclasses_jsonschema import JsonSchemaMixin
 
 from docsim.elas import models
 from docsim.settings import data_dir, results_dir
+from docsim.utils import uniq
 
 
 @dataclass
@@ -17,13 +20,22 @@ class RankItem:
     recall, precision and ap considere self as a ground truth
     """
     query_id: str
-    scores: Dict[str, Real]
+    scores: Dict[Tuple[str, str], Real]  # (docid, tag) -> score
 
-    def get_ranks(self) -> List[str]:
-        return [docid for docid, _ in sorted(self.scores.items(),
-                                             key=itemgetter(1),
-                                             reverse=True)]
+    def get_doc_scores(self) -> Dict[str, Real]:
+        return {docid: score for (docid, _), score in self.scores.items()}
 
+    def get_tag_scores(self) -> Dict[str, Real]:
+        return {tag: score for (_, tag), score in self.scores.items()}
+
+    def pred_tag(self,
+                 n_top: int) -> List[str]:
+        sorted_score: List[str] = [
+            tag for tag, _ in sorted(self.get_tag_scores().items(),
+                                     key=itemgetter(1),
+                                     reverse=True)]
+        unique_tags: List[str] = uniq(sorted_score, n_top=n_top)
+        return unique_tags
 
 
 @dataclass
