@@ -13,7 +13,7 @@ case $1 in
         METHOD=$3
         RESULT_FILE="/workplace/results/ir/${DATASET}/${METHOD}.prel"
         GT="/workplace/results/ir/${DATASET}/en.valid.qrel"
-        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q -m "recall"  $GT $RESULT_FILE
+        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  $GT $RESULT_FILE
         ;;
     "test" )
         if [ "${#@}" -eq 1 ]
