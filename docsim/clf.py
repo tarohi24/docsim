@@ -2,9 +2,16 @@
 Module for classification
 """
 from dataclasses import dataclass
-from typing import List
+from numbers import Real
+from typing import Dict, List
 
+from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
+
+
+@dataclass
+class ClfResult(JsonSchemaMixin):
+    result: Dict[str, RankItem]
 
 
 @dataclass
@@ -12,14 +19,20 @@ class Evaluator:
     """
     Abstract method
     """
-    pred_list: List[List[str]]
-    gt_list: List[List[str]]
+    result: ClfResult
+    gt_list: Dict[str, List[str]]
 
     def eval(self) -> float:
         raise NotImplementedError('This is an abstract method')
 
     def __iter__(self):
-        return iter(zip(self.pred_list, self.gt_list))
+        """
+        Keeping order of the iteration is not necessary,
+        but it makes easier to debug.
+        """
+        keys: List[str] = sorted(list(self.result.result.keys()))
+        # perhaps it causes KeyError (although it shouldn't)
+        return iter([self.gt_list[docid] for docid in keys])
 
 
 @dataclass
