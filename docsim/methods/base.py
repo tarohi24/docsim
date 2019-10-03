@@ -6,8 +6,8 @@ from typing import List
 from tqdm import tqdm
 
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.ir.trec import RankItem, TRECConverter
-from docsim.ir.models import QueryDataset, QueryDocument
+from docsim.trec import RankItem, TRECConverter
+from docsim.models import QueryDataset, QueryDocument
 from docsim.text import (
     Filter,
     TextProcessor,

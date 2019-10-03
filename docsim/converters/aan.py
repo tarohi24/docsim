@@ -8,10 +8,10 @@ import xml.etree.ElementTree as ET
 import nltk
 
 from docsim.elas import models
-from docsim.ir.converters.base import (
+from docsim.converters.base import (
     Converter
 )
-from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
+from docsim.models import ColDocument, ColParagraph, QueryDocument
 from docsim.settings import data_dir
 
 logger = logging.getLogger(__file__)

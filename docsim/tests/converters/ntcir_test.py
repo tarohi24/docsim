@@ -2,8 +2,8 @@ from pathlib import Path
 import unittest
 from typing import List
 
-from docsim.ir.converters.ntcir import NTCIRConverter
-from docsim.ir.models import ColDocument, QueryDocument
+from docsim.converters.ntcir import NTCIRConverter
+from docsim.models import ColDocument, QueryDocument
 from docsim.settings import data_dir
 
 

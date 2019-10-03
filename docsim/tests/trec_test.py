@@ -1,7 +1,7 @@
 import unittest
 from typing import Dict
 
-from docsim.ir.trec import RankItem
+from docsim.trec import RankItem
 
 
 class TestRankItem(unittest.TestCase):

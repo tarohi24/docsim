@@ -6,9 +6,9 @@ from dataclasses import dataclass
 from dataclasses_jsonschema import JsonSchemaMixin
 
 from docsim.elas.search import EsResult
-from docsim.ir.methods.base import Searcher, Param
-from docsim.ir.models import QueryDocument
-from docsim.ir.trec import RankItem
+from docsim.methods.base import Searcher, Param
+from docsim.models import QueryDocument
+from docsim.trec import RankItem
 
 
 @dataclass

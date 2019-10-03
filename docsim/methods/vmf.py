@@ -12,9 +12,9 @@ from spherecluster import VonMisesFisherMixture
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix, mat_normalize
 from docsim.embedding.fasttext import FastText
-from docsim.ir.methods.base import Searcher, Param
-from docsim.ir.models import QueryDocument
-from docsim.ir.trec import RankItem
+from docsim.methods.base import Searcher, Param
+from docsim.models import QueryDocument
+from docsim.trec import RankItem
 from docsim.text import (
     Filter,
     LowerFilter,

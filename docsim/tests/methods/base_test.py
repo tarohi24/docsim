@@ -2,10 +2,10 @@ from pathlib import Path
 from typing import Dict, Type
 from unittest.mock import MagicMock
 
-from docsim.ir.methods.base import Param, Searcher
-from docsim.ir.methods.keyword import KeywordBaseline, KeywordBaselineParam
-from docsim.ir.trec import RankItem, TRECConverter
-from docsim.ir.models import QueryDataset
+from docsim.methods.base import Param, Searcher
+from docsim.methods.keyword import KeywordBaseline, KeywordBaselineParam
+from docsim.trec import RankItem, TRECConverter
+from docsim.models import QueryDataset
 from docsim.settings import results_dir
 from docsim.tests.test_case import DocsimTestCase
 

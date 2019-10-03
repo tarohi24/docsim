@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import List, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
-from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
+from docsim.models import ColDocument, ColParagraph, QueryDocument
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')

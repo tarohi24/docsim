@@ -3,8 +3,8 @@ from more_itertools import flatten
 import unittest
 from typing import List
 
-from docsim.ir.converters.aan import AANConverter
-from docsim.ir.models import ColDocument, QueryDocument
+from docsim.converters.aan import AANConverter
+from docsim.models import ColDocument, QueryDocument
 from docsim.settings import data_dir
 
 

@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from docsim.ir.converters.clef import CLEFConverter, NoneException
+from docsim.converters.clef import CLEFConverter, NoneException
 from docsim.settings import data_dir
 
 

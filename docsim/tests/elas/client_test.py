@@ -2,7 +2,7 @@ import unittest  # noqa
 from typing import List
 
 from docsim.elas.client import EsClient
-from docsim.ir.models import ColDocument
+from docsim.models import ColDocument
 from docsim.tests.test_case import DocsimTestCase
 
 

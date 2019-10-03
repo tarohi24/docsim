@@ -6,8 +6,8 @@ import xml.etree.ElementTree as ET
 import nltk
 
 from docsim.elas import models
-from docsim.ir.converters import base
-from docsim.ir.models import ColDocument, ColParagraph, QueryDocument
+from docsim.converters import base
+from docsim.models import ColDocument, ColParagraph, QueryDocument
 
 
 @dataclass

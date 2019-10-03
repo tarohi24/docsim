@@ -8,8 +8,8 @@ from numbers import Real
 from typing import Dict, List, TypeVar
 
 from docsim.elas.client import EsClient
-from docsim.ir.trec import RankItem
 from docsim.settings import es
+from docsim.trec import RankItem
 
 
 T_EsResult = TypeVar('T_EsResult', bound='EsResult')
