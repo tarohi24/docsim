@@ -51,6 +51,15 @@ class QueryDocument(JsonSchemaMixin):
     def text(self) -> str:
         return ' '.join(self.paras)
 
+    def __hash__(self):
+        return hash(self.docid)
+
+    def __eq__(self, another):
+        return (
+            self.__class__ == another.__class__ and
+            self.docid == another.docid
+        )
+
 
 @dataclass
 class QueryDataset(JsonSchemaMixin):
