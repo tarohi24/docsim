@@ -2,7 +2,7 @@
 Principal Angle Analysis
 """
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
@@ -11,7 +11,7 @@ import scipy
 from docsim.elas.search import EsResult
 from docsim.embedding.base import return_matrix
 from docsim.embedding.fasttext import FastText
-from docsim.methods.base import Searcher, Param
+from docsim.methods.base import Method, Param
 from docsim.models import RankItem, QueryDocument
 from docsim.text import Filter, TextProcessor
 
@@ -22,7 +22,7 @@ class PAAParam(Param, JsonSchemaMixin):
 
 
 @dataclass
-class PAA(Searcher):
+class PAA(Method):
     param: PAAParam
     fasttext: FastText = field(default_factory=FastText.create)
 
@@ -47,21 +47,21 @@ class PAA(Searcher):
             n_words=self.param.n_words)
         processor: TextProcessor = TextProcessor(filters=filters)
         candidates: EsResult = self.filter_by_terms(
-            text=query_doc.text,
+            query_doc=query_doc,
             n_words=self.param.n_words,
             size=size)
 
-        pre_filtered_text: Dict[str, str] = {
-            hit.docid: hit.source['text']
-            for hit in candidates.hits}
+        tokens_dict: Dict[Tuple[str, str], List[str]] = {
+            (hit.source['docid'], hit.source['tags'][0]): processor.apply(hit.source['text'])
+            for hit in candidates.hits
+        }
 
         q_matrix: np.ndarray = self.embed_words(processor.apply(query_doc.text))
 
-        scores: Dict[str, float] = dict()
-        for docid, text in pre_filtered_text.items():
-            words: List[str] = processor.apply(text)
+        scores: Dict[Tuple[str, str], float] = dict()
+        for key, words in tokens_dict.items():
             mat: np.ndarray = self.embed_words(words)
             score: float = self.paa(mat, q_matrix)
-            scores[docid] = score
+            scores[key] = score
 
         return RankItem(query_id=query_doc.docid, scores=scores)

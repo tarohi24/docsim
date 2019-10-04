@@ -5,7 +5,7 @@ from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 import logging
 from numbers import Real
-from typing import Dict, List, TypeVar
+from typing import Dict, List, TypeVar, Tuple
 
 from docsim.elas.client import EsClient
 from docsim.settings import es
@@ -31,6 +31,10 @@ class EsResultItem:
             source=data['_source']
         )
         return self
+
+    def get_id_and_tag(self) -> Tuple[str, str]:
+        assert 'tags' in self.source
+        return (self.docid, str(self.source['tags'][0]))
 
 
 @dataclass

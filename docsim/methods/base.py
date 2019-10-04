@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import logging
-from numbers import Real
 from pathlib import Path
 import sys
 from typing import Dict, List
@@ -70,7 +69,7 @@ class Method:
             # loggging
             logger.info(f'Query {i} / {qlen} ...')
             ri: RankItem = self.apply(query)
-            ir_scores: Dict[str, Real] = ri.get_doc_scores()
+            ir_scores: Dict[str, float] = ri.get_doc_scores()
             clf_res.result[query.docid] = ri.pred_tags(n_top=len(ri))
             if not self.is_fake:
                 logger.info('dumping...')
@@ -81,7 +80,7 @@ class Method:
 
     def dump_trec(self,
                   query_id: str,
-                  scores: Dict[str, Real],
+                  scores: Dict[str, float],
                   trec_converter: TRECConverter) -> None:
         trec_converter.incremental_dump(query_id, scores)
 
@@ -123,7 +122,7 @@ class Method:
             .initialize_query()\
             .add_query(terms=q_words, field='text')\
             .add_size(size)\
-            .add_source_fields(['text', ])\
+            .add_source_fields(['text', 'tags', ])\
             .add_filter(terms=query_doc.tags, field='tags')\
             .search()
         return res

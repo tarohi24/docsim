@@ -4,7 +4,7 @@ Word Mover Distance
 from collections import Counter
 from dataclasses import dataclass, field
 from itertools import product
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
@@ -24,7 +24,7 @@ class WMDParam(Param, JsonSchemaMixin):
 
 
 @dataclass
-class WMD(Searcher):
+class WMD(Method):
     param: WMDParam
     fasttext: FastText = field(default_factory=FastText.create)
 
@@ -80,14 +80,15 @@ class WMD(Searcher):
             query_doc=query_doc,
             n_words=self.param.n_words,
             size=size)
-        tokens_dict: Dict[str, List[str]] = {
-            hit.docid: processor.apply(hit.source['text'])
+
+        tokens_dict: Dict[Tuple[str, str], List[str]] = {
+            (hit.source['docid'], hit.source['tags'][0]): processor.apply(hit.source['text'])
             for hit in candidates.hits
         }
 
-        scores: Dict[str, float] = dict()
-        for docid, tokens in tokens_dict.items():
+        scores: Dict[Tuple[str, str], float] = dict()
+        for key, tokens in tokens_dict.items():
             score: float = self.wmd(q_words, tokens)
-            scores[docid] = score
+            scores[key] = score
 
         return RankItem(query_id=query_doc.docid, scores=scores)

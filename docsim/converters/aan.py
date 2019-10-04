@@ -38,7 +38,7 @@ class AANConverter(Converter):
             title: str = title_dic[docid]
         except KeyError:
             logger.warn(f'The title of {docid} is not found')
-            title: str = ''  # noqa
+            title: str = ''  # type: ignore
         with open(fpath, 'r') as fin:
             text: str = fin.read()
         return docid, tags, title, text

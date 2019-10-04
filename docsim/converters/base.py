@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Optional, TypeVar
+from typing import Iterable, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
 from docsim.models import ColDocument, ColParagraph, QueryDocument
@@ -43,15 +43,15 @@ class Converter:
     convert something into IRBase
     """
     def to_document(self,
-                    fpath: Path) -> List[ColDocument]:
+                    fpath: Path) -> Iterable[ColDocument]:
         raise NotImplementedError('This is an abstract method.')
 
     def to_paragraph(self,
-                     fpath: Path) -> List[ColParagraph]:
+                     fpath: Path) -> Iterable[ColParagraph]:
         raise NotImplementedError('This is an abstract method.')
 
     def to_query_dump(self,
-                      fpath: Path) -> List[QueryDocument]:
+                      fpath: Path) -> Iterable[QueryDocument]:
         raise NotImplementedError('This is an abstract method.')
 
 

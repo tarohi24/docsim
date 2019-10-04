@@ -1,7 +1,6 @@
 from __future__ import annotations  # noqa
 from dataclasses import dataclass
 import json
-from numbers import Real
 from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -20,12 +19,12 @@ class RankItem:
     recall, precision and ap considere self as a ground truth
     """
     query_id: str
-    scores: Dict[Tuple[str, str], Real]  # (docid, tag) -> score
+    scores: Dict[Tuple[str, str], float]  # (docid, tag) -> score
 
-    def get_doc_scores(self) -> Dict[str, Real]:
+    def get_doc_scores(self) -> Dict[str, float]:
         return {key[0]: score for key, score in self.scores.items()}
 
-    def get_tag_scores(self) -> Dict[str, Real]:
+    def get_tag_scores(self) -> Dict[str, float]:
         return {key[1]: score for key, score in self.scores.items()}
 
     def pred_tags(self,
@@ -56,8 +55,8 @@ class QueryDocument(JsonSchemaMixin):
 
     def __eq__(self, another):
         return (
-            self.__class__ == another.__class__ and
-            self.docid == another.docid
+            self.__class__ == another.__class__
+            and self.docid == another.docid
         )
 
 

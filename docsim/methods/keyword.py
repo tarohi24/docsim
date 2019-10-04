@@ -24,7 +24,7 @@ class KeywordBaseline(Method):
               query_doc: QueryDocument,
               size: int = 100) -> RankItem:
         # search elasticsearch
-        res: EsResult = self.filter_by_terms(text=query_doc.text,
+        res: EsResult = self.filter_by_terms(query_doc=query_doc,
                                              n_words=self.param.n_words,
                                              size=size)
         return res.to_rank_item(query_id=query_doc.docid)

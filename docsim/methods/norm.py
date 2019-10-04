@@ -3,7 +3,7 @@ Text Similarity Estimation Based on Word Embeddings and
 MatrixNorms for Targeted Marketing. NAACL. 2019
 """
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
@@ -11,16 +11,9 @@ import numpy as np
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix
 from docsim.embedding.fasttext import FastText
-from docsim.methods.base import Searcher, Param
+from docsim.methods.base import Method, Param
 from docsim.models import RankItem, QueryDocument
-from docsim.text import (
-    Filter,
-    LowerFilter,
-    StopWordRemover,
-    RegexRemover,
-    TFFilter,
-    TextProcessor
-)
+from docsim.text import Filter, TextProcessor
 
 
 @dataclass
@@ -30,7 +23,7 @@ class NormParam(Param, JsonSchemaMixin):
 
 
 @dataclass
-class Norm(Searcher):
+class Norm(Method):
     param: NormParam
     fasttext: FastText = field(default_factory=FastText.create)
 
@@ -55,12 +48,10 @@ class Norm(Searcher):
     def retrieve(self,
                  query_doc: QueryDocument,
                  size: int = 100) -> RankItem:
-        filters: List[Filter] = [
-            LowerFilter(),
-            StopWordRemover(),
-            RegexRemover(),
-            TFFilter(n_words=self.param.n_words)]
-        q_words: List[str] = TextProcessor(filters=filters).apply(query_doc.text)
+        filters: List[Filter] = self.get_default_filtes(
+            n_words=self.param.n_words)
+        processor: TextProcessor = TextProcessor(filters=filters)
+        q_words: List[str] = processor.apply(query_doc.text)
         q_matrix: np.ndarray = self.embed_words(q_words)
 
         # pre_filtering
@@ -73,14 +64,14 @@ class Norm(Searcher):
             .add_source_fields(['text'])\
             .search()
 
-        pre_filtered_text: Dict[str, str] = {
-            hit.docid: hit.source['text']
-            for hit in candidates.hits}
+        tokens_dict: Dict[Tuple[str, str], List[str]] = {
+            hit.get_id_and_tag(): processor.apply(hit.source['text'])
+            for hit in candidates.hits
+        }
 
-        scores: Dict[str, float] = dict()
-        for docid, text in pre_filtered_text.items():
-            words: List[str] = TextProcessor(filters=filters).apply(text)
+        scores: Dict[Tuple[str, str], float] = dict()
+        for key, words in tokens_dict.items():
             mat: np.ndarray = self.embed_words(words)
-            scores[docid] = 1 / self.norm(mat, q_matrix)
+            scores[key] = -self.norm(mat, q_matrix)
 
         return RankItem(query_id=query_doc.docid, scores=scores)

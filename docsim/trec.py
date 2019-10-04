@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 import math
-from numbers import Real
 from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -18,7 +17,7 @@ class TRECConverter:
 
     def format_item(self,
                     query_id: str,
-                    scores: Dict[str, Real]) -> List[Tuple[str, ...]]:
+                    scores: Dict[str, float]) -> List[Tuple[str, ...]]:
         return [
             (str(query_id), 'Q0', docid, str(rank + 1), str(math.floor(score)), self.method_name)
             for rank, (docid, score)
@@ -27,7 +26,7 @@ class TRECConverter:
 
     def incremental_dump(self,
                          query_id: str,
-                         scores: Dict[str, Real]) -> None:
+                         scores: Dict[str, float]) -> None:
         records: List[Tuple[str, ...]] = self.format_item(query_id, scores)
         with open(self.get_fpath(), 'a') as fout:
             fout.write('\n'.join([' '.join(rec) for rec in records]))
