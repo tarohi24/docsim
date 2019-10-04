@@ -1,10 +1,9 @@
 from dataclasses import dataclass
+import logging
 from numbers import Real
 from pathlib import Path
 import sys
 from typing import Dict, List
-
-from tqdm import tqdm
 
 from docsim.clf import ClfResult
 from docsim.elas.search import EsResult, EsSearcher
@@ -44,26 +43,40 @@ class Method:
         """
         raise NotImplementedError('This is an abstract method')
 
-    def run_retrieval(self,
-                      trec_converter: TRECConverter) -> None:
-        for query in tqdm(self.query_dataset.queries):
-            ri: RankItem = self.apply(query)
-            scores: Dict[str, Real] = ri.get_doc_scores()
-            # dump result
-            if not self.is_fake:
-                self.dump_trec(query_id=query.docid,
-                               scores=scores,
-                               trec_converter=trec_converter)
+    def clear_results(self,
+                      path: Path) -> None:
+        try:
+            # IR path
+            path.unlink()
+        except FileNotFoundError:
+            pass
 
-    def run_clf(self) -> RankItem:
+    def run(self) -> None:
+        logger = logging.getLogger(self.method_name())
+        trec_converter: TRECConverter = TRECConverter(
+            method_name=self.method_name(),
+            dataset_name=self.query_dataset.name)
         clf_res: ClfResult = ClfResult(
-            dataset_name=self.query_dataset.name,
-            method_name=self.__class__.method_name)
-        for query in tqdm(self.query_dataset.queries):
+            method_name=self.method_name(),
+            dataset_name=self.query_dataset.name)
+
+        if not self.is_fake:
+            # clear existing result files
+            self.clear_results(trec_converter.get_fpath())
+            self.clear_results(clf_res.get_fpath())
+
+        qlen: int = len(self.query_dataset.queries)
+        for i, query in enumerate(self.query_dataset.queries):
+            # loggging
+            logger.info(f'Query {i} / {qlen} ...')
             ri: RankItem = self.apply(query)
-            clf_res.result[query.docid] = ri.pred_tags(n_top=3)
-            # dump result
+            ir_scores: Dict[str, Real] = ri.get_doc_scores()
+            clf_res.result[query.docid] = ri.pred_tags(n_top=len(ri))
             if not self.is_fake:
+                logger.info('dumping...')
+                self.dump_trec(query_id=query.docid,
+                               scores=ir_scores,
+                               trec_converter=trec_converter)
                 clf_res.dump()
 
     def dump_trec(self,

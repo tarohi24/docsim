@@ -37,6 +37,9 @@ class RankItem:
         unique_tags: List[str] = uniq(orig=sorted_score, n_top=n_top)
         return unique_tags
 
+    def __len__(self) -> int:
+        return len(self.scores)
+
 
 @dataclass
 class QueryDocument(JsonSchemaMixin):
