@@ -8,7 +8,6 @@ faiss==1.5.3
 fast-pagerank
 fasttext
 flake8
-flake8-mypy
 gitpython
 jsondict
 jsonschema
