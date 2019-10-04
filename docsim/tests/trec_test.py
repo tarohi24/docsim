@@ -19,13 +19,13 @@ class TestRankItem(unittest.TestCase):
                                      scores=self.dummy_scores)
 
     def test_pred_tags_just_n_top(self):
-        pred = self.ri.pred_tag(n_top=2)
+        pred = self.ri.pred_tags(n_top=2)
         self.assertSetEqual(set(pred), {'A', 'B'})
 
     def test_pred_tags_less_n_top(self):
-        pred = self.ri.pred_tag(n_top=1)
+        pred = self.ri.pred_tags(n_top=1)
         self.assertSetEqual(set(pred), {'A', })
 
     def test_pred_tags_more_n_top(self):
-        pred = self.ri.pred_tag(n_top=3)
+        pred = self.ri.pred_tags(n_top=3)
         self.assertSetEqual(set(pred), {'A', 'B'})

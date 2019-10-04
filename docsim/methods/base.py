@@ -6,7 +6,7 @@ from typing import Dict, List
 
 from docsim.clf import ClfResult
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.trec import TRECConverter
+from docsim.ir import TRECConverter
 from docsim.models import RankItem, QueryDataset, QueryDocument
 from docsim.text import (
     Filter,

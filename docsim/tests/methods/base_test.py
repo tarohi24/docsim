@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 from docsim.methods.base import Param, Method
 from docsim.methods.keyword import KeywordBaseline, KeywordBaselineParam
-from docsim.trec import TRECConverter
+from docsim.ir import TRECConverter
 from docsim.models import QueryDataset, RankItem
 from docsim.settings import results_dir
 from docsim.tests.test_case import DocsimTestCase
