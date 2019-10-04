@@ -27,3 +27,14 @@ services:
       - 9999:9999
     command: jupyter notebook --no-browser --port 9999 --ip=0.0.0.0 --allow-root
     working_dir: /workplace/notebooks
+
+  lsp:
+    image: hirota/python
+    container_name: "lsp_hirota"
+    volumes_from:
+      - python
+    ports:
+      - 11001:11001
+    command: pyls --port 11001
+    working_dir: /workplace
+    tty: true

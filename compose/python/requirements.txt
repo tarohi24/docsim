@@ -20,6 +20,7 @@ pandas>=0.25.0
 PuLP
 pyspark
 pytest
+python-language-server
 sklearn
 spacy
 spherecluster
