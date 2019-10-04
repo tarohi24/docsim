@@ -1,10 +1,4 @@
-"""
-Standalone script for IR Experiment
-"""
 import argparse
-import json
-from pathlib import Path
-from stat import S_IROTH
 from typing import Dict, Type, Tuple
 
 # methods
@@ -15,10 +9,9 @@ from docsim.ir.methods.proj import Proj, ProjParam
 from docsim.ir.methods.vmf import VMF, VMFParam
 from docsim.ir.methods.wmd import WMD, WMDParam
 
+from docsim.experiment import Experimenter
 from docsim.ir.methods.base import Searcher, Param
 from docsim.ir.models import QueryDataset
-from docsim.ir.trec import TRECConverter
-from docsim.settings import project_root
 
 
 parser = argparse.ArgumentParser()
@@ -37,7 +30,7 @@ parser.add_argument('-f', '--fake',
                     help="Specify this flag when you won't save the result")
 
 
-searcher_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
+method_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
     'keyword': (KeywordBaseline, KeywordBaselineParam),
     'norm': (Norm, NormParam),
     'paa': (PAA, PAAParam),
@@ -49,34 +42,16 @@ searcher_classes: Dict[str, Tuple[Type[Searcher], Type[Param]]] = {
 
 def main(ds_name: str,
          runname: str,
-         param_file: Path,
+         param_file: str,
          is_fake: bool) -> None:
-    query_dataset: QueryDataset = QueryDataset.load_dump(name=ds_name)
-    searcher_cls, param_cls = searcher_classes[runname]
-
-    # load param
-    with open(project_root.joinpath(param_file), 'r') as fin:
-        param_dict: Dict = json.load(fin)
-    param: Param = param_cls.from_dict(param_dict)
-    trec_converter: TRECConverter = TRECConverter(
-        method_name=searcher_cls.method_name(),
-        dataset_name=query_dataset.name)
-
-    # initialize fpath
-    if not is_fake:
-        try:
-            trec_converter.get_fpath().unlink()
-        except FileNotFoundError:
-            pass
-    searcher: Searcher = searcher_cls(query_dataset=query_dataset,
-                                      param=param,
-                                      trec_converter=trec_converter,
-                                      is_fake=is_fake)
-
-    # execute
-    searcher.run()
-    # Everyone can only read
-    trec_converter.get_fpath().chmod(S_IROTH)
+    dataset: QueryDataset = QueryDataset.load_dump(name=ds_name)
+    searcher_cls, param_cls = method_classes[runname]
+    exp: Experimenter = Experimenter(
+        param_file=param_file,
+        dataset=dataset,
+        runname=runname,
+        is_fake=is_fake)
+    exp.run()
 
 
 if __name__ == '__main__':
@@ -84,5 +59,5 @@ if __name__ == '__main__':
     is_fake: bool = True if args.fake is not None else False
     main(ds_name=args.dataset,
          runname=args.runname,
-         param_file=Path(args.param_file),
+         param_file=args.param_file,
          is_fake=is_fake)
