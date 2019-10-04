@@ -4,6 +4,7 @@ if executable('pyls')
         \ 'name': 'pyls',
         \ 'cmd': {server_info->['pyls', '--host', 'localhostY', '--port', '11001']},
         \ 'whitelist': ['python'],
+        \ 'workspace_config': {'pyls': {'plugins': {'pylint': {'enabled': v:false}, 'flake8': {'enabled': v:true}}}},
         \ })
 endif
 
