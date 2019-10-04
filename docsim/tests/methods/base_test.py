@@ -15,20 +15,21 @@ class BaseMethodTest(DocsimTestCase):
     def __init__(self, *args, **kwargs):
         super(BaseMethodTest, self).__init__(*args, **kwargs)
         self.param: Param = Param()
-        self.searcher_cls: Type[Method] = Method
+        self.method_cls: Type[Method] = Method
         self.query_dataset: QueryDataset = QueryDataset.load_dump(name='clef')
         self.trec_converter: TRECConverter = TRECConverter(
-            method_name=self.searcher_cls.method_name(),
+            method_name=self.method_cls.method_name(),
             dataset_name=self.query_dataset.name)
-        self.searcher: Method = Method(query_dataset=self.query_dataset,
-                                       param=self.param,
-                                       is_fake=False)
+        self.method: Method = Method(query_dataset=self.query_dataset,
+                                     param=self.param,
+                                     is_fake=False)
 
     def setUp(self):
         results_dir.joinpath('ir/clef').mkdir(parents=True)
+        results_dir.joinpath('clf/clef').mkdir(parents=True)
 
     def test_method_name(self):
-        assert self.searcher_cls.method_name() == 'base'
+        assert self.method_cls.method_name() == 'base'
 
     def test_subclass_method_name(self):
         param: KeywordBaselineParam = KeywordBaselineParam(n_words=2)
@@ -41,9 +42,9 @@ class BaseMethodTest(DocsimTestCase):
         text: str = '''This is Test test; test. for for for patent patent,'''
         self.assertListEqual(
             ['test', 'patent', ],
-            self.searcher.get_query_words(text, n_words=2))
+            self.method.get_query_words(text, n_words=2))
 
-    def test_retrieve(self):
+    def test_run(self):
         prel_path: Path = self.trec_converter.get_fpath()
         assert not prel_path.exists()
         dummy_score: Dict[str, float] = {
@@ -53,11 +54,11 @@ class BaseMethodTest(DocsimTestCase):
         rankitem: RankItem = RankItem(
             query_id='dummy',
             scores=dummy_score)
-        searcher: Method = Method(query_dataset=self.query_dataset,
-                                  param=self.param,
-                                  is_fake=False)
-        searcher.apply = MagicMock(return_value=rankitem)
-        searcher.run_retrieval(trec_converter=self.trec_converter)
+        method: Method = Method(query_dataset=self.query_dataset,
+                                param=self.param,
+                                is_fake=False)
+        method.apply = MagicMock(return_value=rankitem)
+        method.run()
 
         assert prel_path.exists()
         with open(prel_path, 'r') as fin:
