@@ -19,9 +19,16 @@ class DocsimTestCase(TestCase):
     def clean_results(self):
         # assertion to prevent from deleting from production results
         assert results_dir != project_root.joinpath('results')
-        if results_dir.joinpath('ir').exists():
-            results_dir.joinpath('ir').joinpath('clef').rmdir()
-            results_dir.joinpath('ir').rmdir()
+        for task in ('ir', 'clf'):
+            if results_dir.joinpath(task).exists():
+                clefdir: Path = results_dir.joinpath(task).joinpath('clef')
+                for fpath in clefdir.glob('*.prel'):
+                    fpath.unlink()
+                for fpath in clefdir.glob('*.json'):
+                    fpath.unlink()
+
+                clefdir.rmdir()
+                results_dir.joinpath(task).rmdir()
 
     def tearDown(self):
         self.clean_results()
