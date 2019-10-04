@@ -1,3 +1,4 @@
+autoflake
 allennlp
 chardet
 cython
@@ -6,6 +7,7 @@ elasticsearch
 faiss==1.5.3
 fast-pagerank
 fasttext
+flake8
 gitpython
 jsondict
 jsonschema
