@@ -5,14 +5,13 @@ from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 import logging
 from numbers import Real
-from typing import Dict, List, TypeVar, Tuple
+from typing import Dict, List, Tuple
 
 from docsim.elas.client import EsClient
 from docsim.settings import es
 from docsim.models import RankItem
 
 
-T_EsResult = TypeVar('T_EsResult', bound='EsResult')
 logger = logging.getLogger(__file__)
 
 
@@ -24,7 +23,7 @@ class EsResultItem:
 
     @classmethod
     def from_dict(cls,
-                  data: Dict) -> 'EsResultItem':
+                  data: Dict) -> EsResultItem:
         self = EsResultItem(
             docid=data['_source']['docid'],
             score=data['_score'],
@@ -43,7 +42,7 @@ class EsResult:
 
     @classmethod
     def from_dict(cls,
-                  data: Dict) -> 'EsResult':
+                  data: Dict) -> EsResult:
         hits: List[Dict] = data['hits']['hits']  # type: ignore
         return cls([EsResultItem.from_dict(hit) for hit in hits])
 
@@ -66,18 +65,18 @@ class EsSearcher:
             es.search(index=self.es_index, body=self.query))
         return res
 
-    def initialize_query(self) -> 'EsSearcher':
+    def initialize_query(self) -> EsSearcher:
         self.query['_source'] = ['docid', ]
         return self
 
-    def add_match_all(self) -> 'EsSearcher':
+    def add_match_all(self) -> EsSearcher:
         self.query['query'] = {'match_all': {}}
         return self
 
     def add_query(self,
                   terms: List[str],
                   field: str = 'text',
-                  condition: str = 'should') -> 'EsSearcher':
+                  condition: str = 'should') -> EsSearcher:
         """
         modify self.query
         """
@@ -92,7 +91,7 @@ class EsSearcher:
         return self
 
     def add_size(self,
-                 size: int) -> 'EsSearcher':
+                 size: int) -> EsSearcher:
         """
         modify self.size
         """
@@ -100,7 +99,7 @@ class EsSearcher:
         return self
 
     def add_source_fields(self,
-                          source_fields: List[str]) -> 'EsSearcher':
+                          source_fields: List[str]) -> EsSearcher:
         """
         modify self._source
         """
@@ -110,7 +109,7 @@ class EsSearcher:
     def add_filter(self,
                    terms: List[str],
                    field: str = 'tags',
-                   condition: str = 'should') -> 'EsSearcher':
+                   condition: str = 'should') -> EsSearcher:
         """
         modify self.query
         """
