@@ -28,8 +28,8 @@ class RankItem:
     def get_tag_scores(self) -> Dict[str, Real]:
         return {key[1]: score for key, score in self.scores.items()}
 
-    def pred_tag(self,
-                 n_top: int) -> List[str]:
+    def pred_tags(self,
+                  n_top: int) -> List[str]:
         sorted_score: List[str] = [
             tag for tag, _ in sorted(self.get_tag_scores().items(),
                                      key=itemgetter(1),

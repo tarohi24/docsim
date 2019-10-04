@@ -13,7 +13,7 @@ from scipy.spatial.distance import euclidean
 
 from docsim.elas.search import EsResult
 from docsim.embedding.fasttext import FastText
-from docsim.methods.base import Searcher, Param
+from docsim.methods.base import Method, Param
 from docsim.models import QueryDocument, RankItem
 from docsim.text import Filter, TextProcessor
 
