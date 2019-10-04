@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from unittest import TestCase
 
 from docsim.settings import project_root, results_dir
