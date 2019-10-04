@@ -3,7 +3,13 @@ Module for conducting an experiment
 """
 from dataclasses import dataclass
 import json
-from typing import Dict, Generic, TypeVar
+from typing import Dict, Generic, Type, TypeVar, Tuple
+
+# methods
+from docsim.methods.keyword import KeywordBaseline, KeywordBaselineParam
+from docsim.methods.norm import Norm, NormParam
+from docsim.methods.paa import PAA, PAAParam
+from docsim.methods.wmd import WMD, WMDParam
 
 from docsim.methods.base import Method, Param
 from docsim.models import QueryDataset
@@ -12,6 +18,14 @@ from docsim.settings import project_root
 
 T_met = TypeVar('T_met', bound=Method)
 T_par = TypeVar('T_par', bound=Param)
+
+
+method_classes: Dict[str, Tuple[Type[Method], Type[Param]]] = {
+    'keyword': (KeywordBaseline, KeywordBaselineParam),
+    'norm': (Norm, NormParam),
+    'paa': (PAA, PAAParam),
+    'wmd': (WMD, WMDParam),
+}
 
 
 @dataclass
