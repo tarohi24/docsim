@@ -70,7 +70,7 @@ class QueryDataset(JsonSchemaMixin):
         return data_dir.joinpath(f'{name}/query/dump.json')
 
     @classmethod
-    def load_dump(cls, name: str) -> 'QueryDocument':
+    def load_dump(cls, name: str) -> QueryDataset:
         with open(cls._get_dump_path(name=name), 'r') as fin:
             dic: Dict = json.load(fin)
         return cls.from_dict(dic)
@@ -114,7 +114,7 @@ class ColDocument(models.EsItem):
                                 docid: str,
                                 title: str,
                                 text: str,
-                                tags: List[str]) -> 'ColDocument':
+                                tags: List[str]) -> ColDocument:
         """
         for testing
         """

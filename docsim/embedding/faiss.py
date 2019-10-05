@@ -1,3 +1,4 @@
+from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -24,7 +25,7 @@ class Faiss:
         return data_dir.joinpath(f'{name}.faiss')
 
     @classmethod
-    def load(cls, name: str) -> 'Faiss':
+    def load(cls, name: str) -> Faiss:
         fname: str = str(cls.dump_path_from_name(name).resolve())
         index: faiss.Index = faiss.write_index(cls.index, fname)
         return cls(name=name, index=index)
@@ -32,12 +33,12 @@ class Faiss:
     @classmethod
     def create(cls,
                name: str,
-               dim: int) -> 'Faiss':
+               dim: int) -> Faiss:
         return cls(name=name, index=faiss.IndexFlatL2(dim))
 
     def add(self,
             docid: str,
-            matrix: np.ndarray) -> 'Faiss':
+            matrix: np.ndarray) -> Faiss:
         doclen: int = matrix.shape[0]
         self.docid_to_indices[docid] = list(range(self.counter,
                                                   self.counter + doclen))

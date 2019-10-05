@@ -56,6 +56,9 @@ class EsResult:
 
 @dataclass
 class EsSearcher:
+    """
+    Module for search for Elasticsearch
+    """
     es_index: str
     query: Dict = field(default_factory=dict)
     es: EsClient = es

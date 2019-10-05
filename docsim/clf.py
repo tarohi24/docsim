@@ -25,7 +25,6 @@ class ClfResult(JsonSchemaMixin):
         with open(self.get_fpath(), 'w') as fout:
             json.dump(self.to_dict(), fout)
 
-
 @dataclass
 class Evaluator:
     """
