@@ -8,6 +8,7 @@ services:
     container_name: "lsp_hirota"
     volumes:
       - /home/hirota/docsim:/home/hirota/docsim
+      - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
     ports:
       - 11001:11001
     working_dir: /workplace
