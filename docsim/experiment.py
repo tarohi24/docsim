@@ -15,10 +15,8 @@ from docsim.methods.base import Method, Param
 from docsim.models import QueryDataset
 from docsim.settings import project_root
 
-
 T_met = TypeVar('T_met', bound=Method)
 T_par = TypeVar('T_par', bound=Param)
-
 
 method_classes: Dict[str, Tuple[Type[Method], Type[Param]]] = {
     'keyword': (KeywordBaseline, KeywordBaselineParam),

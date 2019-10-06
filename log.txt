@@ -1,0 +1,14 @@
+<string>:18:1: error: Name 'asdf' is not defined
+<string>:41:24: error: 'T_par' is a type variable and only valid in type context
+<string>:45:25: error: 'T_met' is a type variable and only valid in type context
+Found 3 errors in 1 file (checked 1 source file)
+<string>:18:1: error: Name 'asdf' is not defined
+<string>:41:24: error: 'T_par' is a type variable and only valid in type context
+<string>:45:25: error: 'T_met' is a type variable and only valid in type context
+Found 3 errors in 1 file (checked 1 source file)
+<string>:39:24: error: 'T_par' is a type variable and only valid in type context
+<string>:43:25: error: 'T_met' is a type variable and only valid in type context
+Found 2 errors in 1 file (checked 1 source file)
+<string>:39:24: error: 'T_par' is a type variable and only valid in type context
+<string>:43:25: error: 'T_met' is a type variable and only valid in type context
+Found 2 errors in 1 file (checked 1 source file)

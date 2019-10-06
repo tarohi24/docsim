@@ -5,8 +5,8 @@ let g:lsp_client = join([system('git rev-parse --show-toplevel')[:-2], '/compose
 if executable('pyls')
     au User lsp_setup call lsp#register_server({
         \ 'name': 'pyls',
-        \ 'cmd': {server_info -> ['docker-compose', '-f', g:lsp_client, 'run', '--rm', 'lsp', 'pyls']},
+        \ 'cmd': {server_info -> ['docker-compose', '-f', g:lsp_client, 'run', '--rm', '-w', '/home/hirota/docsim', 'lsp', 'pyls']},
         \ 'whitelist': ['python'],
-        \ 'workspace_config': {'pyls': {'configurationSources': ['flake8'], 'plugins': {'mypy': {'enabled': v:true}, 'pylint': {'enabled': v:false}, 'pycodestyle': {'enabled': v:false}, 'flake8': {'enabled': v:true}}}},
+        \ 'workspace_config': {'pyls': {'configurationSources': ['flake8'], 'plugins': {'mypy': {'enabled': v:true, 'live_mode': v:false}, 'pylint': {'enabled': v:false}, 'pycodestyle': {'enabled': v:false}, 'flake8': {'enabled': v:true}}}},
         \ })
 endif
