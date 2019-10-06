@@ -60,3 +60,4 @@ class EsClient:
                                            chunk_size=100):
             if not ok:
                 logger.warn('Bulk insert: fails')
+        self.es.indices.refresh()
