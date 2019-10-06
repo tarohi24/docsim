@@ -28,6 +28,8 @@ method_classes: Dict[str, Tuple[Type[Method], Type[Param]]] = {
 
 @dataclass
 class Experimenter(Generic[T_met, T_par]):
+    met_cls: Type[T_met]
+    par_cls: Type[T_par]
     param_file: str
     dataset: QueryDataset
     runname: str
@@ -36,12 +38,12 @@ class Experimenter(Generic[T_met, T_par]):
     def load_param(self) -> T_par:
         with open(project_root.joinpath(self.param_file), 'r') as fin:
             param_dict: Dict = json.load(fin)
-        param: T_par = T_par.from_dict(param_dict)
+        param: T_par = self.par_cls.from_dict(param_dict)
         return param
 
     def run(self) -> None:
-        method: T_met = T_met(
+        method: T_met = self.met_cls(
             query_dataset=self.dataset,
             param=self.load_param(),
-            if_fake=self.is_fake)
+            is_fake=self.is_fake)
         method.run()

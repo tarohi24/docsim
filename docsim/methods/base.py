@@ -4,6 +4,8 @@ from pathlib import Path
 import sys
 from typing import Dict, List
 
+from dataclasses_jsonschema import JsonSchemaMixin
+
 from docsim.clf import ClfResult
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.ir import TRECConverter
@@ -18,7 +20,7 @@ from docsim.text import (
 )
 
 
-class Param:
+class Param(JsonSchemaMixin):
     pass
 
 
