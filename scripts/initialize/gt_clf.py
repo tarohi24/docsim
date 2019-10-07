@@ -2,9 +2,9 @@
 Module for generating GT for classification
 """
 import argparse
-import json
 from typing import Dict, List
 
+from docsim.clf import ClfResult
 from docsim.models import QueryDataset
 
 parser = argparse.ArgumentParser()
@@ -23,6 +23,8 @@ if __name__ == '__main__':
         qd.docid: qd.tags
         for qd in dataset.queries
     }
-    
-    with open(dataset.get_clf_gt_path(), 'w') as fout:
-        json.dump(gt, fout)
+    gt: ClfResult = ClfResult(
+        dataset_name=ds,
+        method_name='gt',
+        result=gt)
+    gt.dump()
