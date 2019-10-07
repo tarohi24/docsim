@@ -40,20 +40,20 @@ class PAA(Method):
         angles: np.ndarray = np.radians(scipy.linalg.subspace_angles(A.T, B.T))
         return np.sqrt(300 - np.sum(np.cos(angles) ** 2))
 
-    def retrieve(self,
-                 query_doc: QueryDocument,
-                 size: int = 100) -> RankItem:
+    def apply(self,
+              query_doc: QueryDocument,
+              size: int = 100) -> RankItem:
         filters: List[Filter] = self.get_default_filtes(
             n_words=self.param.n_words)
         processor: TextProcessor = TextProcessor(filters=filters)
-        candidates: EsResult = self.filter_by_terms(
+        cands: EsResult = self.filter_by_terms(
             query_doc=query_doc,
             n_words=self.param.n_words,
             size=size)
 
         tokens_dict: Dict[Tuple[str, str], List[str]] = {
-            (hit.source['docid'], hit.source['tags'][0]): processor.apply(hit.source['text'])
-            for hit in candidates.hits
+            hit.get_id_and_tag(): processor.apply(hit.source['text'])
+            for hit in cands.hits
         }
 
         q_matrix: np.ndarray = self.embed_words(processor.apply(query_doc.text))
