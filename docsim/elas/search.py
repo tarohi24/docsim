@@ -4,7 +4,6 @@ Module for elasticsaerch
 from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 import logging
-from numbers import Real
 from typing import Dict, List, Tuple
 
 from docsim.elas.client import EsClient
@@ -48,8 +47,8 @@ class EsResult:
 
     def to_rank_item(self,
                      query_id: str) -> RankItem:
-        scores: Dict[str, Real] = {
-            hit.docid: hit.score
+        scores: Dict[Tuple[str, str], float] = {
+            hit.get_id_and_tag(): hit.score
             for hit in self.hits}
         return RankItem(query_id=query_id, scores=scores)
 
