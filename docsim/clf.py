@@ -1,6 +1,7 @@
 """
 Module for classification
 """
+from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
@@ -19,7 +20,22 @@ class ClfResult(JsonSchemaMixin):
     result: Dict[str, List[str]] = field(default_factory=dict)
 
     def get_fpath(self) -> Path:
-        return results_dir.joinpath(f'clf/{self.dataset_name}/{self.method_name}.json')
+        return self.__class__.get_fpath_from(dataset_name=self.dataset_name,
+                                            method_name=self.method_name)
+
+    @classmethod
+    def get_fpath_from(cls,
+                       dataset_name: str,
+                       method_name: str) -> Path:
+        return results_dir.joinpath(f'clf/{dataset_name}/{method_name}.json')
+
+    @classmethod
+    def load(cls,
+             dataset_name: str,
+             method_name: str) -> ClfResult:
+        with open(cls.get_fpath_from(dataset_name, method_name)) as fin:
+            dic: Dict = json.load(fin)
+        return cls.from_dict(dic)
 
     def dump(self) -> None:
         with open(self.get_fpath(), 'w') as fout:
