@@ -5,6 +5,7 @@ import sys
 from typing import Dict, List
 
 from dataclasses_jsonschema import JsonSchemaMixin
+from tqdm import tqdm
 
 from docsim.clf import ClfResult
 from docsim.elas.search import EsResult, EsSearcher
@@ -67,7 +68,7 @@ class Method:
             self.clear_results(clf_res.get_fpath())
 
         qlen: int = len(self.query_dataset.queries)
-        for i, query in enumerate(self.query_dataset.queries):
+        for i, query in tqdm(enumerate(self.query_dataset.queries)):
             # loggging
             logger.info(f'Query {i} / {qlen} ...')
             ri: RankItem = self.apply(query)
