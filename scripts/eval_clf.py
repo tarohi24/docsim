@@ -24,11 +24,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
     ds: str = args.dataset[0]
     met: str = args.method[0]
-    pred: ClfResult = clf.ClfResult(dataset_name=ds, method_name=met)
+    pred: clf.ClfResult = clf.ClfResult.load(dataset_name=ds, method_name=met)
+    gt: clf.ClfResult = clf.ClfResult.load(dataset_name=ds, method_name='gt')
+
     evaluators: List[clf.Evaluator] = [
         clf.AccuracyEvaluator(n_top=3),
     ]
 
     for evaluator in evaluators:
-        print(evaluator.eval(pred,
-    
+        print('{}: {}'.format(
+            evaluator,
+            evaluator.eval(pred=pred, gt=gt)))
