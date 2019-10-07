@@ -79,7 +79,7 @@ class QueryDataset(JsonSchemaMixin):
         return results_dir.joinpath(f'{self.name}')
 
     def get_clf_gt_path(self) -> Path:
-        return self.get_result_dir().joinpath('en.valid.json')
+        return results_dir.joinpath(f'clf/{self.name}/en.valid.json')
 
     def __len__(self):
         return len(self.queries)
