@@ -19,8 +19,10 @@ class ExperimenterTest(DocsimTestCase):
 
     def setUp(self, *args, **kwargs):
         super(ExperimenterTest, self).setUp(*args, **kwargs)
-        assert results_dir.joinpath('ir/clef').mkdir(parents=True)
-        assert results_dir.joinpath('clf/clef').mkdir(parents=True)
+        assert not results_dir.joinpath('ir/clef').exists()
+        results_dir.joinpath('ir/clef').mkdir(parents=True)
+        assert not results_dir.joinpath('clf/clef').exists()
+        results_dir.joinpath('clf/clef').mkdir(parents=True)
 
     def test_load_param_which_exists(self):
         exp: Experimenter = Experimenter(
