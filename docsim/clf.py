@@ -4,7 +4,7 @@ Module for classification
 from dataclasses import dataclass, field
 import json
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
@@ -30,10 +30,15 @@ class Evaluator:
     """
     Abstract method
     """
-    result: ClfResult
-    gt_list: Dict[str, List[str]]
 
-    def eval(self) -> float:
+    @classmethod
+    @property
+    def name(cls) -> str:
+        raise NotImplementedError('This is an abstract method')
+
+    def eval(self,
+             result: ClfResult,
+             gt_list: Dict[str, List[str]]) -> float:
         raise NotImplementedError('This is an abstract method')
 
     def __iter__(self):
@@ -50,6 +55,16 @@ class Evaluator:
 class AccuracyEvaluator(Evaluator):
     n_top: int
 
-    def eval(self) -> float:
-        lst: List[bool] = [len(set(pred[:self.n_top]) & set(gt)) > 0 for pred, gt in self]
+    @classmethod
+    @property
+    def name(cls) -> str:
+        return 'acc'
+
+    def eval(self,
+             pred: ClfResult,
+             gt_list: Dict[str, List[str]]) -> float:
+        keys: Set[str] = set(pred.result.keys()) & set(gt_list.keys())
+        lst: List[bool] = [
+            len(set(pred.result[key][:self.n_top]) & set(gt_list[key][:self.n_top])) > 0
+            for key in keys]
         return np.mean([1.0 if acc else 0.0 for acc in lst])
