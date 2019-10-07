@@ -45,29 +45,21 @@ class Norm(Method):
         ab: float = np.linalg.norm(np.dot(A, B.T), ord=self.param.norm)
         return ab / np.sqrt(aa * bb)
 
-    def retrieve(self,
-                 query_doc: QueryDocument,
-                 size: int = 100) -> RankItem:
+    def apply(self,
+              query_doc: QueryDocument,
+              size: int = 100) -> RankItem:
+        cands: EsResult = self.filter_by_terms(query_doc=query_doc,
+                                               n_words=self.param.n_words,
+                                               size=size)
+
         filters: List[Filter] = self.get_default_filtes(
             n_words=self.param.n_words)
         processor: TextProcessor = TextProcessor(filters=filters)
-        q_words: List[str] = processor.apply(query_doc.text)
-        q_matrix: np.ndarray = self.embed_words(q_words)
-
-        # pre_filtering
-        searcher: EsSearcher = EsSearcher(es_index=self.query_dataset.name)
-        candidates: EsResult = searcher\
-            .initialize_query()\
-            .add_query(terms=q_words, field='text')\
-            .add_size(size)\
-            .add_filter(terms=query_doc.tags, field='tags')\
-            .add_source_fields(['text'])\
-            .search()
-
         tokens_dict: Dict[Tuple[str, str], List[str]] = {
             hit.get_id_and_tag(): processor.apply(hit.source['text'])
-            for hit in candidates.hits
+            for hit in cands.hits
         }
+        q_matrix: np.ndarray = self.embed_words(processor.apply(query_doc.text))
 
         scores: Dict[Tuple[str, str], float] = dict()
         for key, words in tokens_dict.items():
