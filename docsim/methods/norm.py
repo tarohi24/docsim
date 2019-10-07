@@ -8,7 +8,7 @@ from typing import Dict, List, Tuple
 from dataclasses_jsonschema import JsonSchemaMixin
 import numpy as np
 
-from docsim.elas.search import EsResult, EsSearcher
+from docsim.elas.search import EsResult
 from docsim.embedding.base import return_matrix
 from docsim.embedding.fasttext import FastText
 from docsim.methods.base import Method, Param
