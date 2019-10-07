@@ -46,15 +46,9 @@ class Evaluator:
     """
     Abstract method
     """
-
-    @classmethod
-    @property
-    def name(cls) -> str:
-        raise NotImplementedError('This is an abstract method')
-
     def eval(self,
-             result: ClfResult,
-             gt_list: Dict[str, List[str]]) -> float:
+             pred: ClfResult,
+             gt: ClfResult) -> float:
         raise NotImplementedError('This is an abstract method')
 
     def __iter__(self):
@@ -71,16 +65,14 @@ class Evaluator:
 class AccuracyEvaluator(Evaluator):
     n_top: int
 
-    @classmethod
-    @property
-    def name(cls) -> str:
-        return 'acc'
-
     def eval(self,
              pred: ClfResult,
-             gt_list: Dict[str, List[str]]) -> float:
-        keys: Set[str] = set(pred.result.keys()) & set(gt_list.keys())
+             gt: ClfResult) -> float:
+        keys: Set[str] = set(pred.result.keys()) & set(gt.result.keys())
         lst: List[bool] = [
-            len(set(pred.result[key][:self.n_top]) & set(gt_list[key][:self.n_top])) > 0
+            len(set(pred.result[key][:self.n_top]) & set(gt.result[key][:self.n_top])) > 0
             for key in keys]
         return np.mean([1.0 if acc else 0.0 for acc in lst])
+
+    def __repr__(self) -> str:
+        return f'acc@{self.n_top}'
