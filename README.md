@@ -13,6 +13,12 @@ NOTE: This is used mainly for conducting experiments (not for producions).
 - Docker Compose(12.04~)
 - Python (3.7~)
 
+### Prepare for datasets
+
+We use three datasets for testing methods, AAN, CLEF and NTCIR. To use NTCIR, you need to [contact NTCIR](http://research.nii.ac.jp/ntcir/permission/ntcir-6/perm-en-PATENT.html) to get a license.
+
+**AAN** Download AAN corpus in [this website](http://aan.how/download/).
+
 ### Installation and execution
 At first, clone this repository. `git clone https://github.com/tarohi24/docsim`
 
