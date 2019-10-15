@@ -9,11 +9,11 @@ import xml.etree.ElementTree as ET
 from tqdm import tqdm
 
 from docsim.elas.client import EsClient
-from docsim.ir.converters.base import Converter, DummyConverter, find_text_or_default, get_or_raise_exception
-from docsim.ir.converters.aan import AANConverter
-from docsim.ir.converters.clef import CLEFConverter
-from docsim.ir.converters.ntcir import NTCIRConverter
-from docsim.ir.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
+from docsim.converters.base import Converter, DummyConverter, find_text_or_default, get_or_raise_exception
+from docsim.converters.aan import AANConverter
+from docsim.converters.clef import CLEFConverter
+from docsim.converters.ntcir import NTCIRConverter
+from docsim.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
 from docsim.settings import data_dir
 
 logger = logging.getLogger(__file__)
