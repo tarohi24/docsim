@@ -86,3 +86,10 @@ class E2EConverter:
             logger.info(f'{self.name}: name mappings are not necessary...')
             pass
 
+    def run(self) -> None:
+        logger.info(f'{self.name}: dumping queries...')
+        self.dump_query()
+        logger.info(f'{self.name}: creating mappings...')
+        self.create_name_mapping()
+        logger.info(f'{self.name}: inserting collection docs...')
+        self.insert_col()
