@@ -79,5 +79,10 @@ class E2EConverter:
 
     def create_name_mappings(self) -> None:
         mpg: Dict[str, str] = self.dataset.create_name_mapping()
-        with open(self.dataset.mapping_fpath, 'w') as fout:
-            json.dump(mpg, fout)
+        try:
+            with open(self.dataset.mapping_fpath, 'w') as fout:
+                json.dump(mpg, fout)
+        except FileNotFoundError:
+            logger.info(f'{self.name}: name mappings are not necessary...')
+            pass
+
