@@ -3,7 +3,6 @@ let g:lsp_log_file = expand('~/vim-lsp.log')
 let g:lsp_client = join([system('git rev-parse --show-toplevel')[:-2], '/compose/lsp/docker-compose.yaml'], '')
 
 function Lsp()
-    echo "launching ls..."
     au User lsp_setup call lsp#register_server({
         \ 'name': 'pyls',
         \ 'cmd': {server_info -> ['docker-compose', '-f', g:lsp_client, 'run', '--rm', '-w', '/home/hirota/docsim', 'lsp', 'pyls']},
