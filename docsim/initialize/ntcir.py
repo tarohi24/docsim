@@ -1,12 +1,11 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Generator, Iterable, List, Type
+from typing import Dict, Generator
 import xml.etree.ElementTree as ET
 
-from docsim.converters.base import Converter, DummyConverter, find_text_or_default, get_or_raise_exception
+from docsim.converters.base import find_text_or_default, get_or_raise_exception
 from docsim.converters.ntcir import NTCIRConverter
 from docsim.initialize.base import base
-from docsim.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
 from docsim.settings import data_dir
 
 

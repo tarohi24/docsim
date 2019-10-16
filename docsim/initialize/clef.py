@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Generator, Iterable, List, Type
+from typing import Generator
 
 from docsim.converters.clef import CLEFConverter
 from docsim.initialize.base import Dataset
