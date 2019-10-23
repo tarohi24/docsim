@@ -102,8 +102,15 @@ ENV/
 .mypy_cache/
 
 # data
-data/*
-!data/.gitkeep
+data/aan/orig/collection
+data/aan/orig/titles.txt
+data/aan/query
+data/clef/orig/collection
+data/clef/orig/query
+data/clef/query
+data/ntcir/orig/collection
+data/ntcir/orig/query
+data/ntcir/query
 #
 # models
 models/*
