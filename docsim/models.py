@@ -55,8 +55,8 @@ class QueryDocument(JsonSchemaMixin):
 
     def __eq__(self, another):
         return (
-            self.__class__ == another.__class__
-            and self.docid == another.docid
+            (self.__class__ == another.__class__)
+            and (self.docid == another.docid)
         )
 
 

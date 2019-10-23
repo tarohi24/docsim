@@ -50,7 +50,8 @@ class Dataset:
                 if ename == 'NameError':
                     logger.exception(e, exc_info=True)
                 if ename not in pbar_fails:
-                    pbar_fails[ename] = tqdm(position=len(pbar_fails), desc=ename)
+                    pbar_fails[ename] = tqdm(
+                        position=len(pbar_fails), desc=ename)
                 pbar_fails[ename].update(1)
                 logger.error('Bulk insert: failes')
             else:
@@ -59,16 +60,19 @@ class Dataset:
 
 @dataclass
 class E2EConverter:
+    """end-to-end converter"""
     dataset: Dataset
     name: str
 
     def dump_query(self) -> None:
         qlist: List[QueryDocument] = sum(
-            [list(self.dataset.converter.to_query_dump(fpath)) for fpath in self.dataset.iter_query_files()],
+            [list(self.dataset.converter.to_query_dump(fpath))
+             for fpath in self.dataset.iter_query_files()],
             []
         )
         dic: Dict = QueryDataset(name=self.name, queries=qlist).to_dict()
-        with open(data_dir.joinpath(f'{self.name}/query/dump.json'), 'w') as fout:
+        fpath: Path = data_dir.joinpath(f'{self.name}/query/dump.json')
+        with open(fpath, 'w') as fout:
             json.dump(dic, fout)
 
     def insert_col(self) -> None:
@@ -90,6 +94,6 @@ class E2EConverter:
         logger.info(f'{self.name}: dumping queries...')
         self.dump_query()
         logger.info(f'{self.name}: creating mappings...')
-        self.create_name_mapping()
-        logger.info(f'{self.name}: inserting collection docs...')
+        self.create_name_mappings()
+        logger.info(f'{self.name}: creating mappings...')
         self.insert_col()
