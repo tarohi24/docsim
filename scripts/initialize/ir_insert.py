@@ -26,13 +26,14 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    ds_name: str = args.parse_args()
+    ds_name: str = args.dataset[0]
     dataset_dict: Dict[str, Type[Dataset]] = {
         'clef': CLEFDataset,
         'ntcir': NTCIRDataset,
         'aan': AANDataset,
     }
-    dataset: Type[Dataset] = dataset_dict[ds_name]()
+    cls: Type[Dataset] = dataset_dict[ds_name]
+    dataset = cls()
     e2e: E2EConverter = E2EConverter(dataset=dataset, name=ds_name)
     e2e.run()
     return 0

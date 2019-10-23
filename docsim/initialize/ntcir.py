@@ -5,12 +5,12 @@ import xml.etree.ElementTree as ET
 
 from docsim.converters.base import find_text_or_default, get_or_raise_exception
 from docsim.converters.ntcir import NTCIRConverter
-from docsim.initialize.base import base
+from docsim.initialize.base import Dataset
 from docsim.settings import data_dir
 
 
 @dataclass
-class NTCIRDataset(base.Dataset):
+class NTCIRDataset(Dataset):
     converter: NTCIRConverter = field(default_factory=NTCIRConverter)
 
     @property
