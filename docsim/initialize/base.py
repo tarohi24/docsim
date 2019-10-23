@@ -95,3 +95,5 @@ class E2EConverter:
         self.dump_query()
         logger.info(f'{self.name}: creating mappings...')
         self.create_name_mappings()
+        logger.info(f'{self.name}: creating mappings...')
+        self.insert_col()
