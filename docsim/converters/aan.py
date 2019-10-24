@@ -15,7 +15,7 @@ from docsim.models import ColDocument, ColParagraph, QueryDocument
 from docsim.settings import data_dir
 
 logger = logging.getLogger(__file__)
-with open(data_dir.joinpath('aan/orig/titles.txt'), 'r') as fin:
+with open(data_dir.joinpath('aan/orig/citations.txt'), 'r') as fin:
     title_dic: Dict[str, str] = {
         line[0]: line[1]
         for line
