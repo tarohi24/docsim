@@ -3,5 +3,9 @@ AAD Dataset
 
 Files which should be in this directoty are
 
-- `orig/title.txt` is a mapping from an ID to its title (a tab-separated txt file).
+- `orig/citations.txt` lists citations within the dataset. In the original dataset, it exists as `aan/release/2014/acl.txt`.
 - `orig/collection` stores original txt files.
+
+## Note
+
+After migrations from the original dataset, run `lib/format_rels.py` so that it outputs the `.qrels` file.
