@@ -110,6 +110,5 @@ class E2EConverter:
         self.create_name_mappings()
         logger.info(f'{self.name}: creating mappings...')
         self.insert_col()
-        self.insert_col()
         logger.info(f'{self.name}: creating classification labels...')
         self.generate_clf_gt()
