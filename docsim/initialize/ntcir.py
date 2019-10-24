@@ -18,10 +18,10 @@ class NTCIRDataset(Dataset):
         return data_dir.joinpath(f'ntcir/name_mapping.json')
 
     def iter_orig_files(self) -> Generator[Path, None, None]:
-        return data_dir.joinpath(f'ntcir/orig/collection').glob(f'**/*.xml')
+        return data_dir.joinpath(f'ntcir/orig/collection').glob(f'**/*')
 
     def iter_query_files(self) -> Generator[Path, None, None]:
-        return data_dir.joinpath(f'ntcir/orig/query').glob(f'**/*.xml')
+        return data_dir.joinpath(f'ntcir/orig/query').glob(f'**/*')
 
     def create_name_mapping(self) -> Dict[str, str]:
         mpg: Dict[str, str] = dict()
