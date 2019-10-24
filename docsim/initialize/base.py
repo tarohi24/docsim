@@ -9,6 +9,7 @@ from typing import Dict, Generator, Iterable, List
 
 from tqdm import tqdm
 
+from docsim.clf import ClfResult
 from docsim.converters.base import Converter, DummyConverter
 from docsim.elas.client import EsClient
 from docsim.models import ColDocument, ColParagraph, QueryDataset, QueryDocument
@@ -90,6 +91,18 @@ class E2EConverter:
             logger.info(f'{self.name}: name mappings are not necessary...')
             pass
 
+    def generate_clf_gt(self) -> None:
+        q_dataset: QueryDataset = QueryDataset.load_dump(name=self.name)
+        gt: Dict[str, List[str]] = {
+            qd.docid: qd.tags
+            for qd in q_dataset.queries
+        }
+        gt_res: ClfResult = ClfResult(
+            dataset_name=self.name,
+            method_name='gt',
+            result=gt)
+        gt_res.dump()
+
     def run(self) -> None:
         logger.info(f'{self.name}: dumping queries...')
         self.dump_query()
@@ -97,3 +110,5 @@ class E2EConverter:
         self.create_name_mappings()
         logger.info(f'{self.name}: creating mappings...')
         self.insert_col()
+        logger.info(f'{self.name}: creating classification labels...')
+        self.generate_clf_gt()

@@ -118,6 +118,7 @@ models/*
 !models/.gitkeep
 
 results/**/*.prels
+results/clf/**/*.json
 
 tags
 
