@@ -102,24 +102,6 @@ ENV/
 # mypy
 .mypy_cache/
 
-# data
-data/aan/orig/collection
-data/aan/orig/titles.txt
-data/aan/query
-data/clef/orig/collection
-data/clef/orig/query
-data/clef/query
-data/ntcir/orig/collection
-data/ntcir/orig/query
-data/ntcir/query
-#
-# models
-models/*
-!models/.gitkeep
-
-results/**/*.prel
-results/clf/**/*.json
-
 tags
 
 *.sqlite3?
