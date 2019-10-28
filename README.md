@@ -22,6 +22,14 @@ We use three datasets for testing methods, AAN, CLEF and NTCIR. To use NTCIR, yo
 ### Installation and execution
 At first, clone this repository. `git clone https://github.com/tarohi24/docsim`
 
+Next, download [fastText English pre-training model.
+
+```sh
+$ cd models/fasttext
+$ wget https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.en.300.bin.gz
+$ gzip -d cc.en.300.bin.gz
+```
+
 Next, Modify environment variables in `compose/python/env` to tell your environment.
 
 - `ES_URL` is the url of Elasticsearch (for most cases `ES_URL=localhost` works).
