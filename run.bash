@@ -7,9 +7,9 @@ COMPOSE_FILE="compose/python/docker-compose.yaml"
 LSP_COMPOSE_FILE="compose/lsp/docker-compose.yaml"
 
 case $1 in
-    "ir" )
-        IR_SCRIPT="scripts/experiments/ir.py"
-        docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=0 python python "/workplace/${IR_SCRIPT}" ${@:2}
+    "exp" )
+        SCRIPT="scripts/exp.py"
+        docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=0 python python "/workplace/${SCRIPT}" ${@:2}
         ;;
     "trec" )
         DATASET=$2
