@@ -60,7 +60,7 @@ class QueryDocument(faust.Record, serializer='json'):
 
 
 @dataclass
-class QueryDataset(JsonSchemaMixin):
+class QueryDataset:
     name: str
     queries: List[QueryDocument]
 
