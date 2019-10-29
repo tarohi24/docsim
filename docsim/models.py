@@ -5,7 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from dataclasses_jsonschema import JsonSchemaMixin
+import faust
 
 from docsim.elas import models
 from docsim.settings import data_dir, results_dir
@@ -40,8 +40,7 @@ class RankItem:
         return len(self.scores)
 
 
-@dataclass
-class QueryDocument(JsonSchemaMixin):
+class QueryDocument(faust.Record, serializer='json'):
     docid: str
     paras: List[str]
     tags: List[str]

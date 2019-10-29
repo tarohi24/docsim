@@ -1,26 +1,27 @@
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Generator, Dict
+from typing import List
+
+import faust
 
 from docsim.converters.clef import CLEFConverter
-from docsim.initialize.base import Dataset
+from docsim.models import QueryDocument
 from docsim.settings import data_dir
 
 
-@dataclass
-class CLEFDataset(Dataset):
-    converter: CLEFConverter = field(default_factory=CLEFConverter)
+app = faust.App('clef', broker='kafka://localhost')
+converter: CLEFConverter = CLEFConverter()
+queries = app.Table('clef_query', default=QueryDocument)
 
-    @property
-    def mapping_fpath(self) -> Path:
-        """dummy"""
-        raise FileNotFoundError()
 
-    def iter_orig_files(self) -> Generator[Path, None, None]:
-        return data_dir.joinpath(f'clef/orig/collection').glob(f'**/*.xml')
+@app.timer(0.5)
+async def iter_query_files():
+    for path in data_dir.joinpath(f'clef/orig/query').glob(f'**/*.xml'):
+        await query_dump.send(value=path)
 
-    def iter_query_files(self) -> Generator[Path, None, None]:
-        return data_dir.joinpath(f'clef/orig/query').glob(f'**/*.xml')
 
-    def create_name_mapping(self) -> Dict[str, str]:
-        return dict()
+@app.agent()
+async def query_dump(pathes: faust.Stream[Path]):
+    async for path in pathes:
+        docs: List[QueryDocument] = converter.to_query_dump(path)
+        for doc in docs:
+            queries[doc.docid] = doc
