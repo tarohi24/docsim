@@ -25,3 +25,7 @@ async def query_dump(pathes: faust.Stream[Path]):
         docs: List[QueryDocument] = converter.to_query_dump(path)
         for doc in docs:
             queries[doc.docid] = doc
+
+
+if __name__ == '__main__':
+    app.main()
