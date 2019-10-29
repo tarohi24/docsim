@@ -7,6 +7,7 @@ elasticsearch
 faiss==1.5.3
 fast-pagerank
 fasttext
+faust
 gitpython
 jsondict
 jsonschema
