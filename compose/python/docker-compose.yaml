@@ -3,28 +3,12 @@ services:
   python:
     build:
       dockerfile: ./Dockerfile
-      context: ./
+      context: ../../
     image: hirota/python
     container_name: "python_hirota"
     env_file:
-      - ./env
-      - ../../.env/main.env
+      - ./compose/python/env
+      - .env/main.env
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
-
-  jnote:
-    build:
-      dockerfile: ./Dockerfile
-      context: ./
-    image: hirota/python
-    container_name: "jupyter_hirota"
-    volumes:
-      - ../../../docsim:/workplace
-      - ../../docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro
-    env_file:
-      - ./env
-    ports:
-      - 9999:9999
-    command: jupyter notebook --no-browser --port 9999 --ip=0.0.0.0 --allow-root
-    working_dir: /workplace/notebooks
