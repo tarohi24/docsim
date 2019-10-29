@@ -2,7 +2,7 @@ version: "2.4"
 services:
   python:
     build:
-      dockerfile: ./Dockerfile
+      dockerfile: ./compose/python/Dockerfile
       context: ../../
     image: hirota/python
     container_name: "python_hirota"

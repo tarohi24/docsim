@@ -1,16 +1,16 @@
-version: "2.4"
+version: "3"
 services:
   lsp:
     build:
-      context: .
-      dockerfile: ./Dockerfile
+      context: ../../
+      dockerfile: ./compose/lsp/Dockerfile
     image: hirota/lsp
     container_name: "lsp_hirota"
     volumes:
-      - /home/hirota/docsim:/home/hirota/docsim
+      - "${HOME}/docsim:${HOME}/docsim"
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
     ports:
       - 11001:11001
-    working_dir: /home/hirota/docsim
+    working_dir: "${HOME}/docsim"
     command: pyls --port 11001
     stdin_open: true
