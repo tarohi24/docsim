@@ -7,8 +7,8 @@ services:
     image: hirota/python
     container_name: "python_hirota"
     env_file:
-      - ./compose/python/env
-      - .env/main.env
+      - ./env
+      - ../../.env/main.env
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
