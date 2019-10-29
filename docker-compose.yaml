@@ -2,7 +2,7 @@ version: "2.4"
 services:
   python:
     build:
-      dockerfile: ./docker/python/Dockerfile
+      dockerfile: Dockerfile.prod
       context: ./
     image: hirota/python
     container_name: "python_hirota"
@@ -14,7 +14,7 @@ services:
 
   lsp:
     build:
-      dockerfile: ./docker/python/Dockerfile
+      dockerfile: Dockerfile.dev
       context: ./
     image: hirota/lsp
     container_name: "lsp_hirota"
