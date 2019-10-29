@@ -10,7 +10,8 @@ services:
       - INIT_DAEMON_STEP=setup_spark
       - "constraint:node==master"
     networks:
-      - docsim_defalut
+      - docsim
+
   spark-worker-1:
     image: bde2020/spark-worker:2.4.4-hadoop2.7
     container_name: "hirota_spark_worker_1"
@@ -22,7 +23,8 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
       - "constraint:node==worker"
     networks:
-      - docsim_defalut
+      - docsim
+
   spark-worker-2:
     image: bde2020/spark-worker:2.4.4-hadoop2.7
     container_name: "hirota_spark_worker_1"
@@ -34,4 +36,8 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
       - "constraint:node==worker"
     networks:
-      - docsim_defalut
+      - docsim
+
+networks:
+  docsim:
+    external: true

@@ -33,4 +33,4 @@ services:
 
 networks:
   docsim:
-    external: true
+    driver: bridge
