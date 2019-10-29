@@ -8,7 +8,7 @@ from docsim.models import QueryDocument
 from docsim.settings import data_dir
 
 
-app = faust.App('clef', broker='kafka://localhost')
+app = faust.App('clef', broker='kafka://localhost:9092')
 converter: CLEFConverter = CLEFConverter()
 queries = app.Table('clef_query', default=QueryDocument)
 
