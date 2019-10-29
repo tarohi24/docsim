@@ -8,6 +8,8 @@ services:
     container_name: "python_hirota"
     env_file:
       - .env/main.env
+    networks:
+       - overlay
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
@@ -26,3 +28,27 @@ services:
     working_dir: "${HOME}/docsim"
     command: pyls --port 11001
     stdin_open: true
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+       - overlay
+
+  broker:
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+
+
+    networks:
+       - overlay
+
+networks:
+  overlay:
