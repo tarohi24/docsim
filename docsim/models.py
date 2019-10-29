@@ -49,6 +49,24 @@ class QueryDocument(faust.Record, serializer='json'):
     def text(self) -> str:
         return ' '.join(self.paras)
 
+    @classmethod
+    def get_dump_path_from_docid(cls, docid: str) -> Path:
+        path: Path = data_dir.joinpath(f'clef/query/{docid}.json')
+        return path
+
+    def get_dump_path(self) -> Path:
+        return self.__class__.get_dump_path_from_docid(docid=self.docid)
+
+    def save(self) -> None:
+        with open(self.get_dump_path(), 'wb') as fout:
+            fout.write(self.dumps())
+
+    @classmethod
+    def load(cls, docid: str) -> QueryDocument:
+        with open(cls.get_dump_path_from_docid(docid=docid), 'r') as fin:
+            dic: Dict = json.load(fin)
+        return cls.from_data(dic)
+
     def __hash__(self):
         return hash(self.docid)
 
@@ -72,7 +90,7 @@ class QueryDataset:
     def load_dump(cls, name: str) -> QueryDataset:
         with open(cls._get_dump_path(name=name), 'r') as fin:
             dic: Dict = json.load(fin)
-        return cls.from_dict(dic)
+        return cls.from_data(dic)
 
     def get_result_dir(self) -> Path:
         return results_dir.joinpath(f'{self.name}')
