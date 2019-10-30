@@ -23,7 +23,7 @@ if __name__ == '__main__':
     res: EsResult = EsSearcher(es_index=dataset)\
         .initialize_query()\
         .add_match_all()\
-        .add_filter(terms=tags, field='tags')\
+        .add_query(terms=tags, field='tags')\
         .add_source_fields(['text'])\
         .search()
 
