@@ -9,7 +9,7 @@ services:
     env_file:
       - .env/main.env
     networks:
-       - overlay
+       - docsim_default
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
@@ -34,7 +34,7 @@ services:
     ports:
       - "2181:2181"
     networks:
-       - overlay
+       - docsim_default
 
   broker:
     image: wurstmeister/kafka
@@ -48,7 +48,8 @@ services:
 
 
     networks:
-       - overlay
+       - docsim_default
 
 networks:
-  overlay:
+  docsim_default:
+    external: true
