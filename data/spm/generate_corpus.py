@@ -5,6 +5,8 @@ import argparse
 from pathlib import Path
 from typing import List
 
+from tqdm import tqdm
+
 from docsim.elas.search import EsResult, EsSearcher
 
 
@@ -25,9 +27,9 @@ if __name__ == '__main__':
         .add_match_all()\
         .add_query(terms=tags, field='tags')\
         .add_source_fields(['text'])\
-        .search()
+        .scroll()
 
     path: Path = Path(__file__).parent.joinpath(dataset).joinpath(f'{"-".join(tags)}.txt')
     with open(path, 'w') as fout:
-        for hit in res.hits:
+        for hit in tqdm(res.hits):
             fout.write(hit.source['text'] + '\n')
