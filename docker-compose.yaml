@@ -11,6 +11,8 @@ services:
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
+    networks:
+      - docsim_default
 
   lsp:
     build:
@@ -26,3 +28,8 @@ services:
     working_dir: "${HOME}/docsim"
     command: pyls --port 11001
     stdin_open: true
+
+
+networks:
+  docsim_default:
+    external: true
