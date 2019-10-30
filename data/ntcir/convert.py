@@ -12,6 +12,6 @@ with open('../../results/ir/ntcir/gt.qrel', 'w') as fout:
         fout.write(' '.join([
             dic[line[0]].replace('-', ''),
             line[1],
-            line[2][15:].replace('-', ''),
+            line[2][14:].replace('-', ''),
             line[3]]))
         fout.write('\n')
