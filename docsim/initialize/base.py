@@ -6,7 +6,6 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Generator, Iterable, List
-
 from tqdm import tqdm
 
 from docsim.clf import ClfResult

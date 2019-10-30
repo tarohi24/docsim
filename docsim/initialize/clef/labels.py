@@ -42,7 +42,7 @@ def load_original_qrel():
         relid: str = line[2].replace('-', '')
         qrel: Qrel = Qrel(query=docid, rel=relid)
         qrels.append(qrel)
-    dump_qrels.send(value=qrel)
+    return dump_qrels(qrels)
 
 
 def dump_qrels(qrels: Iterable[Qrel]):
