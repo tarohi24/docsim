@@ -17,7 +17,7 @@ logger = logging.getLogger(__file__)
 @dataclass
 class EsResultItem:
     docid: str
-    score: Real
+    score: float
     source: Dict
 
     @classmethod
