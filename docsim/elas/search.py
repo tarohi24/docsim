@@ -4,7 +4,9 @@ Module for elasticsaerch
 from __future__ import annotations  # noqa
 from dataclasses import dataclass, field
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, Generator, Iterable, List, Tuple
+
+from elasticsearch.helpers import scan
 
 from docsim.elas.client import EsClient
 from docsim.settings import es
@@ -37,7 +39,7 @@ class EsResultItem:
 
 @dataclass
 class EsResult:
-    hits: List[EsResultItem]
+    hits: Iterable[EsResultItem]
 
     @classmethod
     def from_dict(cls,
@@ -65,6 +67,27 @@ class EsSearcher:
     def search(self) -> EsResult:
         res: EsResult = EsResult.from_dict(
             es.search(index=self.es_index, body=self.query))
+        return res
+
+    def scroll(self) -> EsResult:
+
+        def scanning(client: EsClient,
+                     query: Dict,
+                     es_index: str,
+                     scroll: str = '100ms') -> Generator[EsResultItem, None, None]:
+            res: Generator[Dict, None, None] = scan(
+                client=client.es,
+                query=query,
+                index=es_index,
+                scroll=scroll)
+            for dic in res:
+                yield EsResultItem.from_dict(dic)
+
+        sc: Generator[EsResultItem, None, None] = scanning(
+            client=self.es,
+            query=self.query,
+            es_index=self.es_index)
+        res: EsResult = EsResult(sc)
         return res
 
     def initialize_query(self) -> EsSearcher:
