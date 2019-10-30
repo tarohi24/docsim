@@ -19,6 +19,14 @@ We use three datasets for testing methods, AAN, CLEF and NTCIR. To use NTCIR, yo
 
 **AAN** Download AAN corpus in [this website](http://aan.how/download/).
 
+**CLEF** Download CLEF-2010 dataset and unzip collections and topics in `EP` and `topics`, respectively.
+```sh
+$ cd ~/clef
+$ wget ...
+$ 7z e clef-ip-2010.7z.001  # consume a huge time
+$ 7z e clef-ip-2010_PACTopics.7z -otoipcs  # do not specify like "-o topics"
+```
+
 ### Installation and execution
 At first, clone this repository. `git clone https://github.com/tarohi24/docsim`
 
