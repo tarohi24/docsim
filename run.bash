@@ -14,7 +14,7 @@ case $1 in
         DATASET=$2
         METHOD=$3
         RESULT_FILE="/workplace/results/ir/${DATASET}/${METHOD}.prel"
-        GT="/workplace/results/ir/${DATASET}/en.valid.qrel"
+        GT="/workplace/results/ir/${DATASET}/gt.qrel"
         docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  $GT $RESULT_FILE
         ;;
     "test" )
