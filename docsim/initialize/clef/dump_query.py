@@ -8,7 +8,7 @@ from docsim.models import QueryDocument
 from docsim.settings import data_dir
 
 
-app = faust.App('clef', broker='kafka://broker:9092')
+app = faust.App('clef_dump_query', broker='kafka://broker:9092')
 converter: CLEFConverter = CLEFConverter()
 
 
@@ -26,9 +26,6 @@ async def query_dump(pathes: faust.Stream[str]):
         for doc in docs:
             doc.save()
 
-
-@app.timer(0.5)
-async def 
 
 if __name__ == '__main__':
     app.main()
