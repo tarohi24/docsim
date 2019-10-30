@@ -14,6 +14,19 @@ services:
     networks:
       - docsim_default
 
+  spm:
+    build:
+      dockerfile: Dockerfile.spm
+      context: ./
+    image: hirota/spm
+    container_name: "spm_hirota"
+    volumes:
+      - "${HOME}/docsim:/workplace"
+      - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
+    networks:
+      - docsim_default
+    working_dir: /workplace 
+
   lsp:
     build:
       dockerfile: Dockerfile.dev
