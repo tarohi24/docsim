@@ -19,12 +19,15 @@ We use three datasets for testing methods, AAN, CLEF and NTCIR. To use NTCIR, yo
 
 **AAN** Download AAN corpus in [this website](http://aan.how/download/).
 
-**CLEF** Download CLEF-2010 dataset and unzip collections and topics in `EP` and `topics`, respectively.
-```sh
+**CLEF** Download CLEF-2010 dataset and unzip collections and topics in `EP` and `topics`, respectively. The following is the example bash script.
+```bash
 $ cd ~/clef
-$ wget ...
-$ 7z e clef-ip-2010.7z.001  # consume a huge time
+$ for i {1..3}; do wget http://www.ifs.tuwien.ac.at/~clef-ip/download/2010/data/clef-ip-2010.7z.00${i}; done
+$ wget http://www.ifs.tuwien.ac.at/~clef-ip/download/2010/topics/clef-ip-2010_PACTopics.7z
+$ wget http://www.ifs.tuwien.ac.at/~clef-ip/download/2010/qrels/PAC-Qrels.zip
+$ 7z e clef-ip-2010.7z.001  # no need for extracting 002 or 003
 $ 7z e clef-ip-2010_PACTopics.7z -otoipcs  # do not specify like "-o topics"
+$ unzip PAC-Qrels.zip
 ```
 
 ### Installation and execution
