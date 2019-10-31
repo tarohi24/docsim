@@ -1,10 +1,12 @@
 from collections import Counter
 from dataclasses import dataclass, field
+from pathlib import Path
 import re
 from typing import List, Pattern, Set
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+import sentencepiece as spm
 
 
 class Filter:
@@ -47,6 +49,20 @@ class TFFilter(Filter):
 
     def apply(self, tokens: List[str]) -> List[str]:
         return [token for token, _ in Counter(tokens).most_common(self.n_words)]
+
+
+class SPMFilter(Filter):
+    """
+    sentencepiece filter
+    """
+    def __init__(self,
+                 modelpath: Path):
+        self.modelpath: Path = modelpath
+        self.model = spm.SentencePieceProcessor()
+        self.model.Load(self.modelpath)
+
+    def apply(self, tokens: List[str]) -> List[str]:
+        return self.model.SampleEncodeAsPieces(' '.join(tokens))
 
 
 @dataclass

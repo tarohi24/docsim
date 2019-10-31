@@ -102,6 +102,7 @@ class Method:
                            n_words: int) -> List[Filter]:
         filters: List[Filter] = [
             LowerFilter(),
+            SPMFilter(),
             StopWordRemover(),
             RegexRemover(),
             TFFilter(n_words=n_words)]
