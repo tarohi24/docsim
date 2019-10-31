@@ -78,7 +78,7 @@ class E2EConverter:
 
     def insert_col(self) -> None:
         es_client: EsClient = EsClient(
-            es_index=self.name,
+            es_index=self.name + '_spm',
             item_cls=ColDocument)
         es_client.bulk_insert(self.dataset.iter_converted_docs())
 
