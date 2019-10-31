@@ -15,12 +15,20 @@ from docsim.converters.base import (
     find_text_or_default
 )
 from docsim.models import ColDocument, ColParagraph, QueryDocument
+from docsim import text as dtext
 
 logger = logging.getLogger(__file__)
 
 
-@dataclass
 class CLEFConverter(Converter):
+
+    def __init__(self,
+                 spm_model_path: Path):
+        self.text_processor: dtext.TextProcessor = dtext.TextProcessor([
+            dtext.LowerFilter(),
+            dtext.SPMFilter(modelpath=spm_model_path),
+            dtext.StopWordRemover(),
+            dtext.RegexRemover()])
 
     def _get_docid(self,
                    root: ET.Element) -> str:
@@ -47,7 +55,8 @@ class CLEFConverter(Converter):
         desc_root: ET.Element = get_or_raise_exception(
             root.find("description[@lang='EN']"))
         desc: str = ' '.join(desc_root.itertext()).replace('\n', ' ')
-        return desc
+        proced: List[str] = self.text_processor.apply(desc)
+        return ' '.join(proced)
 
     def _get_paragraph_list(self,
                             root: ET.Element) -> List[str]:
