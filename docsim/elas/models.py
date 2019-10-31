@@ -53,7 +53,6 @@ class TextField(Field):
     def mapping(cls) -> Dict:
         return {
             'type': 'text',
-            'analyzer': 'english'
         }
 
     def to_elas_value(self) -> str:
