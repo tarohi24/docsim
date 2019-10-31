@@ -2,11 +2,21 @@ from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 import re
-from typing import List, Pattern, Set
+from typing import Dict, List, Pattern, Set
 
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import sentencepiece as spm
+
+from docsim.settings import data_dir
+
+
+clef_spm_models: Dict = {
+    al: spm.SentencePieceProcessor()
+    for al in 'ABCDEFG'
+}
+for al, model in clef_spm_models.items():
+    model.Load(str(data_dir.joinpath(f'spm/clef/{al}.model').resolve()))
 
 
 class Filter:
@@ -56,13 +66,13 @@ class SPMFilter(Filter):
     sentencepiece filter
     """
     def __init__(self,
-                 modelpath: Path):
-        self.modelpath: Path = modelpath
-        self.model = spm.SentencePieceProcessor()
-        self.model.Load(self.modelpath)
+                 al: str):
+        self.model = clef_spm_models[al]
 
     def apply(self, tokens: List[str]) -> List[str]:
-        return self.model.SampleEncodeAsPieces(' '.join(tokens))
+        s: str = ' '.join(tokens)
+        res: List[str] = self.model.EncodeAsPieces(s)
+        return res
 
 
 @dataclass
