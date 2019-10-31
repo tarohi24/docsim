@@ -4,6 +4,6 @@ do
     for J in {1..10}
     do
         printf "%c%02d%c" $top $J $I
-        echo " "
+        echo ""
     done
 done
