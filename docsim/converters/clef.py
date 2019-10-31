@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 import logging
 from pathlib import Path
 import re
@@ -22,14 +21,6 @@ logger = logging.getLogger(__file__)
 
 class CLEFConverter(Converter):
 
-    def __init__(self,
-                 spm_model_path: Path):
-        self.text_processor: dtext.TextProcessor = dtext.TextProcessor([
-            dtext.LowerFilter(),
-            dtext.SPMFilter(modelpath=spm_model_path),
-            dtext.StopWordRemover(),
-            dtext.RegexRemover()])
-
     def _get_docid(self,
                    root: ET.Element) -> str:
         docid: str = root.attrib['ucid'].replace('-', '')
@@ -52,10 +43,15 @@ class CLEFConverter(Converter):
 
     def _get_text(self,
                   root: ET.Element) -> str:
+        text_processor: dtext.TextProcessor = dtext.TextProcessor([
+            dtext.LowerFilter(),
+            dtext.SPMFilter(al=f'{self._get_tags(root)[0][0]}'),
+            dtext.StopWordRemover(),
+            dtext.RegexRemover()])
         desc_root: ET.Element = get_or_raise_exception(
             root.find("description[@lang='EN']"))
         desc: str = ' '.join(desc_root.itertext()).replace('\n', ' ')
-        proced: List[str] = self.text_processor.apply(desc)
+        proced: List[str] = text_processor.apply(desc)
         return ' '.join(proced)
 
     def _get_paragraph_list(self,
