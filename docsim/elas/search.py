@@ -74,7 +74,7 @@ class EsSearcher:
         def scanning(client: EsClient,
                      query: Dict,
                      es_index: str,
-                     scroll: str = '100ms') -> Generator[EsResultItem, None, None]:
+                     scroll: str = '1s') -> Generator[EsResultItem, None, None]:
             res: Generator[Dict, None, None] = scan(
                 client=client,
                 query=query,
