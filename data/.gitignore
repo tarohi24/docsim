@@ -7,3 +7,6 @@ clef/query
 ntcir/orig/collection
 ntcir/orig/query
 ntcir/query
+spm/**/*.txt
+spm/**/*.vocab
+spm/**/*.model

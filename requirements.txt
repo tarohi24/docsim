@@ -18,6 +18,7 @@ pandas>=0.25.0
 PuLP
 pyspark
 pytest
+sentencepiece
 sklearn
 spacy
 spherecluster

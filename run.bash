@@ -38,6 +38,9 @@ case $1 in
     "jnote" )
         docker-compose -f ${COMPOSE_FILE} up -d jnote
         ;;
+    "spm" )
+        docker-compose -f ${COMPOSE_FILE} run --rm spm bash
+        ;;
     * )
         echo "Invalid option ${1}" ;;
 esac
