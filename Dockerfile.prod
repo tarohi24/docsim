@@ -5,6 +5,8 @@ RUN apt-get update && \
         apt-get install -y gcc build-essential libomp-dev libopenblas-dev
 ADD requirements.txt /workplace/
 RUN pip install -r requirements.txt
+ADD requirements_mine.txt /workplace/
+RUN pip install -r requirements_mine.txt
 RUN ldd -r /opt/conda/lib/python3.7/site-packages/faiss/_swigfaiss.so
 
 ENV PYTHONIOENCODING utf-8

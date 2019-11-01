@@ -1,4 +1,5 @@
 *
 !requirements.txt
 !requirements_dev.txt
+!requirements_mine.txt
 !.env/*

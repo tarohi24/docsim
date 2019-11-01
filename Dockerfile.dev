@@ -8,5 +8,7 @@ WORKDIR /tmp
 RUN pip install -r requirements.txt
 ADD requirements_dev.txt /tmp/
 RUN pip install -r requirements_dev.txt
+ADD requirements_mine.txt /tmp/
+RUN pip install -r requirements_mine.txt
 
 RUN mkdir -p ${HOME}/docsim
