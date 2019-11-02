@@ -1,7 +1,11 @@
+"""
+load xml -> parse and extract -> dump into a file (query.bulk)
+"""
 from pathlib import Path
 from typing import Generator, List
 import xml.etree.ElementTree as ET
 
+from tqdm import tqdm
 from typedflow.typedflow import Task, DataLoader, Dumper, Pipeline
 from typedflow.utils import dump_to_one_file
 
@@ -9,6 +13,12 @@ from docsim.converters.clef import CLEFConverter
 from docsim.elas import models
 from docsim.models import ColDocument
 from docsim.settings import data_dir
+
+
+def loading() -> Generator[Path, None, None]:
+    directory: Path = data_dir.joinpath(f'clef/orig/query')
+    for path in tqdm(directory.glob(f'topics/*.xml')):
+        yield path
 
 
 def get_document(path: Path) -> ColDocument:
@@ -25,9 +35,7 @@ def get_document(path: Path) -> ColDocument:
 
 if __name__ == '__main__':
     converter: CLEFConverter = CLEFConverter()
-    gen: Generator[Path, None, None] = data_dir\
-        .joinpath(f'clef/orig/query')\
-        .glob(f'*.xml')
+    gen: Generator[Path, None, None] = loading()
     loader: DataLoader = DataLoader[Path](gen=gen)
     task: Task = Task[Path, ColDocument](func=get_document)
     dump_path: Path = data_dir.joinpath('clef/query/dump.bulk')
