@@ -1,5 +1,6 @@
 from __future__ import annotations  # noqa
 from dataclasses import dataclass
+import json
 from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -109,6 +110,10 @@ class ColDocument(models.EsItem):
             'text': self.text.to_elas_value(),
             'tags': self.tags.to_elas_value(),
         }
+
+    def to_json(self) -> str:
+        dic: Dict = self.to_dict()
+        return json.dumps(dic)
 
     @classmethod
     def _create_doc_from_values(cls,
