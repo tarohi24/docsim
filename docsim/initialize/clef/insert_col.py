@@ -2,9 +2,11 @@
 load a bulk -> insert
 """
 import logging
+import json
 from pathlib import Path
-from typing import Generator
+from typing import Dict, Generator
 
+from elasticsearch.exceptions import NotFoundError
 from elasticsearch.helpers import streaming_bulk
 from tqdm import tqdm
 
@@ -23,9 +25,26 @@ def loading() -> Generator[str, None, None]:
 
 
 if __name__ == '__main__':
+    index: str = 'clef'
+
+    # delete the old index
+    try:
+        es.indices.delete(index=index)
+    except NotFoundError:
+        pass
+
+    # create an index
+    mapping_path: Path = Path(__file__).parent.parent.joinpath('mappings.json')
+    with open(mapping_path) as fin:
+        mappings: Dict = json.load(fin)
+    ack: Dict = es.indices.create(
+        index=index,
+        body=mappings)
+    logger.info(ack)
+
     for ok, response in streaming_bulk(es,
                                        loading(),
-                                       index='clef',
+                                       index=index,
                                        chunk_size=100):
         if not ok:
             logger.warn('Bulk insert: fails')
