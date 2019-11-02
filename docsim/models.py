@@ -5,7 +5,7 @@ from operator import itemgetter
 from pathlib import Path
 from typing import Dict, List, Tuple
 
-from dataclasses_jsonschema import JsonSchemaMixin
+from dataclasses_json import dataclass_json
 
 from docsim.elas import models
 from docsim.settings import data_dir, results_dir
@@ -41,7 +41,8 @@ class RankItem:
 
 
 @dataclass
-class QueryDocument(JsonSchemaMixin):
+@dataclass_json
+class QueryDocument:
     docid: str
     paras: List[str]
     tags: List[str]
@@ -61,7 +62,8 @@ class QueryDocument(JsonSchemaMixin):
 
 
 @dataclass
-class QueryDataset(JsonSchemaMixin):
+@dataclass_json
+class QueryDataset:
     name: str
     queries: List[QueryDocument]
 
@@ -72,8 +74,8 @@ class QueryDataset(JsonSchemaMixin):
     @classmethod
     def load_dump(cls, name: str) -> QueryDataset:
         with open(cls._get_dump_path(name=name), 'r') as fin:
-            dic: Dict = json.load(fin)
-        return cls.from_dict(dic)
+            data = cls.from_json(fin.read())
+        return data
 
     def get_result_dir(self) -> Path:
         return results_dir.joinpath(f'{self.name}')
@@ -108,6 +110,10 @@ class ColDocument(models.EsItem):
             'text': self.text.to_elas_value(),
             'tags': self.tags.to_elas_value(),
         }
+
+    def to_json(self) -> str:
+        dic: Dict = self.to_dict()
+        return json.dumps(dic)
 
     @classmethod
     def _create_doc_from_values(cls,

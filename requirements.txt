@@ -2,7 +2,7 @@ autoflake
 allennlp
 chardet
 cython
-dataclasses-jsonschema[fast-validation]
+dataclasses-json
 elasticsearch
 faiss==1.5.3
 fast-pagerank
