@@ -58,7 +58,8 @@ class QrelItem:
     relevance: int
 
     def to_json(self) -> str:
-        return f'{self.query} 0 {self.target} {str(self.relevance)}'
+        s: str = f'{self.query} 0 {self.target} {str(self.relevance)}'
+        return s
 
 
 def parse(line: str) -> QrelItem:
