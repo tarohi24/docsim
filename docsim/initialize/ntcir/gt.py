@@ -27,7 +27,7 @@ def loading() -> Generator[str, None, None]:
     -----
     e.g. 1001    A   PATENT-US-GRT-1997-05611575 1
     """
-    path: Path = data_dir.joinpath('ntcir/orig/gt.qrel')
+    path: Path = data_dir.joinpath('ntcir/gt.qrel')
     with open(path) as fin:
         lines: List[str] = fin.read().splitlines()
     for line in tqdm(lines):
