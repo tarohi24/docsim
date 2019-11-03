@@ -3,11 +3,10 @@ Generate ground truth labels
 load original qrel -> map a key to the new key -> dump new qrel
 """
 from dataclasses import dataclass
+import linecache
 from pathlib import Path
-import re
 from typing import Generator, List
 import xml.etree.ElementTree as ET
-from lxml import etree
 
 from typedflow.typedflow import Task, DataLoader, Dumper, Pipeline
 from typedflow.utils import dump_to_one_file
@@ -18,7 +17,6 @@ from docsim.settings import data_dir
 
 
 converter: NTCIRConverter = NTCIRConverter()
-parser = etree.XMLParser(resolve_entities=False)
 
 
 def loading() -> Generator[str, None, None]:
@@ -47,13 +45,9 @@ def get_docid(doc_num: str) -> str:
     docid (e.g. 199705611575)
     """
     path: Path = data_dir.joinpath(f'ntcir/orig/query/{doc_num}')
-    with open(path) as fin:
-        body: str = fin.read()
-    replaced: str = re.sub(
-        r'&(.*?);',
-        ' ',
-        body.replace('<tab>', ' '))
-    elem: ET.Element = ET.fromstring(replaced, parser=parser)
+    docid_line: str = linecache.getline(str(path.resolve()), 6)
+    replaced: str = f'<TOPIC>{docid_line}</TOPIC>'
+    elem: ET.Element = ET.fromstring(replaced)
     return converter._get_docid(elem)
 
 
