@@ -8,7 +8,7 @@ from typing import Dict, List, Tuple
 from dataclasses_json import dataclass_json
 
 from docsim.elas import models
-from docsim.settings import data_dir, results_dir
+from docsim.settings import data_dir
 from docsim.utils import uniq
 
 
@@ -42,43 +42,20 @@ class RankItem:
 
 @dataclass
 @dataclass_json
-class QueryDocument:
-    docid: str
-    paras: List[str]
-    tags: List[str]
-
-    @property
-    def text(self) -> str:
-        return ' '.join(self.paras)
-
-    def __hash__(self):
-        return hash(self.docid)
-
-    def __eq__(self, another):
-        return (
-            (self.__class__ == another.__class__)
-            and (self.docid == another.docid)
-        )
-
-
-@dataclass
-@dataclass_json
 class QueryDataset:
     name: str
-    queries: List[QueryDocument]
+    queries: List[ColDocument]
 
     @classmethod
     def _get_dump_path(cls, name: str) -> Path:
-        return data_dir.joinpath(f'{name}/query/dump.json')
+        return data_dir.joinpath(f'{name}/query/dump.bulk')
 
     @classmethod
     def load_dump(cls, name: str) -> QueryDataset:
         with open(cls._get_dump_path(name=name), 'r') as fin:
-            data = cls.from_json(fin.read())
-        return data
-
-    def get_result_dir(self) -> Path:
-        return results_dir.joinpath(f'{self.name}')
+            queries: List[ColDocument] = [ColDocument.from_json(line)
+                                          for line in fin.read().splitlines()]
+        return QueryDataset(name=name, queries=queries)
 
     def __len__(self):
         return len(self.queries)
@@ -129,35 +106,3 @@ class ColDocument(models.EsItem):
             title=models.TextField(title),
             text=models.TextField(text),
             tags=models.KeywordListField(tags))
-
-
-@dataclass
-class ColParagraph(models.EsItem):
-    docid: models.KeywordField
-    paraid: models.IntField
-    text: models.TextField
-    tags: models.KeywordListField
-
-    @classmethod
-    def mapping(cls) -> Dict:
-        return {
-            'properties': {
-                'docid': models.KeywordField.mapping(),
-                'paraid': models.IntField.mapping(),
-                'title': models.TextField.mapping(),
-                'text': models.TextField.mapping(),
-                'tags': models.KeywordListField.mapping(),
-            }
-        }
-
-    def to_dict(self) -> Dict:
-        pid: int = self.paraid.to_elas_value()
-        did: str = self.docid.to_elas_value()
-        return {
-            '_id': '{}-{}'.format(did, str(pid)),
-            'docid': did,
-            'paraid': pid,
-            'title': self.title.to_elas_value(),
-            'text': self.text.to_elas_value(),
-            'tags': self.tags.to_elas_value(),
-        }
