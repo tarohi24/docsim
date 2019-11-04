@@ -12,7 +12,7 @@ from typedflow.typedflow import Task, DataLoader, Dumper, Pipeline
 from typedflow.utils import dump_to_one_file
 from tqdm import tqdm
 
-from docsim.converters.ntcir import NTCIRConverter
+from docsim.initialize.converters.ntcir import NTCIRConverter
 from docsim.settings import data_dir
 
 

@@ -12,8 +12,8 @@ from tqdm import tqdm
 from typedflow.typedflow import Task, DataLoader, Dumper, Pipeline
 from typedflow.utils import dump_to_each_file
 
-from docsim.converters.ntcir import NTCIRConverter
 from docsim.elas import models
+from docsim.initialize.converters.ntcir import NTCIRConverter
 from docsim.models import ColDocument
 from docsim.settings import data_dir
 
