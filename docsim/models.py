@@ -41,27 +41,6 @@ class RankItem:
 
 
 @dataclass
-@dataclass_json
-class QueryDataset:
-    name: str
-    queries: List[ColDocument]
-
-    @classmethod
-    def _get_dump_path(cls, name: str) -> Path:
-        return data_dir.joinpath(f'{name}/query/dump.bulk')
-
-    @classmethod
-    def load_dump(cls, name: str) -> QueryDataset:
-        with open(cls._get_dump_path(name=name), 'r') as fin:
-            queries: List[ColDocument] = [ColDocument.from_json(line)
-                                          for line in fin.read().splitlines()]
-        return QueryDataset(name=name, queries=queries)
-
-    def __len__(self):
-        return len(self.queries)
-
-
-@dataclass
 class ColDocument(models.EsItem):
     docid: models.KeywordField  # unique key
     title: models.TextField
