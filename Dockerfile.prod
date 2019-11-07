@@ -1,17 +1,26 @@
-FROM continuumio/anaconda3:2019.03
+FROM python:3.8-buster
 
 WORKDIR /workplace
 RUN apt-get update && \
-        apt-get install -y gcc build-essential libomp-dev libopenblas-dev
+        apt-get install -y gcc build-essential libomp-dev libopenblas-dev cmake pkg-config
 ADD requirements.txt /workplace/
 RUN pip install -r requirements.txt
 
-ENV PYTHONIOENCODING utf-8
-ENV PYTHONPATH /opt/conda/lib/python3.7/site-packages/faiss
-ENV LD_LIBRARY_DIR /usr/lib
+# NLP Kits
 
 RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
-RUN python -m spacy download en_core_web_sm
+
+WORKDIR /tmp
+ENV SENTENCEPIECE_HOME /tmp/sentencepiece
+ENV PKG_CONFIG_PATH ${SENTENCEPIECE_HOME}/lib/pkgconfig
+RUN wget https://github.com/google/sentencepiece/archive/v0.1.84.zip && \
+    unzip v0.1.8.zip
+WORKDIR sentencepiece-0.1.84
+RUN mkdir -p build
+WORKDIR ./build
+RUN cmake -DCMAKE_INSTALL_PREFIX=${SENTENCEPIECE_HOME} ..  && make -j4 && make install
+WORKDIR ../python
+RUN python setup.py install
 
 RUN mkdir /workplace/.env
 ADD .env/main.env /workplace/.env/main.env

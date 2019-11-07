@@ -4,7 +4,6 @@ chardet
 cython
 dataclasses-json
 elasticsearch
-faiss==1.5.3
 fast-pagerank
 fasttext
 gitpython
@@ -18,7 +17,6 @@ pandas>=0.25.0
 PuLP
 pyspark
 pytest
-sentencepiece
 sklearn
 spacy
 spherecluster

@@ -1,4 +1,4 @@
-FROM continuumio/anaconda3:2019.03
+FROM python:3.8-buster
 
 RUN apt-get update && \
         apt-get install -y gcc build-essential libomp-dev libopenblas-dev
