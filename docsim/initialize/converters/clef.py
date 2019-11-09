@@ -7,14 +7,14 @@ from typing import List, Optional
 import xml.etree.ElementTree as ET
 
 from docsim.elas import models
-from docsim.converters.base import (
+from docsim.initialize.converters.base import (
     Converter,
     CannotSplitText,
     NoneException,
     get_or_raise_exception,
     find_text_or_default
 )
-from docsim.models import ColDocument, ColParagraph, QueryDocument
+from docsim.models import ColDocument
 
 logger = logging.getLogger(__file__)
 
@@ -79,50 +79,6 @@ class CLEFConverter(Converter):
                             title=models.TextField(title),
                             text=models.TextField(text),
                             tags=models.KeywordListField(tags))]
-
-    def to_paragraph(self,
-                     fpath: Path) -> List[ColParagraph]:
-        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
-        # text
-        try:
-            paras: List[str] = self._get_paragraph_list(root)
-        except Exception as e:
-            logger.warning(e, exc_info=True)
-            logger.warning('Could not find description field in the original XML.')
-        if len(paras) == 0:
-            logger.warning('No paragraphs found.')
-            return []
-
-        docid: str = self._get_docid(root)
-        tags: List[str] = self._get_tags(root)
-
-        return [
-            ColParagraph(docid=models.KeywordField(docid),
-                         paraid=models.IntField(paraid),
-                         text=models.TextField(para),
-                         tags=models.KeywordListField(tags))
-            for paraid, para in enumerate(paras)]
-
-    def to_query_dump(self,
-                      fpath: Path) -> List[QueryDocument]:
-        root: ET.Element = ET.parse(str(fpath.resolve())).getroot()
-
-        try:
-            paras: List[str] = self._get_paragraph_list(root)
-        except Exception as e:
-            logger.warning(e, exc_info=True)
-            return []
-        if len(paras) == 0:
-            logger.warning('No paragraphs found.')
-            return []
-
-        docid: str = self._get_docid(root)
-        tags: List[str] = self._get_tags(root)
-
-        return [
-            QueryDocument(docid=docid,
-                          paras=paras,
-                          tags=tags)]
 
 
 if __name__ == '__main__':

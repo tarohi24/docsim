@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Iterable, Optional, TypeVar
 import xml.etree.ElementTree as ET
 
-from docsim.models import ColDocument, ColParagraph, QueryDocument
+from docsim.models import ColDocument
 
 logger = logging.getLogger(__file__)
 T = TypeVar('T')
@@ -44,14 +44,6 @@ class Converter:
     """
     def to_document(self,
                     fpath: Path) -> Iterable[ColDocument]:
-        raise NotImplementedError('This is an abstract method.')
-
-    def to_paragraph(self,
-                     fpath: Path) -> Iterable[ColParagraph]:
-        raise NotImplementedError('This is an abstract method.')
-
-    def to_query_dump(self,
-                      fpath: Path) -> Iterable[QueryDocument]:
         raise NotImplementedError('This is an abstract method.')
 
 

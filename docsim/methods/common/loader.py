@@ -4,6 +4,9 @@ Query loader
 from pathlib import Path
 from typing import Generator
 
+from typedflow.tasks import DataLoader
+from typedflow.nodes import LoaderNode
+
 from docsim.models import ColDocument
 from docsim.settings import data_dir
 
