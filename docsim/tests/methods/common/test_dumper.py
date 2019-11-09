@@ -1,23 +1,57 @@
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
 
-from docsim.methods.common.dumper import Result, get_dump_path, to_prel
+import pytest
+from typedflow.batch import Batch
+
+from docsim.methods.common.dumper import (
+    Result, get_dump_path, to_prel, dump_prel, DumpParam
+)
 from docsim.settings import results_dir
 
 
-def test_path_func():
-    assert get_dump_path(dataset='clef', method='keyword', runname='40')\
-        == results_dir.joinpath('clef/keyword/40.prel')
+@pytest.fixture(scope='module')
+def param() -> DumpParam:
+    param: DumpParam = {
+        'dataset': 'clef',
+        'method': 'keyword',
+        'runname': '40'
+    }
+    yield param
+    # cleaning up
+    get_dump_path(param).unlink()
 
 
-def test_to_prel():
+@pytest.fixture(scope='module')
+def res() -> Result:
     scores: Dict[str, float] = {
         f'EP10{i}': float(i)
         for i in range(3)
     }
-    res: Result = {
+    result: Result = {
         'query_docid': 'EP111',
         'scores': scores
     }
+    return result
+
+
+def test_path_func(param):
+    assert get_dump_path(param)\
+        == results_dir.joinpath('clef/keyword/40.prel')
+
+
+def test_to_prel(res):
     assert to_prel(res) == """EP111 0 EP100 0.0
 EP111 0 EP101 1.0
 EP111 0 EP102 2.0"""
+
+
+def test_dump(param, res):
+    data: List[Result] = [res, ]
+    batch: Batch[Result] = Batch(batch_id=0, data=data)
+
+    dump_prel(batch=batch, param=param)
+    path: Path = get_dump_path(param)
+    with open(path) as fin:
+        out: List[str] = fin.read().splitlines()
+    assert out == ['EP111 0 EP100 0.0', 'EP111 0 EP101 1.0', 'EP111 0 EP102 2.0']
