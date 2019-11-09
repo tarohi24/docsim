@@ -3,27 +3,19 @@ name: Test and Lint
 on: [pull_request]
 
 jobs:
+
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.8]
+    env:
+      ES_URL: ""
+      PROJECT_ROOT: ${GITHUB_WORKSPACE}
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install numpy scipy Cython
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
-    - name: Tests
-      run: make test
-    - name: Lint with flake8
-      run: make lint
+    - name: Build the Docker image
+      run: docker-compose build
+    - name: run tests
+      run: bash run.bash test
+    - name: run lint
+      run: bash run.bash lint

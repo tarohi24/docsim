@@ -5,13 +5,15 @@ services:
       dockerfile: Dockerfile
       context: ./
     image: hirota/python
-    env_file:
-      - .env/main.env
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
     networks:
       - docsim_default
+    environment:
+      - ES_URL=${ES_URL}
+      - PROJECT_ROOT=/workplace
+
   lsp:
     build:
       dockerfile: Dockerfile
