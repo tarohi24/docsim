@@ -1,12 +1,10 @@
 from typing import Generator
 
-import pytest
 from typedflow.tasks import DataLoader
 from typedflow.nodes import LoaderNode
 
 from docsim.models import ColDocument
 from docsim.methods.common.loader import query_load_file
-
 
 
 def test_query_load_file():
