@@ -14,7 +14,7 @@ def Result(TypedDict):
     scores: Dict[str, float]
 
 
-def to_qrel(res: Result) -> str:
+def to_prel(res: Result) -> str:
     return '\n'.join([f"{res['query_docid']} 0 {key} {score}"
                       for key, score in res['scores'].items()])
 
