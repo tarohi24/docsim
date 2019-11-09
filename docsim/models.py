@@ -9,7 +9,7 @@ from dataclasses_json import dataclass_json
 
 from docsim.elas import models
 from docsim.settings import data_dir
-from docsim.utils import uniq
+from docsim.utils.utils import uniq
 
 
 @dataclass
@@ -85,3 +85,17 @@ class ColDocument(models.EsItem):
             title=models.TextField(title),
             text=models.TextField(text),
             tags=models.KeywordListField(tags))
+
+    @classmethod
+    def from_json(cls,
+                  jsonstr: str) -> ColDocument:
+        dic: Dict = json.loads(jsonstr)
+        docid: str = dic['docid']
+        title: str = dic['title']
+        text: str = dic['text']
+        tags: List[str] = dic['tags']
+        return cls._create_doc_from_values(
+            docid=docid,
+            title=title,
+            text=text,
+            tags=tags)
