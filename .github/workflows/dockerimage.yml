@@ -17,18 +17,6 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install sentencepiece
-      env:
-        SENTENCEPIECE_HOME: ${GITHUB_WORKSPACE}/sentencepiece
-        PKG_CONFIG_PATH: ${SENTENCEPIECE_HOME}/lib/pkgconfig
-      run: |
-        wget https://github.com/google/sentencepiece/archive/v0.1.84.zip && unzip v0.1.84.zip
-        cd sentencepiece-0.1.84
-        mkdir -p build
-        cd ./bulid
-        cmake -DCMAKE_INSTALL_PREFIX=${SENTENCEPIECE_HOME} ..  && make -j4 && make install
-        cd ../python
-        python setup.py install
     - name: Install dependencies
       run: |
         pip install numpy scipy Cython
