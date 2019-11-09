@@ -17,3 +17,12 @@ def test_coldoc_from_json():
     {"docid": "EP111", "title": "hello", "text": "hi this is the body", "tags": ["C90B"]}
     """
     ColDocument.from_json(json_str)
+
+
+def test_invalid_coldoc():
+    # docid -> id
+    json_str: str = """
+    {"id": "EP111", "title": "hello", "text": "hi this is the body", "tags": ["C90B"]}
+    """
+    with pytest.raises(KeyError):
+        ColDocument.from_json(json_str)
