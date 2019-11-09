@@ -18,9 +18,10 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install sentencepiece
+      env:
+        SENTENCEPIECE_HOME: ${GITHUB_WORKSPACE}/sentencepiece
+        PKG_CONFIG_PATH: ${SENTENCEPIECE_HOME}/lib/pkgconfig
       run: |
-        ENV SENTENCEPIECE_HOME ${GITHUB_WORKSPACE}/sentencepiece
-        ENV PKG_CONFIG_PATH ${SENTENCEPIECE_HOME}/lib/pkgconfig
         RUN wget https://github.com/google/sentencepiece/archive/v0.1.84.zip && unzip v0.1.84.zip
         cd sentencepiece-0.1.84
         mkdir -p build
