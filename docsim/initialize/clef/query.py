@@ -9,8 +9,8 @@ from tqdm import tqdm
 from typedflow.typedflow import Task, DataLoader, Dumper, Pipeline
 from typedflow.utils import dump_to_one_file
 
-from docsim.converters.clef import CLEFConverter
 from docsim.elas import models
+from docsim.intialize.converters.clef import CLEFConverter
 from docsim.models import ColDocument
 from docsim.settings import data_dir
 
