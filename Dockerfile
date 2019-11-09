@@ -1,20 +1,14 @@
-FROM python:3.8-buster
+FROM continuumio/anaconda3:2019.03
 
 WORKDIR /workplace
 RUN apt-get update && \
-        apt-get install -y gcc build-essential libomp-dev libopenblas-dev cmake pkg-config
-ADD requirements.txt /workplace/
-RUN pip install -r requirements.txt
-
-# NLP Kits
-
-RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
+        apt-get install -y gcc build-essential libomp-dev libopenblas-dev cmake pkg-config gfortran
 
 WORKDIR /tmp
 ENV SENTENCEPIECE_HOME /tmp/sentencepiece
 ENV PKG_CONFIG_PATH ${SENTENCEPIECE_HOME}/lib/pkgconfig
 RUN wget https://github.com/google/sentencepiece/archive/v0.1.84.zip && \
-    unzip v0.1.8.zip
+    unzip v0.1.84.zip
 WORKDIR sentencepiece-0.1.84
 RUN mkdir -p build
 WORKDIR ./build
@@ -25,14 +19,14 @@ RUN python setup.py install
 RUN mkdir /workplace/.env
 ADD .env/main.env /workplace/.env/main.env
 
-WORKDIR /
-RUN git clone https://github.com/rkern/line_profiler.git && \
-        find line_profiler -name '*.pyx' -exec cython {} \; && \
-        cd line_profiler && \
-        pip install .
-
 ARG CACHEBUST=1
 WORKDIR /workplace
+RUN pip install numpy scipy Cython
 ADD requirements_mine.txt /workplace/
 RUN pip install -r requirements_mine.txt
-RUN ldd -r /opt/conda/lib/python3.7/site-packages/faiss/_swigfaiss.so
+ADD requirements_dev.txt /workplace/
+RUN pip install -r requirements_dev.txt
+ADD requirements.txt /workplace/
+RUN pip install -r requirements.txt
+# NLP Kits
+RUN python -c "import nltk; nltk.download('stopwords'); nltk.download('punkt')"
