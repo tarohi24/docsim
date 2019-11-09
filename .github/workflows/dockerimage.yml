@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Test and Lint
 
 on: [pull_request]
 
@@ -13,7 +13,6 @@ jobs:
     - name: Build the Docker image
       run: docker-compose build
     - name: Tests
-    - run: bash run.bash test
+      run: bash run.bash test
     - name: Lint
       run: bash run.bash lint
-    
