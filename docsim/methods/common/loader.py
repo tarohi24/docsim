@@ -13,3 +13,11 @@ def query_load_file(dataset: str) -> Generator[ColDocument, None, None]:
     with open(qpath) as fin:
         doc: ColDocument = ColDocument.from_json(fin.readline())
         yield doc
+
+
+def loader_node(dataset: str) -> LoaderNode[ColDocument]:
+    queries: Generator[ColDocument, None, None] = query_load_file(dataset=dataset)
+    loader: DataLoader[ColDocument] = DataLoader(gen=queries,
+                                                 batch_size=1)
+    node: LoaderNode[ColDocument] = LoaderNode(loader)
+    return node
