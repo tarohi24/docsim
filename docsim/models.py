@@ -7,7 +7,6 @@ from typing import Dict, List, Tuple
 
 from dataclasses_json import dataclass_json
 
-from docsim.elas import models
 from docsim.settings import data_dir
 from docsim.utils.utils import uniq
 
@@ -41,61 +40,30 @@ class RankItem:
 
 
 @dataclass
-class ColDocument(models.EsItem):
-    docid: models.KeywordField  # unique key
-    title: models.TextField
-    text: models.TextField
-    tags: models.KeywordListField
+@dataclass_json
+class ColDocument:
+    docid: str
+    title: str
+    text: str
+    tags: List[str]
 
     @classmethod
     def mapping(cls) -> Dict:
         return {
             'properties': {
-                'docid': models.KeywordField.mapping(),
-                'title': models.TextField.mapping(),
-                'text': models.TextField.mapping(),
-                'tags': models.KeywordListField.mapping(),
+                'docid': {
+                    'type': 'keyword'
+                },
+                'title': {
+                    'type': 'text',
+                    'analyzer': 'english'
+                },
+                'text': {
+                    'type': 'text',
+                    'analyzer': 'english'
+                },
+                'tags': {
+                    'type': 'keyword'
+                }
             }
         }
-
-    def to_dict(self) -> Dict:
-        return {
-            '_id': self.docid.to_elas_value(),
-            'docid': self.docid.to_elas_value(),
-            'title': self.title.to_elas_value(),
-            'text': self.text.to_elas_value(),
-            'tags': self.tags.to_elas_value(),
-        }
-
-    def to_json(self) -> str:
-        dic: Dict = self.to_dict()
-        return json.dumps(dic)
-
-    @classmethod
-    def _create_doc_from_values(cls,
-                                docid: str,
-                                title: str,
-                                text: str,
-                                tags: List[str]) -> ColDocument:
-        """
-        for testing
-        """
-        return ColDocument(
-            docid=models.KeywordField(docid),
-            title=models.TextField(title),
-            text=models.TextField(text),
-            tags=models.KeywordListField(tags))
-
-    @classmethod
-    def from_json(cls,
-                  jsonstr: str) -> ColDocument:
-        dic: Dict = json.loads(jsonstr)
-        docid: str = dic['docid']
-        title: str = dic['title']
-        text: str = dic['text']
-        tags: List[str] = dic['tags']
-        return cls._create_doc_from_values(
-            docid=docid,
-            title=title,
-            text=text,
-            tags=tags)

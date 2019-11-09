@@ -4,7 +4,7 @@ from docsim.models import ColDocument
 
 
 def test_coldoc_init():
-    ColDocument._create_doc_from_values(
+    ColDocument(
         docid='EP111',
         title='hello',
         text='hi this is the body',
@@ -26,3 +26,11 @@ def test_invalid_coldoc():
     """
     with pytest.raises(KeyError):
         ColDocument.from_json(json_str)
+
+
+def test_docid_access():
+    json_str: str = """
+    {"docid": "EP111", "title": "hello", "text": "hi this is the body", "tags": ["C90B"]}
+    """
+    doc: ColDocument = ColDocument.from_json(json_str)
+    assert doc.docid == 'EP111'
