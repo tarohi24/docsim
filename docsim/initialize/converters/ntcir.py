@@ -3,11 +3,9 @@ from pathlib import Path
 from typing import Generator, List
 import xml.etree.ElementTree as ET
 
-import nltk
-
 from docsim.elas import models
-from docsim.converters import base
-from docsim.models import ColDocument, ColParagraph, QueryDocument
+from docsim.initialize.converters import base
+from docsim.models import ColDocument
 
 
 @dataclass
@@ -47,16 +45,6 @@ class NTCIRConverter(base.Converter):
         text: str = base.find_text_or_default(root, 'SPEC', '')
         return text
 
-    def _get_paragraph_list(self,
-                            root: ET.Element) -> List[str]:
-        """
-        NOTE: is it possible to separate NTCIR patent into paragraphs?
-              -> Seems impossible. Altanatively this method separates text into sentences.
-        """
-        text: str = self._get_text(root)
-        tokenized: List[str] = nltk.sent_tokenize(text)
-        return tokenized
-
     def escape(self, orig: str) -> str:
         return orig\
             .replace('<tab>', '\t')\
@@ -80,19 +68,3 @@ class NTCIRConverter(base.Converter):
                               title=models.TextField(title),
                               text=models.TextField(text),
                               tags=models.KeywordListField(tags))
-
-    def to_paragraph(self,
-                     fpath: Path) -> List[ColParagraph]:
-        raise NotImplementedError('Yet implemented.')
-
-    def to_query_dump(self,
-                      fpath: Path) -> List[QueryDocument]:
-        with open(fpath, 'r') as fin:
-            xml_body: str = self.escape(fin.read())
-        root: ET.Element = base.get_or_raise_exception(ET.fromstring(xml_body).find('DOC'))
-        docid: str = self._get_docid(root)
-        tags: List[str] = self._get_tags(root)
-        paras: List[str] = self._get_paragraph_list(root)
-        return [QueryDocument(docid=docid,
-                              paras=paras,
-                              tags=tags)]

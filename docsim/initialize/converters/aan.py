@@ -5,13 +5,9 @@ import sys
 from typing import Dict, List, Tuple
 import xml.etree.ElementTree as ET
 
-import nltk
-
 from docsim.elas import models
-from docsim.converters.base import (
-    Converter
-)
-from docsim.models import ColDocument, ColParagraph, QueryDocument
+from docsim.initialize.converters.base import Converter
+from docsim.models import ColDocument
 from docsim.settings import data_dir
 
 logger = logging.getLogger(__file__)
@@ -50,21 +46,6 @@ class AANConverter(Converter):
                             title=models.TextField(title),
                             text=models.TextField(text),
                             tags=models.KeywordListField(tags))]
-
-    def to_paragraph(self,
-                     fpath: Path) -> List[ColParagraph]:
-        pass
-
-    def to_query_dump(self,
-                      fpath: Path) -> List[QueryDocument]:
-        """
-        NOTE: paras are made by sent_tokenizer
-        """
-        docid, tags, _, text = self._get_info(fpath)
-        tokenized: List[str] = nltk.sent_tokenize(text)
-        return [QueryDocument(docid=docid,
-                              paras=tokenized,
-                              tags=tags)]
 
 
 if __name__ == '__main__':

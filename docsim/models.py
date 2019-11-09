@@ -39,8 +39,8 @@ class RankItem:
         return len(self.scores)
 
 
-@dataclass
 @dataclass_json
+@dataclass
 class ColDocument:
     docid: str
     title: str
