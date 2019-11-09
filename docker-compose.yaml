@@ -10,7 +10,7 @@ services:
       - .env/main.env
     volumes:
       - "${HOME}/docsim:/workplace"
-      - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
+      - "${HOME}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
     networks:
       - docsim_default
   lsp:
@@ -21,7 +21,7 @@ services:
     container_name: "lsp_hirota"
     volumes:
       - "${HOME}/docsim:${HOME}/docsim"
-      - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
+      - "${HOME}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
     ports:
       - 11001:11001
     working_dir: "${HOME}/docsim"
