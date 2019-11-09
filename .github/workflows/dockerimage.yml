@@ -22,7 +22,7 @@ jobs:
         SENTENCEPIECE_HOME: ${GITHUB_WORKSPACE}/sentencepiece
         PKG_CONFIG_PATH: ${SENTENCEPIECE_HOME}/lib/pkgconfig
       run: |
-        RUN wget https://github.com/google/sentencepiece/archive/v0.1.84.zip && unzip v0.1.84.zip
+        wget https://github.com/google/sentencepiece/archive/v0.1.84.zip && unzip v0.1.84.zip
         cd sentencepiece-0.1.84
         mkdir -p build
         cd ./bulid
