@@ -2,7 +2,7 @@ version: "2.4"
 services:
   python:
     build:
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
       context: ./
     image: hirota/python
     container_name: "python_hirota"
@@ -13,23 +13,9 @@ services:
       - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
     networks:
       - docsim_default
-
-  spm:
-    build:
-      dockerfile: Dockerfile.spm
-      context: ./
-    image: hirota/spm
-    container_name: "spm_hirota"
-    volumes:
-      - "${HOME}/docsim:/workplace"
-      - "${HOME}/docsim/docsim:/opt/conda/lib/python3.7/site-packages/docsim:ro"
-    networks:
-      - docsim_default
-    working_dir: /workplace 
-
   lsp:
     build:
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       context: ./
     image: hirota/lsp
     container_name: "lsp_hirota"
