@@ -1,9 +1,8 @@
-from unittest.mock import MagicMock, patch
 from typing import List
 
 import pytest
 
-from docsim.elas.search import EsResult, EsResultItem, EsSearcher
+from docsim.elas.search import EsResult, EsResultItem
 from docsim.methods.methods.keyword import (
     KeywordParam, extract_keywords, _extract_keywords_from_text,
     retrieve
@@ -57,4 +56,4 @@ def test_search(mocker, param, doc):
     mocker.patch('docsim.settings.es', 'foo')
     mocker.patch('docsim.elas.search.EsSearcher.search',
                  return_value=sample_hits)
-    res: EsResult = retrieve(doc=doc, param=param)
+    retrieve(doc=doc, param=param)

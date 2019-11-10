@@ -21,7 +21,7 @@ class ClfResult(JsonSchemaMixin):
 
     def get_fpath(self) -> Path:
         return self.__class__.get_fpath_from(dataset_name=self.dataset_name,
-                                            method_name=self.method_name)
+                                             method_name=self.method_name)
 
     @classmethod
     def get_fpath_from(cls,
@@ -40,6 +40,7 @@ class ClfResult(JsonSchemaMixin):
     def dump(self) -> None:
         with open(self.get_fpath(), 'w') as fout:
             json.dump(self.to_dict(), fout)
+
 
 @dataclass
 class Evaluator:

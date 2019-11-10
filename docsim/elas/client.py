@@ -3,13 +3,12 @@ Client module
 """
 from dataclasses import dataclass
 import logging
-from typing import Dict, Iterable, Type
+from typing import Dict, Type
 
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 
 from docsim.elas.models import EsItem
-from docsim.settings import es
 
 
 logger = logging.getLogger(__file__)
