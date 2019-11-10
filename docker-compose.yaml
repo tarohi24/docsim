@@ -4,7 +4,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./
-    image: hirota/python
+    image: hirota/docsim
     volumes:
       - "${HOME}/docsim:/workplace"
       - "${HOME}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
@@ -15,10 +15,7 @@ services:
       - PROJECT_ROOT=/workplace
 
   lsp:
-    build:
-      dockerfile: Dockerfile
-      context: ./
-    image: hirota/lsp
+    image: hirota/docsim
     volumes:
       - "${HOME}/docsim:${HOME}/docsim"
       - "${HOME}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
@@ -28,6 +25,16 @@ services:
     command: pyls --port 11001
     stdin_open: true
 
+  actions:
+    image: hirota/docsim
+    networks:
+      - docsim_default
+    volumes:
+      - "${GITHUB_WORKSPACE}/docsim:/workplace"
+      - "${GITHUB_WORKSPACE}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
+    environment:
+      - ES_URL=${ES_URL}
+      - PROJECT_ROOT=/workplace
 
 networks:
   docsim_default:
