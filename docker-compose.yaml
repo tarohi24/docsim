@@ -35,6 +35,7 @@ services:
     environment:
       - ES_URL=${ES_URL}
       - PROJECT_ROOT=/workplace
+    working_dir: /workplace
 
 networks:
   docsim_default:
