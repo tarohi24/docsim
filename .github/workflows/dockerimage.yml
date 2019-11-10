@@ -18,6 +18,11 @@ jobs:
     - name: Create network
       run: docker network create docsim_default
     - name: run tests
-      run: bash run.bash test
-    - name: run lint
-      run: bash run.bash lint
+      run: |
+        docker-compose run -e IS_TEST=1 actions pytest docsim
+    - name: run mypy
+      run: |
+        docker-compose run -e IS_TEST=1 actions mypy docsim
+    - name: run flake8
+      run: |
+        docker-compose run -e IS_TEST=1 actions flake8 docsim
