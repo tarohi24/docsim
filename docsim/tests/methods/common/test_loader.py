@@ -26,6 +26,7 @@ def test_dataloader_creation():
 def node():
     loader: DataLoader[ColDocument] = dataloader()
     node: LoaderNode[ColDocument] = LoaderNode(loader)
+    return node
 
 
 def test_node_creation():
