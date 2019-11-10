@@ -1,30 +1,32 @@
 """
-Keyword search
+extract keywords -> do search
 """
-from dataclasses import dataclass
+from collections import Counter
+import re
+from typing import List, Pattern, Set, TypedDict  # type: ignore
 
-from dataclasses_jsonschema import JsonSchemaMixin
-
-from docsim.elas.search import EsResult
-from docsim.methods.base import Method, Param
-from docsim.models import QueryDocument
-from docsim.models import RankItem
+from nltk.corpus import stopwords as nltk_sw
+from nltk.tokenize import RegexpTokenizer
 
 
-@dataclass
-class KeywordBaselineParam(Param, JsonSchemaMixin):
+stopwords: Set[str] = set(nltk_sw.words('english'))
+tokenizer: RegexpTokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
+not_a_word_pat: Pattern = re.compile(r'^[^a-z0-9]*$')
+
+
+class KeywordParam(TypedDict):
     n_words: int
+    n_docs: int
 
 
-@dataclass
-class KeywordBaseline(Method):
-    param: KeywordBaselineParam
-
-    def apply(self,
-              query_doc: QueryDocument,
-              size: int = 100) -> RankItem:
-        # search elasticsearch
-        res: EsResult = self.filter_by_terms(query_doc=query_doc,
-                                             n_words=self.param.n_words,
-                                             size=size)
-        return res.to_rank_item(query_id=query_doc.docid)
+def extract_keywords_from_text(text: str,
+                               param: KeywordParam) -> List[str]:
+    # lower and tokenize
+    tokens: List[str] = tokenizer.tokenize(text.lower())
+    # remove stopwords
+    tokens: List[str] = [w for w in tokens if w not in stopwords]  # type: ignore
+    tokens: List[str] = [w for w in tokens  # type: ignore
+                         if not_a_word_pat.match(w) is None]
+    counter: Counter = Counter(tokens)
+    keywords: List[str] = [w for w, _ in counter.most_common(param['n_words'])]
+    return keywords
