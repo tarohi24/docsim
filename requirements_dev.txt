@@ -3,3 +3,4 @@ mypy
 git+https://github.com/tarohi24/pyls-mypy
 python-language-server
 pytest
+pytest-mock
