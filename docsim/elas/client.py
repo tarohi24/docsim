@@ -9,6 +9,7 @@ from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 
 from docsim.elas.models import EsItem
+from docsim.settings import es
 
 
 logger = logging.getLogger(__file__)
