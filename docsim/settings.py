@@ -16,4 +16,5 @@ results_dir: Path = root.joinpath('results')
 
 
 # Elasticsearch
-es: Elasticsearch = Elasticsearch(os.environ['ES_URL'])
+if not is_test:
+    es: Elasticsearch = Elasticsearch(os.environ['ES_URL'])
