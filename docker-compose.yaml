@@ -30,8 +30,8 @@ services:
     networks:
       - docsim_default
     volumes:
-      - "${GITHUB_WORKSPACE}/docsim:/workplace"
-      - "${GITHUB_WORKSPACE}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
+      - "${GITHUB_WORKSPACE}:/workplace"
+      - "${GITHUB_WORKSPACE}/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
     environment:
       - ES_URL=${ES_URL}
       - PROJECT_ROOT=/workplace
