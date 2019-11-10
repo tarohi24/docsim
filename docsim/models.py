@@ -1,13 +1,10 @@
 from __future__ import annotations  # noqa
 from dataclasses import dataclass
-import json
 from operator import itemgetter
-from pathlib import Path
 from typing import Dict, List, Tuple
 
 from dataclasses_json import dataclass_json
 
-from docsim.settings import data_dir
 from docsim.utils.utils import uniq
 
 

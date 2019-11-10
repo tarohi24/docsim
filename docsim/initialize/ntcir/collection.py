@@ -3,7 +3,6 @@ load -> create an instance -> insert into ES
 """
 import logging
 from lxml import etree
-import re
 from pathlib import Path
 from typing import Generator, List
 import xml.etree.ElementTree as ET

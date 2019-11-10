@@ -3,13 +3,13 @@ Client module
 """
 from dataclasses import dataclass
 import logging
-from typing import Dict, Iterable, Type
+from typing import Dict, Type
 
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import NotFoundError
 
 from docsim.elas.models import EsItem
-from docsim.settings import es
+from docsim.settings import es as ses
 
 
 logger = logging.getLogger(__file__)
@@ -23,7 +23,7 @@ class IndexCreateError(Exception):
 class EsClient:
     es_index: str
     item_cls: Type[EsItem]
-    es: Elasticsearch = es
+    es: Elasticsearch = ses
 
     def create_index(self) -> None:
         ack: Dict = self.es.indices.create(
