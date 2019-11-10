@@ -8,6 +8,8 @@ from typing import List, Pattern, Set, TypedDict  # type: ignore
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 
+from docsim.models import ColDocument
+
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
 tokenizer: RegexpTokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
@@ -19,8 +21,8 @@ class KeywordParam(TypedDict):
     n_docs: int
 
 
-def extract_keywords_from_text(text: str,
-                               param: KeywordParam) -> List[str]:
+def _extract_keywords_from_text(text: str,
+                                param: KeywordParam) -> List[str]:
     # lower and tokenize
     tokens: List[str] = tokenizer.tokenize(text.lower())
     # remove stopwords
@@ -30,3 +32,8 @@ def extract_keywords_from_text(text: str,
     counter: Counter = Counter(tokens)
     keywords: List[str] = [w for w, _ in counter.most_common(param['n_words'])]
     return keywords
+
+
+def extract_keywords(doc: ColDocument,
+                     param: KeywordParam) -> List[str]:
+    return _extract_keywords_from_text(text=doc.text, param=param)
