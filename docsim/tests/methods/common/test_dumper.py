@@ -4,24 +4,22 @@ from typing import Dict, List
 import pytest
 from typedflow.batch import Batch
 
-from docsim.methods.common.dumper import BaseParam
-from docsim.methods.common.dumper import (
-    TRECResult, get_dump_path, dump_prel
-)
+from docsim.methods.common.dumper import get_dump_path, dump_prel
+from docsim.methods.common.types import Context, TRECResult
 from docsim.settings import results_dir
 
 
 @pytest.fixture(scope='module')
-def param() -> BaseParam:
-    param: BaseParam = {
+def context() -> Context:
+    context: Context = {
         'es_index': 'clef',
         'method': 'keyword',
         'runname': '40',
         'n_docs': 10
     }
-    yield param
+    yield context
     # cleaning up
-    get_dump_path(param).unlink()
+    get_dump_path(context).unlink()
 
 
 @pytest.fixture(scope='module')
@@ -37,8 +35,8 @@ def res() -> TRECResult:
     return result
 
 
-def test_path_func(param):
-    assert get_dump_path(param)\
+def test_path_func(context):
+    assert get_dump_path(context)\
         == results_dir.joinpath('clef/keyword/40.prel')
 
 
@@ -48,12 +46,12 @@ EP111 0 EP101 1.0
 EP111 0 EP102 2.0"""
 
 
-def test_dump(param, res):
+def test_dump(context, res):
     data: List[TRECResult] = [res, ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
 
-    dump_prel(batch=batch, param=param)
-    path: Path = get_dump_path(param)
+    dump_prel(batch=batch, context=context)
+    path: Path = get_dump_path(context)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
     assert out == ['EP111 0 EP100 0.0', 'EP111 0 EP101 1.0', 'EP111 0 EP102 2.0']

@@ -4,24 +4,27 @@ from typing import List
 import pytest
 
 from docsim.elas.search import EsResult, EsResultItem
-from docsim.methods.common.dumper import TRECResult
-from docsim.methods.methods.keyword import (
-    KeywordParam, extract_keywords, _extract_keywords_from_text,
-    retrieve, KeywordBaseline
-)
+from docsim.methods.common.flow import MethodProperty
+from docsim.methods.common.types import Context, TRECResult
+from docsim.methods.methods.keyword import KeywordParam, KeywordBaseline
 from docsim.models import ColDocument
 
 
 @pytest.fixture
 def param() -> KeywordParam:
-    param: KeywordParam = {
-        'n_words': 2,
+    param: KeywordParam = KeywordParam(n_words=2)
+    return param
+
+
+@pytest.fixture
+def context() -> Context:
+    context: Context = {
         'n_docs': 3,
         'es_index': 'dummy',
         'method': 'keyword',
         'runname': '40',
     }
-    return param
+    return context
 
 
 @pytest.fixture
@@ -40,34 +43,43 @@ def doc(text) -> ColDocument:
     return doc
 
 
-def test_extract_query_from_text(param, text):
-    keywords: List[str] = _extract_keywords_from_text(text=text, param=param)
+@pytest.fixture
+def method(param, context):
+    prop: MethodProperty = MethodProperty(context=context)
+    method: KeywordBaseline = KeywordBaseline(prop=prop, param=param)
+    return method
+
+
+@pytest.fixture
+def sample_hits():
+    res = EsResult([
+        EsResultItem.from_dict(
+            {'_source': {'docid': 'EP200'}, '_score': 3.2}),
+    ])
+    return res
+
+
+def test_extract_query_from_text(method, text):
+    keywords: List[str] = method._extract_keywords_from_text(text=text)
     assert keywords == ['test', 'danger', ]
 
 
-def test_extract_keyword(param, doc):
-    keywords: List[str] = extract_keywords(doc=doc, param=param)
+def test_extract_keyword(method, doc):
+    keywords: List[str] = method.extract_keywords(doc=doc)
     assert keywords == ['test', 'danger', ]
 
 
-sample_hits = EsResult([
-    EsResultItem.from_dict(
-        {'_source': {'docid': 'EP200'}, '_score': 3.2}),
-])
-
-
-def test_search(mocker, param, doc):
+def test_search(mocker, method, doc, sample_hits):
     mocker.patch('docsim.settings.es', 'foo')
     mocker.patch('docsim.elas.search.EsSearcher.search',
                  return_value=sample_hits)
-    trec_res: TRECResult = retrieve(doc=doc, param=param)
+    trec_res: TRECResult = method.retrieve(doc=doc)
     assert trec_res.query_docid == 'EP111'
     assert trec_res.scores == {'EP200': 3.2}
 
 
-def test_flow_creation(mocker, param):
+def test_flow_creation(mocker, method, sample_hits):
     mocker.patch('docsim.settings.es', 'foo')
     mocker.patch('docsim.elas.search.EsSearcher.search',
                  return_value=sample_hits)
-    bl: KeywordBaseline = KeywordBaseline(param=param)
-    asyncio.run(bl.create_flow().run())
+    asyncio.run(method.create_flow().run())
