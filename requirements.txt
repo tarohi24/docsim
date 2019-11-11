@@ -8,6 +8,5 @@ numpy>=1.17.3
 pandas
 PuLP
 pyyaml
-sklearn
 spherecluster
 tqdm
