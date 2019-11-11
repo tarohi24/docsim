@@ -4,18 +4,20 @@ from typing import Dict, List
 import pytest
 from typedflow.batch import Batch
 
+from docsim.methods.common.dumper import BaseParam
 from docsim.methods.common.dumper import (
-    TRECResult, get_dump_path, dump_prel, DumpParam
+    TRECResult, get_dump_path, dump_prel
 )
 from docsim.settings import results_dir
 
 
 @pytest.fixture(scope='module')
-def param() -> DumpParam:
-    param: DumpParam = {
-        'dataset': 'clef',
+def param() -> BaseParam:
+    param: BaseParam = {
+        'es_index': 'clef',
         'method': 'keyword',
-        'runname': '40'
+        'runname': '40',
+        'n_docs': 10
     }
     yield param
     # cleaning up

@@ -4,29 +4,24 @@ extract keywords -> do search
 from collections import Counter
 from dataclasses import dataclass
 import re
-from typing import List, Pattern, Set, TypedDict  # type: ignore
+from typing import List, Pattern, Set  # type: ignore
 
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 from typedflow.flow import Flow
 from typedflow.tasks import Task
-from typedflow.nodes import LoaderNode
+from typedflow.nodes import LoaderNode, TaskNode, DumpNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
-from docsim.methods.common.dumper import dumper_node
-from docsim.methods.common.dumper import TRECResult
+from docsim.methods.common.dumper import TRECResult, dump_node
 from docsim.methods.common.loader import loader_node
+from docsim.methods.common.types import BaseParam
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
 tokenizer: RegexpTokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
 not_a_word_pat: Pattern = re.compile(r'^[^a-z0-9]*$')
-
-
-class BaseParam(TypedDict):
-    n_docs: int
-    es_index: str
 
 
 class KeywordParam(BaseParam):
@@ -67,3 +62,27 @@ def retrieve(doc: ColDocument,
         scores=candidates.get_scores()
     )
     return res
+
+
+def retrieve_node(param: KeywordParam) -> TaskNode[ColDocument, TRECResult]:
+    task: Task[ColDocument, TRECResult] = Task(
+        func=lambda doc: retrieve(doc, param=param))
+    node: TaskNode[ColDocument, TRECResult] = TaskNode(task=task,
+                                                       arg_type=ColDocument)
+    return node
+
+
+@dataclass
+class KeywordBaseline:
+    param: KeywordParam
+
+    def create_flow(self):
+        loader: LoaderNode[ColDocument] = loader_node(
+            dataset=self.param['es_index'])
+        task: Task[ColDocument, TRECResult] = retrieve_node(
+            param=self.param)
+        dump: DumpNode[TRECResult] = dump_node(param=self.param)
+        task.set_upstream_node('loader', loader)
+        dump.set_upstream_node('task', task)
+        flow: Flow = Flow(dump_nodes=[dump, ])
+        return flow

@@ -1,3 +1,4 @@
+import asyncio
 from typing import List
 
 import pytest
@@ -6,7 +7,7 @@ from docsim.elas.search import EsResult, EsResultItem
 from docsim.methods.common.dumper import TRECResult
 from docsim.methods.methods.keyword import (
     KeywordParam, extract_keywords, _extract_keywords_from_text,
-    retrieve
+    retrieve, KeywordBaseline
 )
 from docsim.models import ColDocument
 
@@ -16,7 +17,9 @@ def param() -> KeywordParam:
     param: KeywordParam = {
         'n_words': 2,
         'n_docs': 3,
-        'es_index': 'dummy'
+        'es_index': 'dummy',
+        'method': 'keyword',
+        'runname': '40',
     }
     return param
 
@@ -60,3 +63,11 @@ def test_search(mocker, param, doc):
     trec_res: TRECResult = retrieve(doc=doc, param=param)
     assert trec_res.query_docid == 'EP111'
     assert trec_res.scores == {'EP200': 3.2}
+
+
+def test_flow_creation(mocker, param):
+    mocker.patch('docsim.settings.es', 'foo')
+    mocker.patch('docsim.elas.search.EsSearcher.search',
+                 return_value=sample_hits)
+    bl: KeywordBaseline = KeywordBaseline(param=param)
+    asyncio.run(bl.create_flow().run())
