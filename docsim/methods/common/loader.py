@@ -11,10 +11,13 @@ from docsim.models import ColDocument
 from docsim.settings import data_dir
 
 
+__all__ = ['loader_node', ]
+
+
 def query_load_file(dataset: str) -> Generator[ColDocument, None, None]:
     qpath: Path = data_dir.joinpath(f'{dataset}/query/dump.bulk')
     with open(qpath) as fin:
-        doc: ColDocument = ColDocument.from_json(fin.readline())  # noqa
+        doc: ColDocument = ColDocument.from_json(fin.readline())  # type: ignore
         yield doc
 
 

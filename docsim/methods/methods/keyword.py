@@ -2,14 +2,21 @@
 extract keywords -> do search
 """
 from collections import Counter
+from dataclasses import dataclass
 import re
 from typing import List, Pattern, Set, TypedDict  # type: ignore
 
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
+from typedflow.flow import Flow
+from typedflow.tasks import Task
+from typedflow.nodes import LoaderNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
+from docsim.methods.common.dumper import dumper_node
+from docsim.methods.common.dumper import TRECResult
+from docsim.methods.common.loader import loader_node
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
@@ -55,4 +62,8 @@ def retrieve(doc: ColDocument,
         .add_filter(terms=doc.tags, field='tags')\
         .add_source_fields(['text'])\
         .search()
-    return candidates
+    res: TRECResult = TRECResult(
+        query_docid=doc.docid,
+        scores=candidates.get_scores()
+    )
+    return res
