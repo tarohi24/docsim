@@ -1,7 +1,9 @@
 from pathlib import Path
-from typing import Dict, TypedDict
+from typing import Dict, TypedDict  # type: ignore
 
 from typedflow.batch import Batch
+from typedflow.tasks import Dumper
+from typedflow.nodes import DumpNode
 
 from docsim.settings import results_dir
 
@@ -43,3 +45,10 @@ def dump_prel(batch: Batch[Result],
     with open(path, 'a') as fout:
         for res in batch.data:
             fout.write(to_prel(res))
+
+
+def dumper_node(batch: Batch[Result],
+                param: DumpParam) -> DumpNode[Result]:
+    dumper: Dumper[Result] = Dumper(func=dump_prel)
+    dump_node: DumpNode[Result] = DumpNode(dumper=dumper)
+    return dump_node
