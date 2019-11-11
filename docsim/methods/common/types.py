@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, TypedDict  # type: ignore
 
@@ -13,7 +14,10 @@ class TRECResult:
 
 
 class Param:
-    pass
+
+    @classmethod
+    def from_args(cls, args) -> Param:
+        ...
 
 
 class Context(TypedDict):
