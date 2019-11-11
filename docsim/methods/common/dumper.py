@@ -1,35 +1,28 @@
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, TypedDict
+from typing import Dict  # type: ignore
 
 from typedflow.batch import Batch
+from typedflow.tasks import Dumper
+from typedflow.nodes import DumpNode
 
+from docsim.methods.common.types import BaseParam
 from docsim.settings import results_dir
 
 
-class Result(TypedDict):
-    """
-    methods related to this item should be declared
-    outside this class because method impl is not allowed by PEP589
-    (at runtime, it's just a dict)
-    """
+@dataclass
+class TRECResult:
     query_docid: str
     scores: Dict[str, float]
 
-
-def to_prel(res: Result) -> str:
-    return '\n'.join([f"{res['query_docid']} 0 {key} {score}"
-                      for key, score in res['scores'].items()])
-
-
-class DumpParam(TypedDict):
-    dataset: str
-    method: str
-    runname: str
+    def to_prel(self) -> str:
+        return '\n'.join([f"{self.query_docid} 0 {key} {score}"
+                          for key, score in self.scores.items()])
 
 
-def get_dump_path(param: DumpParam) -> Path:
+def get_dump_path(param: BaseParam) -> Path:
     path: Path = results_dir.joinpath(
-        f"{param['dataset']}/{param['method']}/{param['runname']}.prel")
+        f"{param['es_index']}/{param['method']}/{param['runname']}.prel")
     try:
         path.parent.mkdir(parents=True)
     except FileExistsError:
@@ -37,9 +30,17 @@ def get_dump_path(param: DumpParam) -> Path:
     return path
 
 
-def dump_prel(batch: Batch[Result],
-              param: DumpParam) -> None:
+def dump_prel(batch: Batch[TRECResult],
+              param: BaseParam) -> None:
     path: Path = get_dump_path(param=param)
     with open(path, 'a') as fout:
         for res in batch.data:
-            fout.write(to_prel(res))
+            fout.write(res.to_prel())
+
+
+def dump_node(param: BaseParam) -> DumpNode[TRECResult]:
+    dumper: Dumper[TRECResult] = Dumper(
+        func=lambda batch: dump_prel(batch, param=param))
+    dump_node: DumpNode[TRECResult] = DumpNode(dumper=dumper,
+                                               arg_type=TRECResult)
+    return dump_node

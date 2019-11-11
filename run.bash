@@ -30,7 +30,7 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=0 --rm python python ${@:2}
         ;;
     "lint" )
-        docker-compose -f ${COMPOSE_FILE} run --workdir=${PROJECT_ROOT} -e IS_TEST=0 --rm lsp make lint
+        docker-compose run -e IS_TEST=0 --rm python make lint
         ;;
     "bash" )
         docker-compose -f ${COMPOSE_FILE} run --rm python bash
