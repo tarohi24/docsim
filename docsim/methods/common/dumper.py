@@ -5,6 +5,7 @@ from typedflow.batch import Batch
 from typedflow.tasks import Dumper
 from typedflow.nodes import DumpNode
 
+from docsim.methods.common.dumper import Result as TRECResult
 from docsim.settings import results_dir
 
 
@@ -48,7 +49,7 @@ def dump_prel(batch: Batch[Result],
 
 
 def dumper_node(batch: Batch[Result],
-                param: DumpParam) -> DumpNode[Result]:
+                param: DumpParam) -> DumpNode[TRECResult]:
     dumper: Dumper[Result] = Dumper(func=dump_prel)
-    dump_node: DumpNode[Result] = DumpNode(dumper=dumper)
+    dump_node: DumpNode[TRECResult] = DumpNode(dumper=dumper)
     return dump_node
