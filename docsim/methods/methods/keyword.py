@@ -1,10 +1,13 @@
 """
 extract keywords -> do search
 """
+from __future__ import annotations
+import asyncio
 from collections import Counter
 from dataclasses import dataclass
 import re
 from typing import List, Pattern, Set  # type: ignore
+
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 from typedflow.flow import Flow
@@ -13,8 +16,10 @@ from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
-from docsim.methods.common.flow import Method
+from docsim.methods.common.flow import Method, MethodProperty
 from docsim.methods.common.types import Param, TRECResult
+from docsim.methods.common.argparser import (
+    get_default_parser, create_prop_from_args)
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
@@ -26,10 +31,13 @@ not_a_word_pat: Pattern = re.compile(r'^[^a-z0-9]*$')
 class KeywordParam(Param):
     n_words: int
 
+    @classmethod
+    def from_args(cls, args) -> KeywordParam:
+        return KeywordParam(n_words=args.n_keywords)
+
 
 @dataclass
 class KeywordBaseline(Method[KeywordParam]):
-    param: KeywordParam
 
     def get_retrieve_node(self) -> TaskNode[ColDocument, TRECResult]:
         task: Task[ColDocument, TRECResult] = Task(self.retrieve)
@@ -73,3 +81,17 @@ class KeywordBaseline(Method[KeywordParam]):
         task_node.set_upstream_node('load', self.prop.load_node)
         flow: Flow = Flow(dump_nodes=[self.prop.dump_node, ])
         return flow
+
+
+if __name__ == '__main__':
+    parser = get_default_parser()
+    parser.add_argument('--n-keywords',
+                        nargs=1,
+                        type=int)
+    parser = get_default_parser()
+    args = parser.parse_args()
+    mprop: MethodProperty = create_prop_from_args(args, method_name='keyword')
+    param: KeywordParam = KeywordParam.from_args(args)
+    method: KeywordBaseline = KeywordBaseline(param=param, prop=mprop)
+    flow: Flow = method.create_flow()
+    asyncio.run(flow.run())
