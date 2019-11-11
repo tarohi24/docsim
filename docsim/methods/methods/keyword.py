@@ -45,7 +45,7 @@ def extract_keywords(doc: ColDocument,
 
 
 def retrieve(doc: ColDocument,
-             param: KeywordParam) -> EsResult:
+             param: KeywordParam) -> TRECResult:
     searcher: EsSearcher = EsSearcher(es_index=param['es_index'])
     keywords: List[str] = extract_keywords(doc=doc, param=param)
     candidates: EsResult = searcher\

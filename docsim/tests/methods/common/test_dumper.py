@@ -5,7 +5,7 @@ import pytest
 from typedflow.batch import Batch
 
 from docsim.methods.common.dumper import (
-    Result, get_dump_path, to_prel, dump_prel, DumpParam
+    TRECResult, get_dump_path, dump_prel, DumpParam
 )
 from docsim.settings import results_dir
 
@@ -23,15 +23,15 @@ def param() -> DumpParam:
 
 
 @pytest.fixture(scope='module')
-def res() -> Result:
+def res() -> TRECResult:
     scores: Dict[str, float] = {
         f'EP10{i}': float(i)
         for i in range(3)
     }
-    result: Result = {
-        'query_docid': 'EP111',
-        'scores': scores
-    }
+    result: TRECResult = TRECResult(
+        query_docid='EP111',
+        scores=scores
+    )
     return result
 
 
@@ -41,14 +41,14 @@ def test_path_func(param):
 
 
 def test_to_prel(res):
-    assert to_prel(res) == """EP111 0 EP100 0.0
+    assert res.to_prel() == """EP111 0 EP100 0.0
 EP111 0 EP101 1.0
 EP111 0 EP102 2.0"""
 
 
 def test_dump(param, res):
-    data: List[Result] = [res, ]
-    batch: Batch[Result] = Batch(batch_id=0, data=data)
+    data: List[TRECResult] = [res, ]
+    batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
 
     dump_prel(batch=batch, param=param)
     path: Path = get_dump_path(param)
