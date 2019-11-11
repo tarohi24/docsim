@@ -6,11 +6,11 @@ from docsim.methods.common.types import Context
 
 def get_default_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--n-docs',
+    parser.add_argument('--n_docs',
                         nargs=1,
                         type=int,
                         default=100)
-    parser.add_argument('--es-index',
+    parser.add_argument('--es_index',
                         nargs=1,
                         type=str)
     parser.add_argument('--runname',
