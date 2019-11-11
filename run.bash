@@ -27,7 +27,7 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=1 --rm python pytest ${options}
         ;;
     "python" )
-        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=0 --rm python python ${@:2}
+        docker-compose -f ${COMPOSE_FILE} run --workdir="/workplace" -e IS_TEST=0 -e ES_URL=${ES_URL} --rm python python ${@:2}
         ;;
     "lint" )
         docker-compose run -e IS_TEST=0 --rm python make lint

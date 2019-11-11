@@ -6,7 +6,7 @@ import pytest
 from docsim.elas.search import EsResult, EsResultItem
 from docsim.methods.common.flow import MethodProperty
 from docsim.methods.common.types import Context, TRECResult
-from docsim.methods.methods.keyword import KeywordParam, KeywordBaseline
+from docsim.methods.methods.keywords import KeywordParam, KeywordBaseline
 from docsim.models import ColDocument
 
 
