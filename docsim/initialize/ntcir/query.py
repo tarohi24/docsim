@@ -16,7 +16,6 @@ from typedflow.nodes import TaskNode, LoaderNode, DumpNode
 from typedflow.tasks import Task, DataLoader, Dumper
 
 from docsim.initialize.converters.ntcir import NTCIRConverter
-from docsim.elas import models
 from docsim.models import ColDocument
 from docsim.settings import data_dir
 
@@ -49,10 +48,10 @@ def get_document(root: ET.Element) -> ColDocument:
     tags: List[str] = converter._get_tags(root)
     title: str = converter._get_title(root)
     text: str = converter._get_text(root)
-    return ColDocument(docid=models.KeywordField(docid),
-                       title=models.TextField(title),
-                       text=models.TextField(text),
-                       tags=models.KeywordListField(tags))
+    return ColDocument(docid=docid,
+                       title=title,
+                       text=text,
+                       tags=tags)
 
 
 def dump_to_one_file(batch: Batch[Union[FaultItem, ColDocument]],
