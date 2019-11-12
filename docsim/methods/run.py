@@ -6,15 +6,16 @@ from typing import Dict, List, Type
 import yaml
 from typedflow.flow import Flow
 
-from docsim.methods.common.types import Context, P, MethodProperty, M
+from docsim.methods.common.types import Context, P
+from docsim.methods.common.methods import MethodProperty, M
 
 # methods
 from docsim.methods.methods import keywords
 
 
 def get_method(method_name: str) -> Type[M]:
-    if method_name == 'kewords':
-        return keywords.KeywordBaselines
+    if method_name == 'keywords':
+        return keywords.KeywordBaseline
     else:
         raise KeyError(f'{method_name} is not found')
 
@@ -30,7 +31,7 @@ def parse(path: Path) -> List[M]:
 
     lst: List[M] = []
     for p in data['params']:
-        runname: str = p['name']
+        runname: str = str(p['name'])
         context: Context = Context({
             'n_docs': n_docs,
             'es_index': es_index,
@@ -45,7 +46,7 @@ def parse(path: Path) -> List[M]:
     return lst
 
 
-if __name__ == '__main__':
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('paramfile',
                         metavar='F',
@@ -53,7 +54,12 @@ if __name__ == '__main__':
                         nargs=1,
                         help='A yaml file')
     args = parser.parse_args()
-    methods: List[M] = parse(args.paramfile)
+    methods: List[M] = parse(args.paramfile[0])
     for met in methods:
         flow: Flow = met.create_flow()
         asyncio.run(flow.run())
+    return 0
+
+
+if __name__ == '__main__':
+    exit(main())
