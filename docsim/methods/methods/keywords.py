@@ -2,7 +2,6 @@
 extract keywords -> do search
 """
 from __future__ import annotations
-import asyncio
 from collections import Counter
 from dataclasses import dataclass
 import re
@@ -16,7 +15,7 @@ from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
-from docsim.methods.common.methods import Method, MethodProperty
+from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, TRECResult, P
 
 
@@ -80,17 +79,3 @@ class KeywordBaseline(Method[KeywordParam]):
         task_node.set_upstream_node('load', self.mprop.load_node)
         flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
         return flow
-
-
-if __name__ == '__main__':
-    parser = get_default_parser()
-    parser.add_argument('--n-keywords',
-                        nargs=1,
-                        type=int)
-    parser = get_default_parser()
-    args = parser.parse_args()
-    mprop: MethodProperty = create_prop_from_args(args, method_name='keyword')
-    param: KeywordParam = KeywordParam.from_args(args)
-    method: KeywordBaseline = KeywordBaseline(param=param, mprop=mprop)
-    flow: Flow = method.create_flow()
-    asyncio.run(flow.run())
