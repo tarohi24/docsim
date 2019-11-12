@@ -1,4 +1,5 @@
 from pathlib import Path
+import sys
 from typing import Set
 
 from typedflow.batch import Batch
@@ -35,6 +36,7 @@ def dump_prel(batch: Batch[TRECResult],
     path: Path = get_dump_path(context=context)
     if batch.batch_id == 0 and path.exists():
         if not is_test:
+            sys.stderr.write(f'{str(path)} already exists. Can I delete it? (yes or no): ')
             sure_deletion: bool = ask_yes_or_no()
             if sure_deletion:
                 path.unlink()
