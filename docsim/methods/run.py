@@ -14,8 +14,8 @@ from docsim.methods.methods import keywords
 
 
 def get_method(method_name: str) -> Type[M]:
-    if method_name == 'kewords':
-        return keywords.KeywordBaselines
+    if method_name == 'keywords':
+        return keywords.KeywordBaseline
     else:
         raise KeyError(f'{method_name} is not found')
 
