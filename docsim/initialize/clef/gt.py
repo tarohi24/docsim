@@ -2,13 +2,17 @@
 Generate ground truth labels
 load original qrel -> map a key to the new key -> dump new qrel
 """
+import asyncio
 from dataclasses import dataclass
 from pathlib import Path
 import re
 from typing import Dict, Generator, List, Optional, Match, Tuple
 
-from typedflow.typedflow import Task, DataLoader, Dumper, Pipeline
-from typedflow.utils import dump_to_one_file
+from typedflow.batch import Batch
+from typedflow.flow import Flow
+from typedflow.nodes import TaskNode, LoaderNode, DumpNode
+from typedflow.tasks import Task, DataLoader, Dumper
+
 from tqdm import tqdm
 
 from docsim.settings import data_dir
@@ -65,17 +69,40 @@ def parse(line: str,
     return qi
 
 
-if __name__ == '__main__':
+def dump_to_one_file(batch: Batch[QrelItem],
+                     path: Path) -> None:
+    with open(path, 'a') as fout:
+        for item in batch.data:
+            fout.write(item.to_json() + '\n')
+
+
+def main() -> int:
     mapping: Dict[str, str] = load_mapping()
+
+    # loader
     gen: Generator[str, None, None] = loading()
-    loader: DataLoader = DataLoader[Path](gen=gen)
+    loader: DataLoader[Path] = DataLoader(gen=gen)
+    loader_node: LoaderNode[Path] = LoaderNode(loader=loader)
+
+    # task
     parse_task: Task = Task[str, QrelItem](
         func=lambda line: parse(line, mapping=mapping))
+    task_node: TaskNode[str, QrelItem] = TaskNode(task=parse_task,
+                                                  arg_type=str)
+    task_node.set_upstream_node('loader', loader_node)
+
+    # dump node
     dump_path: Path = data_dir.joinpath('clef/query/gt.qrel')
     dumper: Dumper = Dumper[QrelItem](
         func=lambda batch: dump_to_one_file(batch, dump_path))
-    pipeline: Pipeline = Pipeline(
-        loader=loader,
-        pipeline=[parse_task],
-        dumper=dumper)
-    pipeline.run()
+    dump_node: DumpNode[QrelItem] = DumpNode(dumper=dumper,
+                                             arg_type=QrelItem)
+    dump_node.set_upstream_node('task', task_node)
+
+    flow: Flow = Flow(dump_nodes=[dump_node, ])
+    asyncio.run(flow.run())
+    return 0
+
+
+if __name__ == '__main__':
+    exit(main())
