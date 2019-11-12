@@ -5,7 +5,8 @@ import pytest
 import xml.etree.ElementTree as ET
 
 from docsim.initialize.converters.ntcir import NTCIRConverter
-from docsim.initialize.ntcir.query import loading, replace_tab
+from docsim.initialize.ntcir.query import loading, replace_tab, get_document
+from docsim.models import ColDocument
 from docsim.settings import data_dir
 
 
@@ -23,5 +24,12 @@ def root() -> ET.Element:
     return replace_tab(path)
 
 
-def test_get_docid(root):
+def test_attributes(root):
     assert converter._get_docid(root) == '200106296192'
+    assert converter._get_tags(root) == ['G06K', ]
+    assert converter._get_title(root) == 'Machine-readable record with a two-dimensional lattice of synchronization code interleaved with data code'  # noqa
+
+
+def test_get_document(root):
+    doc: ColDocument = get_document(root)
+    assert doc.docid == '200106296192'
