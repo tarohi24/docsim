@@ -30,6 +30,7 @@ def dump_prel(batch: Batch[Union[TRECResult, FaultItem]],
         for res in batch.data:
             if not isinstance(res, FaultItem):
                 fout.write(res.to_prel())
+        fout.write('\n')
 
 
 def get_dump_node(context: Context) -> DumpNode[TRECResult]:
