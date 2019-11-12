@@ -4,6 +4,7 @@ Query loader
 from pathlib import Path
 from typing import Generator
 
+from tqdm import tqdm
 from typedflow.tasks import DataLoader
 from typedflow.nodes import LoaderNode
 
@@ -17,10 +18,12 @@ __all__ = ['get_loader_node', ]
 
 def query_load_file(dataset: str) -> Generator[ColDocument, None, None]:
     qpath: Path = data_dir.joinpath(f'{dataset}/query/dump.bulk')
+    pbar = tqdm()
     with open(qpath) as fin:
         while (line := fin.readline()):
             doc: ColDocument = ColDocument.from_json(line)  # type: ignore
             yield doc
+            pbar.update(1)
 
 
 def get_loader_node(context: Context) -> LoaderNode[ColDocument]:

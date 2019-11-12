@@ -1,4 +1,3 @@
-import io
 from pathlib import Path
 from typing import Dict, List, Union
 
@@ -6,7 +5,7 @@ import pytest
 from typedflow.batch import Batch
 from typedflow.exceptions import FaultItem
 
-from docsim.methods.common.dumper import get_dump_path, dump_prel, ask_yes_or_no
+from docsim.methods.common.dumper import get_dump_path, dump_prel
 from docsim.methods.common.types import Context, TRECResult
 from docsim.settings import results_dir
 
@@ -46,13 +45,6 @@ EP111 0 EP101 1.0
 EP111 0 EP102 2.0"""
 
 
-def test_yes_or_no(monkeypatch):
-    monkeypatch.setattr('sys.stdin', io.StringIO('yes'))
-    assert ask_yes_or_no()
-    monkeypatch.setattr('sys.stdin', io.StringIO('no'))
-    assert not ask_yes_or_no()
-
-
 def test_dump(context, res):
     data: List[TRECResult] = [res, ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
@@ -73,5 +65,5 @@ def test_dump_with_fault(context):
     path: Path = get_dump_path(context)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
-    assert out == []
+    assert out == ['', ]
     path.unlink()
