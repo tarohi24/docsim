@@ -1,10 +1,11 @@
+import io
 from pathlib import Path
 from typing import Dict, List
 
 import pytest
 from typedflow.batch import Batch
 
-from docsim.methods.common.dumper import get_dump_path, dump_prel
+from docsim.methods.common.dumper import get_dump_path, dump_prel, ask_yes_or_no
 from docsim.methods.common.types import Context, TRECResult
 from docsim.settings import results_dir
 
@@ -44,6 +45,13 @@ def test_to_prel(res):
     assert res.to_prel() == """EP111 0 EP100 0.0
 EP111 0 EP101 1.0
 EP111 0 EP102 2.0"""
+
+
+def test_yes_or_no(monkeypatch):
+    monkeypatch.setattr('sys.stdin', io.StringIO('yes'))
+    assert ask_yes_or_no()
+    monkeypatch.setattr('sys.stdin', io.StringIO('no'))
+    assert not ask_yes_or_no()
 
 
 def test_dump(context, res):
