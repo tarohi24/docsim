@@ -1,14 +1,14 @@
 version: '2'
 services:
   elas:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
     container_name: "elas_hirota"
     environment:
       - node.name=elas
-      - cluster.initial_master_nodes=elas
+      - cluster.initial_master_nodes=elas,es02,es03
+      - discovery.seed_hosts=es02,es03
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xmx${ELAS_MEM}"
     ulimits:
       memlock:
         soft: -1
@@ -18,16 +18,56 @@ services:
     ports:
       - 9200:9200
     networks:
-      esnet:
+      - esnet
+      - docsim_default
     ulimits:
-     
       memlock:
         soft: -1
         hard: -1
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    container_name: "es02_hirota"
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elas,es03
+      - cluster.initial_master_nodes=elas,es02,es03
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    container_name: "es03_hirota"
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=elas,es02
+      - cluster.initial_master_nodes=elas,es02,es03
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - esnet
 
 volumes:
   esdata_docsim:
     driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
 
 networks:
   esnet:
+  docsim_default:
+    external: true

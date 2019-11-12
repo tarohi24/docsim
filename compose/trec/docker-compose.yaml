@@ -6,4 +6,5 @@ services:
       context: ./
     container_name: "trec_hirota"
     volumes:
-      - ../../../docsim:/workplace
+      - ../..:/workplace
+    working_dir: /workplace

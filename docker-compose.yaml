@@ -11,7 +11,7 @@ services:
     networks:
       - docsim_default
     environment:
-      - ES_URL=${ES_URL}
+      - ES_URL=elas:9200
       - PROJECT_ROOT=/workplace
 
   lsp:
