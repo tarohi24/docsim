@@ -31,7 +31,7 @@ def parse(path: Path) -> List[M]:
 
     lst: List[M] = []
     for p in data['params']:
-        runname: str = p['name']
+        runname: str = str(p['name'])
         context: Context = Context({
             'n_docs': n_docs,
             'es_index': es_index,
@@ -46,7 +46,7 @@ def parse(path: Path) -> List[M]:
     return lst
 
 
-if __name__ == '__main__':
+def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument('paramfile',
                         metavar='F',
@@ -58,3 +58,8 @@ if __name__ == '__main__':
     for met in methods:
         flow: Flow = met.create_flow()
         asyncio.run(flow.run())
+    return 0
+
+
+if __name__ == '__main__':
+    exit(main())
