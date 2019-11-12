@@ -1,9 +1,10 @@
 import io
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import pytest
 from typedflow.batch import Batch
+from typedflow.exceptions import FaultItem
 
 from docsim.methods.common.dumper import get_dump_path, dump_prel, ask_yes_or_no
 from docsim.methods.common.types import Context, TRECResult
@@ -19,8 +20,6 @@ def context() -> Context:
         'n_docs': 10
     }
     yield context
-    # cleaning up
-    get_dump_path(context).unlink()
 
 
 @pytest.fixture(scope='module')
@@ -63,3 +62,16 @@ def test_dump(context, res):
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
     assert out == ['EP111 0 EP100 0.0', 'EP111 0 EP101 1.0', 'EP111 0 EP102 2.0']
+    path.unlink()
+
+
+def test_dump_with_fault(context):
+    data: List[Union[TRECResult, FaultItem]] = [FaultItem(), ]
+    batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
+
+    dump_prel(batch=batch, context=context)
+    path: Path = get_dump_path(context)
+    with open(path) as fin:
+        out: List[str] = fin.read().splitlines()
+    assert out == []
+    path.unlink()
