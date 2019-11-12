@@ -6,7 +6,7 @@ import asyncio
 from collections import Counter
 from dataclasses import dataclass
 import re
-from typing import List, Pattern, Set  # type: ignore
+from typing import ClassVar, List, Pattern, Set, Type  # type: ignore
 
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
@@ -16,10 +16,8 @@ from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
-from docsim.methods.common.flow import Method, MethodProperty
-from docsim.methods.common.types import Param, TRECResult
-from docsim.methods.common.argparser import (
-    get_default_parser, create_prop_from_args)
+from docsim.methods.common.methods import Method, MethodProperty
+from docsim.methods.common.types import Param, TRECResult, P
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
@@ -38,6 +36,7 @@ class KeywordParam(Param):
 
 @dataclass
 class KeywordBaseline(Method[KeywordParam]):
+    param_type: ClassVar[Type[P]] = KeywordParam
 
     def get_retrieve_node(self) -> TaskNode[ColDocument, TRECResult]:
         task: Task[ColDocument, TRECResult] = Task(self.retrieve)
@@ -60,12 +59,12 @@ class KeywordBaseline(Method[KeywordParam]):
         return self._extract_keywords_from_text(text=doc.text)
 
     def retrieve(self, doc: ColDocument) -> TRECResult:
-        searcher: EsSearcher = EsSearcher(es_index=self.prop.context['es_index'])
+        searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
         keywords: List[str] = self.extract_keywords(doc=doc)
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=keywords, field='text')\
-            .add_size(self.prop.context['n_docs'])\
+            .add_size(self.mprop.context['n_docs'])\
             .add_filter(terms=doc.tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
@@ -77,9 +76,9 @@ class KeywordBaseline(Method[KeywordParam]):
 
     def create_flow(self) -> Flow:
         task_node: TaskNode[ColDocument, TRECResult] = self.get_retrieve_node()
-        self.prop.dump_node.set_upstream_node('task', task_node)
-        task_node.set_upstream_node('load', self.prop.load_node)
-        flow: Flow = Flow(dump_nodes=[self.prop.dump_node, ])
+        self.mprop.dump_node.set_upstream_node('task', task_node)
+        task_node.set_upstream_node('load', self.mprop.load_node)
+        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
         return flow
 
 
@@ -92,6 +91,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     mprop: MethodProperty = create_prop_from_args(args, method_name='keyword')
     param: KeywordParam = KeywordParam.from_args(args)
-    method: KeywordBaseline = KeywordBaseline(param=param, prop=mprop)
+    method: KeywordBaseline = KeywordBaseline(param=param, mprop=mprop)
     flow: Flow = method.create_flow()
     asyncio.run(flow.run())

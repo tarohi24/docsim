@@ -4,7 +4,7 @@ from typing import List
 import pytest
 
 from docsim.elas.search import EsResult, EsResultItem
-from docsim.methods.common.flow import MethodProperty
+from docsim.methods.common.methods import MethodProperty
 from docsim.methods.common.types import Context, TRECResult
 from docsim.methods.methods.keywords import KeywordParam, KeywordBaseline
 from docsim.models import ColDocument
@@ -45,8 +45,8 @@ def doc(text) -> ColDocument:
 
 @pytest.fixture
 def method(param, context):
-    prop: MethodProperty = MethodProperty(context=context)
-    method: KeywordBaseline = KeywordBaseline(prop=prop, param=param)
+    mprop: MethodProperty = MethodProperty(context=context)
+    method: KeywordBaseline = KeywordBaseline(mprop=mprop, param=param)
     return method
 
 
