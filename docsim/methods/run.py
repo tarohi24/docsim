@@ -54,7 +54,7 @@ def main() -> int:
                         nargs=1,
                         help='A yaml file')
     args = parser.parse_args()
-    methods: List[M] = parse(args.paramfile)
+    methods: List[M] = parse(args.paramfile[0])
     for met in methods:
         flow: Flow = met.create_flow()
         asyncio.run(flow.run())
