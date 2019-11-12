@@ -52,7 +52,7 @@ clean-test: ## remove test and coverage artifacts
 lint: ## check style with flake8
 	autoflake --in-place --remove-all-unused-imports -r docsim|| true
 	mypy docsim || true
-	flake8 docsim
+	# flake8 docsim
 
 test: ## run tests quickly with the default Python
 	pytest
