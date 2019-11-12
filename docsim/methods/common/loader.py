@@ -18,8 +18,9 @@ __all__ = ['get_loader_node', ]
 def query_load_file(dataset: str) -> Generator[ColDocument, None, None]:
     qpath: Path = data_dir.joinpath(f'{dataset}/query/dump.bulk')
     with open(qpath) as fin:
-        doc: ColDocument = ColDocument.from_json(fin.readline())  # type: ignore
-        yield doc
+        while (line := fin.readline()):
+            doc: ColDocument = ColDocument.from_json(line)  # type: ignore
+            yield doc
 
 
 def get_loader_node(context: Context) -> LoaderNode[ColDocument]:
