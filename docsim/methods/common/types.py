@@ -9,8 +9,9 @@ class TRECResult:
     scores: Dict[str, float]
 
     def to_prel(self) -> str:
-        return '\n'.join([f"{self.query_docid} 0 {key} {score}"
-                          for key, score in self.scores.items()])
+        return '\n'.join([f"{self.query_docid} Q0 {key} {rank} {score} STANDARD"
+                          for rank, (key, score)
+                          in enumerate(self.scores.items(), 1)])
 
 
 class Param:

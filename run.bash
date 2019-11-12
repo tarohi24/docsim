@@ -11,11 +11,7 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=0 python python "/workplace/${SCRIPT}" ${@:2}
         ;;
     "trec" )
-        DATASET=$2
-        METHOD=$3
-        RESULT_FILE="/workplace/results/ir/${DATASET}/${METHOD}.prel"
-        GT="/workplace/results/ir/${DATASET}/gt.qrel"
-        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  $GT $RESULT_FILE
+        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  $2 $3
         ;;
     "test" )
         if [ "${#@}" -eq 1 ]
