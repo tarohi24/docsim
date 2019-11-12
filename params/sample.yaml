@@ -1,6 +1,1 @@
-n_docs: 100
-es_index: clef
-method: keyword
-params:
-  - name: 40
-    n_keywords: 40
+../docsim/tests/params/sample.yaml
