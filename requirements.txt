@@ -3,6 +3,7 @@ cython
 dataclasses-json
 elasticsearch
 gitpython
+lxml
 nltk
 numpy>=1.17.3
 pandas
