@@ -65,5 +65,5 @@ def test_dump_with_fault(context):
     path: Path = get_dump_path(context)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
-    assert out == []
+    assert out == ['', ]
     path.unlink()
