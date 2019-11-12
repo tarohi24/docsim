@@ -1,6 +1,8 @@
 n_docs: 100
 es_index: clef
-method: keyword
+method: keywords
 params:
   - name: 40
-    n_keywords: 40
+    n_words: 40
+  - name: 30
+    n_words: 30
