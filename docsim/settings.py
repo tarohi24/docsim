@@ -13,6 +13,7 @@ root: Path = test_dir if is_test else project_root
 data_dir: Path = root.joinpath('data')
 models_dir: Path = root.joinpath('models')
 results_dir: Path = root.joinpath('results')
+param_dir: Path = root.joinpath('params')
 
 
 # Elasticsearch
