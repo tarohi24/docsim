@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import Dict, TypedDict  # type: ignore
+from typing import Dict, TypedDict, TypeVar  # type: ignore
 
 
 @dataclass
@@ -18,6 +18,9 @@ class Param:
     @classmethod
     def from_args(cls, args) -> Param:
         ...
+
+
+P = TypeVar('P', bound=Param)
 
 
 class Context(TypedDict):

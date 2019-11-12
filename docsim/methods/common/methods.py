@@ -1,16 +1,14 @@
+from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Generic, TypeVar
+from typing import ClassVar, Generic, Type, TypeVar  # type: ignore
 
 from typedflow.flow import Flow
 from typedflow.nodes import LoaderNode, DumpNode
 
 from docsim.methods.common.dumper import get_dump_node
 from docsim.methods.common.loader import get_loader_node
-from docsim.methods.common.types import Context, Param, TRECResult
+from docsim.methods.common.types import Context, TRECResult
 from docsim.models import ColDocument
-
-
-P = TypeVar('P', bound=Param)
 
 
 @dataclass
@@ -29,10 +27,17 @@ class MethodProperty:
         ...
 
 
+P = TypeVar('P')
+
+
 @dataclass
 class Method(Generic[P]):
-    prop: MethodProperty
+    mprop: MethodProperty
     param: P
+    param_type: ClassVar[Type[P]] = field(init=False)
 
     def create_flow(self):
         ...
+
+
+M = TypeVar('M', bound=Method)
