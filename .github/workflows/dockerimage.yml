@@ -23,6 +23,3 @@ jobs:
     - name: run mypy
       run: |
         docker-compose run -e IS_TEST=1 actions mypy docsim
-    - name: run flake8
-      run: |
-        docker-compose run -e IS_TEST=1 actions flake8 docsim
