@@ -1,5 +1,6 @@
+import json
 from pathlib import Path
-from typing import Set
+from typing import Dict, Set
 
 import pytest
 import xml.etree.ElementTree as ET
@@ -33,3 +34,9 @@ def test_attributes(root):
 def test_get_document(root):
     doc: ColDocument = get_document(root)
     assert doc.docid == '200106296192'
+
+
+def test_to_json(root):
+    doc: ColDocument = get_document(root)
+    dic: Dict = json.loads(doc.to_json())
+    assert dic['docid'] == '200106296192'
