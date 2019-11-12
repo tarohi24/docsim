@@ -6,7 +6,8 @@ from typing import Dict, List, Type
 import yaml
 from typedflow.flow import Flow
 
-from docsim.methods.common.types import Context, P, MethodProperty, M
+from docsim.methods.common.types import Context, P
+from docsim.methods.common.methods import MethodProperty, M
 
 # methods
 from docsim.methods.methods import keywords
