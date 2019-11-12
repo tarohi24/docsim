@@ -21,8 +21,7 @@ def context() -> Context:
     yield context
 
 
-@pytest.fixture(scope='module')
-def res() -> TRECResult:
+def get_res() -> TRECResult:
     scores: Dict[str, float] = {
         f'EP10{i}': float(i)
         for i in range(3)
@@ -39,21 +38,29 @@ def test_path_func(context):
         == results_dir.joinpath('clef/keyword/40.prel')
 
 
-def test_to_prel(res):
-    assert res.to_prel() == """EP111 0 EP100 0.0
-EP111 0 EP101 1.0
-EP111 0 EP102 2.0"""
+def test_to_prel():
+    res = get_res()
+    assert res.to_prel() == """EP111 Q0 EP100 1 0.0 STANDARD
+EP111 Q0 EP101 2 1.0 STANDARD
+EP111 Q0 EP102 3 2.0 STANDARD"""
 
 
-def test_dump(context, res):
+def test_dump(context):
+    res = get_res()
     data: List[TRECResult] = [res, ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
 
-    dump_prel(batch=batch, context=context)
     path: Path = get_dump_path(context)
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        pass
+    dump_prel(batch=batch, context=context)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
-    assert out == ['EP111 0 EP100 0.0', 'EP111 0 EP101 1.0', 'EP111 0 EP102 2.0']
+    assert out == ['EP111 Q0 EP100 1 0.0 STANDARD',
+                   'EP111 Q0 EP101 2 1.0 STANDARD',
+                   'EP111 Q0 EP102 3 2.0 STANDARD']
     path.unlink()
 
 
@@ -61,8 +68,12 @@ def test_dump_with_fault(context):
     data: List[Union[TRECResult, FaultItem]] = [FaultItem(), ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
 
-    dump_prel(batch=batch, context=context)
     path: Path = get_dump_path(context)
+    try:
+        path.unlink()
+    except FileNotFoundError:
+        pass
+    dump_prel(batch=batch, context=context)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
     assert out == ['', ]
