@@ -110,9 +110,9 @@ class Per(Method[PerParam]):
         """
         # compute norm for each vecs
         comps: np.ndarray = np.dot(bases, vecs.T)
-        assert comps.shape == (len(bases), len(bases))
+        assert comps.shape == (len(bases), len(vecs))
         norms: np.ndarray = np.linalg.norm(comps, axis=0).reshape(-1)
-        assert norms.shape == (len(bases), )
+        assert norms.shape == (len(vecs), )
         return norms.sum()
 
     def score(self,

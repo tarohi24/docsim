@@ -1,3 +1,4 @@
+allennlp
 cython
 dataclasses-json
 elasticsearch
