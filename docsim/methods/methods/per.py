@@ -1,9 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import ClassVar, Dict, List, Type, TypedDict
+from typing import (
+    Callable, ClassVar, Dict, List, Type, TypedDict, TypeVar)
 
 import numpy as np
+from typedflow.flow import Flow
+from typedflow.tasks import Task
+from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix
@@ -12,6 +16,10 @@ from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
 from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
 from docsim.models import ColDocument
+
+
+T = TypeVar('T')
+K = TypeVar('K')
 
 
 class Stragegy(Enum):
@@ -115,3 +123,33 @@ class Per(Method[PerParam]):
             query_docid=qandc['query_doc'].docid,
             scores=norms)
         return res
+
+    @staticmethod
+    def get_node(func: Callable[[T], K],
+                 arg_type: Type[T]) -> TaskNode[T, K]:
+        task: Task[T, K] = Task(func=func)
+        node: TaskNode[T, K] = TaskNode(task=task, arg_type=arg_type)
+        return node
+
+    def create_flow(self):
+        node_filter: TaskNode[ColDocument, List[str]] = self.get_node(
+            func=self.pre_flitering,
+            arg_type=ColDocument)
+        node_get_text: TaskNode[List[str], Dict[str, np.ndarray]] = self.get_node(
+            func=self.embed_cands,
+            arg_type=List[str])
+        node_query: TaskNode[ColDocument, List[str]] = self.get_node(
+            func=self.embed_query,
+            arg_type=ColDocument)
+
+        # define the topology
+        node_filter.set_upstream_node('load', self.mprop.load_node)
+        node_get_text.set_upstream_node('filter', node_filter)
+        node_query.set_upstream_node('load', self.mprop.load_node)
+
+        self.mprop.dump_node.set_upstream_node('col_emb', node_get_text)
+        self.mprop.dump_node.set_upstream_node('query_doc', self.mprop.load_node)
+        self.mprop.dump_node.set_upstream_node('query_emb', node_query)
+
+        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
+        return flow
