@@ -1,6 +1,7 @@
 cython
 dataclasses-json
 elasticsearch
+fasttext
 gitpython
 lxml
 nltk

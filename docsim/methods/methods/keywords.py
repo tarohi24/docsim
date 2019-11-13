@@ -57,7 +57,7 @@ class KeywordBaseline(Method[KeywordParam]):
     def extract_keywords(self, doc: ColDocument) -> List[str]:
         return self._extract_keywords_from_text(text=doc.text)
 
-    def retrieve(self, doc: ColDocument) -> TRECResult:
+    def search(self, doc: ColDocument) -> EsResult:
         searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
         keywords: List[str] = self.extract_keywords(doc=doc)
         candidates: EsResult = searcher\
@@ -67,11 +67,21 @@ class KeywordBaseline(Method[KeywordParam]):
             .add_filter(terms=doc.tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
+        return candidates
+
+    def to_trec_result(self,
+                       doc: ColDocument,
+                       es_result: EsResult) -> TRECResult:
         res: TRECResult = TRECResult(
             query_docid=doc.docid,
-            scores=candidates.get_scores()
+            scores=es_result.get_scores()
         )
         return res
+
+    def retrieve(self, doc: ColDocument) -> TRECResult:
+        es_result: EsResult = self.search(doc=doc)
+        trec_result: TRECResult = self.to_trec_result(doc=doc, es_result=es_result)
+        return trec_result
 
     def create_flow(self) -> Flow:
         task_node: TaskNode[ColDocument, TRECResult] = self.get_retrieve_node()
