@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable
 
 import numpy as np
@@ -35,7 +35,7 @@ def mat_normalize(mat: np.ndarray) -> np.ndarray:
 
 @dataclass
 class Model:
-    dim: int
+    dim: int = field(init=False)
 
     @return_vector
     def embed_paragraph(cls, para: str) -> np.ndarray:

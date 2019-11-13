@@ -1,49 +1,54 @@
 from __future__ import annotations
-from collections import Counter
 from dataclasses import dataclass, field
 from enum import Enum
-import re
-from typing import ClassVar, List, Pattern, Set, Type  # type: ignore
-
-from nltk.corpus import stopwords as nltk_sw
-from nltk.tokenize import RegexpTokenizer
-from typedflow.flow import Flow
-from typedflow.tasks import Task
-from typedflow.nodes import TaskNode
+from typing import ClassVar, Dict, List, Type
 
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.models import ColDocument
+from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import Param, TRECResult, P
+from docsim.methods.common.types import Param, P
 from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
 
 
-class STRATEGY(Enum):
-    PERSSIMISTIC = 1
+class Stragegy(Enum):
+    PESSIMICTIC = 1
     OPTIMISTIC = 2
 
 
 @dataclass
 class PerParam(Param):
     n_words: int
-    strategy: STRATEGY
+    strategy: Stragegy
 
     @classmethod
     def from_args(cls, args) -> PerParam:
         return PerParam(n_words=args.n_words,
-                        strategy=STRATEGY[args.strategy])
+                        strategy=Stragegy[args.strategy])
 
 
 @dataclass
 class Per(Method[PerParam]):
     param_type: ClassVar[Type[P]] = PerParam
     kb: KeywordBaseline = field(init=False)
+    fasttext: FastText = field(init=False)
 
     def __post_init__(self):
         self.kb: KeywordBaseline = KeywordBaseline(
             mprop=self.mprop,
             param=KeywordParam(n_words=self.param.n_words))
+        self.fasttext: FastText = FastText()
 
-    def reorder(self,
-                doc: ColDocument):
-        
+    def get_text_from_elas(self,
+                           docids: List[str]) -> Dict[str, str]:
+        searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
+        res: EsResult = searcher\
+            .initialize_query()\
+            .add_query(terms=docids, field='docid')\
+            .add_size(len(docids))\
+            .add_source_fields(['text', ])\
+            .search()
+        id_texts: Dict[str, str] = {  # type: ignore
+            item.docid: item.source['text']
+            for item in res.hits
+        }
+        return id_texts
