@@ -95,7 +95,7 @@ class Per(Method[PerParam]):
         col_emb: Dict[str, np.ndarray]
 
     def _projection_norm(self,
-                         vec: np.ndarray,
+                         vecs: np.ndarray,
                          bases: np.ndarray) -> float:
         """
         compute the norm of a vector which is a projection of vec
@@ -104,14 +104,15 @@ class Per(Method[PerParam]):
 
         Parameters
         -----
-        vec: 1D
+        vec: 2D
         bases: 2D (n_base, dim)
         """
         # compute norm for each vecs
-        comps: np.ndarray = np.dot(bases, vec)
-        assert comps.shape == (len(bases), )
-        norm: float = np.linglg.norm(comps)
-        return norm
+        comps: np.ndarray = np.dot(bases, vecs.T)
+        assert comps.shape == (len(bases), len(bases))
+        norms: np.ndarray = np.linalg.norm(comps, axis=1).reshape(-1)
+        assert norms.shape == (len(bases), )
+        return norms.sum()
 
     def score(self,
               qandc: QandC) -> TRECResult:
