@@ -13,7 +13,7 @@ class FastText(Model):
 
     def __post_init__(self):
         self.model = fasttext.load_model(
-            str(models_dir.joinpath('fasttext/wiki.en.bin').resolve()))
+            str(models_dir.joinpath('fasttext/cc.en.300.bin').resolve()))
         self.dim: int = 300
 
     @return_vector

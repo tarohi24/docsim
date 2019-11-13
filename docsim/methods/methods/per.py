@@ -79,7 +79,7 @@ class Per(Method[PerParam]):
         embeddings: Dict[str, np.ndarray] = {
             docid: self._embed_keywords(
                 self.kb._extract_keywords_from_text(text=text))
-            for docid, text in id_texts
+            for docid, text in id_texts.items()
         }
         return embeddings
 
@@ -141,15 +141,20 @@ class Per(Method[PerParam]):
         node_query: TaskNode[ColDocument, List[str]] = self.get_node(
             func=self.embed_query,
             arg_type=ColDocument)
+        node_score: TaskNode[self.QandC, TRECResult] = self.get_node(
+            func=self.score,
+            arg_type=self.QandC)
 
         # define the topology
         node_filter.set_upstream_node('load', self.mprop.load_node)
         node_get_text.set_upstream_node('filter', node_filter)
         node_query.set_upstream_node('load', self.mprop.load_node)
 
-        self.mprop.dump_node.set_upstream_node('col_emb', node_get_text)
-        self.mprop.dump_node.set_upstream_node('query_doc', self.mprop.load_node)
-        self.mprop.dump_node.set_upstream_node('query_emb', node_query)
+        node_score.set_upstream_node('col_emb', node_get_text)
+        node_score.set_upstream_node('query_doc', self.mprop.load_node)
+        node_score.set_upstream_node('query_emb', node_query)
+
+        self.mprop.dump_node.set_upstream_node('score', node_score)
 
         flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
         return flow
