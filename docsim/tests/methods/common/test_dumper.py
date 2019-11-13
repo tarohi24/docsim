@@ -40,9 +40,9 @@ def test_path_func(context):
 
 def test_to_prel():
     res = get_res()
-    assert res.to_prel() == """EP111 Q0 EP100 1 0.0 STANDARD
+    assert res.to_prel() == """EP111 Q0 EP102 1 2.0 STANDARD
 EP111 Q0 EP101 2 1.0 STANDARD
-EP111 Q0 EP102 3 2.0 STANDARD"""
+EP111 Q0 EP100 3 0.0 STANDARD"""
 
 
 def test_dump(context):
@@ -58,9 +58,9 @@ def test_dump(context):
     dump_prel(batch=batch, context=context)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
-    assert out == ['EP111 Q0 EP100 1 0.0 STANDARD',
+    assert out == ['EP111 Q0 EP102 1 2.0 STANDARD',
                    'EP111 Q0 EP101 2 1.0 STANDARD',
-                   'EP111 Q0 EP102 3 2.0 STANDARD']
+                   'EP111 Q0 EP100 3 0.0 STANDARD']
     path.unlink()
 
 
