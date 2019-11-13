@@ -10,7 +10,7 @@ from typedflow.tasks import Task
 from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.embedding.base import return_matrix
+from docsim.embedding.base import return_matrix, mat_normalize
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
@@ -77,8 +77,9 @@ class Per(Method[PerParam]):
             for item in res.hits
         }
         embeddings: Dict[str, np.ndarray] = {
-            docid: self._embed_keywords(
-                self.kb._extract_keywords_from_text(text=text))
+            docid: mat_normalize(
+                self._embed_keywords(
+                    self.kb._extract_keywords_from_text(text=text)))
             for docid, text in id_texts.items()
         }
         return embeddings
@@ -87,7 +88,7 @@ class Per(Method[PerParam]):
                     doc: ColDocument) -> np.ndarray:
         keywords: List[str] = self.kb.extract_keywords(doc=doc)
         embeddings: np.ndarray = self._embed_keywords(keywords)
-        return embeddings
+        return mat_normalize(embeddings)
 
     class QandC(TypedDict):
         query_doc: ColDocument
@@ -110,7 +111,7 @@ class Per(Method[PerParam]):
         # compute norm for each vecs
         comps: np.ndarray = np.dot(bases, vecs.T)
         assert comps.shape == (len(bases), len(bases))
-        norms: np.ndarray = np.linalg.norm(comps, axis=1).reshape(-1)
+        norms: np.ndarray = np.linalg.norm(comps, axis=0).reshape(-1)
         assert norms.shape == (len(bases), )
         return norms.sum()
 
