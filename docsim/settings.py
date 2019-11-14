@@ -20,3 +20,6 @@ param_dir: Path = root.joinpath('params')
 es: Elasticsearch = Elasticsearch(
     os.environ['ES_URL'] if not is_test else 'localhost'
 )
+
+# nlpserver
+nlpserver_url: Path = Path(os.environ['NLPSERVER_URL'])

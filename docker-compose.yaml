@@ -13,6 +13,7 @@ services:
     environment:
       - ES_URL=elas:9200
       - PROJECT_ROOT=/workplace
+      - NLPSERVER_URL=localhost:5402
 
   lsp:
     image: hirota/docsim

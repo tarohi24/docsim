@@ -1,30 +1,22 @@
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
+import json
+import requests
+from typing import Any, Dict
 
-from allennlp.modules.elmo import Elmo as Ai2ElMo
-from allennlp.modules.elmo import batch_to_ids
 import numpy as np
 
 from docsim.embedding.base import Model, return_vector
-from docsim.settings import models_dir
+from docsim.settings import nlpserver_url
 
 
 @dataclass
-class ElMo(Model):
-    model: Ai2ElMo = field(init=False)
-
-    def __post_init__(self):
-        options_file: str = str(
-            models_dir.joinpath(
-                'elmo/elmo_2x4096_512_2048cnn_2xhighway_options.json').resolve())
-        weight_file: str = str(
-            models_dir.joinpath(
-                'elmo/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5').resolve())
-        self.model: Ai2ElMo = Ai2ElMo(options_file, weight_file, 2, dropout=0)
-        self.dim: int = 1024
+class Elmo(Model):
+    dim: int = 1024
+    server_url: str = str(nlpserver_url.joinpath('embed_elmo').resolve())
 
     @return_vector
     def embed(self, word: str) -> np.ndarray:
-        sentences: List[List[str]] = [[word, ], ]
-        character_ids = batch_to_ids(sentences)
-        return self.model(character_ids)
+        body: Dict[str, Any] = {'text': word}
+        response: requests.Response = requests.post(self.server_url, data=body)
+        vec: np.ndarray = np.array(json.loads(response.text)['embeddings'])[0]
+        return vec

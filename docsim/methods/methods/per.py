@@ -11,7 +11,9 @@ from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix, mat_normalize
+from docsim.embedding.base import Model as EmbedModel
 from docsim.embedding.fasttext import FastText
+from docsim.embedding.elmo import ElMo
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
 from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
@@ -31,24 +33,31 @@ class Stragegy(Enum):
 class PerParam(Param):
     n_words: int
     strategy: Stragegy
+    model: str
 
     @classmethod
     def from_args(cls, args) -> PerParam:
         return PerParam(n_words=args.n_words,
-                        strategy=Stragegy[args.strategy])
+                        strategy=Stragegy[args.strategy],
+                        model=args.model)
 
 
 @dataclass
 class Per(Method[PerParam]):
     param_type: ClassVar[Type[P]] = PerParam
     kb: KeywordBaseline = field(init=False)
-    fasttext: FastText = field(init=False)
+    embed_model: EmbedModel = field(init=False)
 
     def __post_init__(self):
         self.kb: KeywordBaseline = KeywordBaseline(
             mprop=self.mprop,
             param=KeywordParam(n_words=self.param.n_words))
-        self.fasttext: FastText = FastText()
+        if self.param.model == 'fasttext':
+            self.embed_model: FastText = FastText()
+        elif self.param.model == 'elmo':
+            self.embed_model: ElMo = ElMo()
+        else:
+            raise KeyError()
 
     def pre_flitering(self,
                       doc: ColDocument) -> List[str]:
@@ -59,7 +68,7 @@ class Per(Method[PerParam]):
     @return_matrix
     def _embed_keywords(self,
                         keywords: List[str]) -> np.ndarray:
-        ary: np.ndarray = np.array([self.fasttext.embed(word)
+        ary: np.ndarray = np.array([self.embed_model.embed(word)
                                     for word in keywords])
         return ary
 

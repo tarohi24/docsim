@@ -4,6 +4,17 @@ WORKDIR /workplace
 RUN apt-get update && \
         apt-get install -y gcc build-essential libomp-dev libopenblas-dev cmake pkg-config gfortran
 
+RUN pip install --upgrade pip
+
+# install sentencepiece
+WORKDIR /tmp
+RUN git clone https://github.com/google/sentencepiece.git
+RUN mkdir ./sentencepiece/build
+WORKDIR ./sentencepiece/build
+RUN cmake .. && make -j $(nproc) && make install
+WORKDIR ../python
+RUN python setup.py build && python setup.py install
+
 ARG CACHEBUST=1
 WORKDIR /workplace
 RUN pip install numpy scipy Cython
