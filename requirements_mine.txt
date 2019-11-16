@@ -1,2 +1,1 @@
 https://github.com/tarohi24/typedflow/archive/develop.zip
-https://github.com/tarohi24/nlpserver/archive/develop.zip
