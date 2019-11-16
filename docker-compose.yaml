@@ -10,10 +10,11 @@ services:
       - "${HOME}/docsim/docsim:/usr/local/lib/python3.8/site-packages/docsim:ro"
     networks:
       - docsim_default
+      - nlpserver_default
     environment:
       - ES_URL=elas:9200
       - PROJECT_ROOT=/workplace
-      - NLPSERVER_URL=localhost:5402
+      - NLPSERVER_URL=http://${NLPSERVER_URL}
 
   lsp:
     image: hirota/docsim
@@ -40,4 +41,6 @@ services:
 
 networks:
   docsim_default:
+    external: true
+  nlpserver_default:
     external: true
