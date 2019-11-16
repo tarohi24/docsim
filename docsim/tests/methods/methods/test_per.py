@@ -11,7 +11,9 @@ from docsim.tests.embedding.fasttext import FastText
 
 @pytest.fixture
 def param() -> PerParam:
-    param: PerParam = PerParam(n_words=2, strategy=Stragegy['PESSIMICTIC'])
+    param: PerParam = PerParam(n_words=2,
+                               model='fasttext',
+                               strategy=Stragegy['PESSIMICTIC'])
     return param
 
 
