@@ -1,2 +1,4 @@
 *
 !.gitignore
+!bert/.gitkeep
+!filtered/.gitkeep
