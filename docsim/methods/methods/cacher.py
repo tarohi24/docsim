@@ -12,20 +12,23 @@ import numpy as np
 from nltk.tokenize import sent_tokenize
 from typedflow.batch import Batch
 from typedflow.flow import Flow
-from typedflow.tasks import Task
-from typedflow.nodes import TaskNode
+from typedflow.tasks import Task, Dumper
+from typedflow.nodes import TaskNode, DumpNode, LoaderNode
 
-from docsim.elas.search import EsResult, EsSearcher
-from docsim.embedding.base import return_matrix, mat_normalize
+from docsim.elas.search import EsSearcher
 from docsim.embedding.base import Model as EmbedModel
 from docsim.embedding.fasttext import FastText
 from docsim.embedding.bert import Bert
 from docsim.embedding.elmo import Elmo
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import Param, P, TRECResult
+from docsim.methods.common.types import P
 from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
 from docsim.models import ColDocument
 from docsim.settings import cache_dir
+
+
+T = TypeVar('T')
+K = TypeVar('K')
 
 
 @dataclass
@@ -106,30 +109,26 @@ class Cacher(Method[CacheParam]):
         node: TaskNode[T, K] = TaskNode(task=task, arg_type=arg_type)
         return node
 
+    @staticmethod
+    def get_dump_node(func: Callable[[T], None],
+                      arg_type: Type[T]) -> DumpNode[T]:
+        dumper: Dumper[T] = Dumper(func=func)
+        node: DumpNode[T] = DumpNode(dumper=dumper)
+        return node
+
     def create_flow(self):
-        node_filter: TaskNode[ColDocument, List[str]] = self.get_node(
-            func=self.pre_flitering,
+        loader: LoaderNode[ColDocument] = self.mprop.load_node
+        node_get_docs: TaskNode[ColDocument, List[ColDocument]] = self.get_node(
+            func=self.get_filtered_docs,
             arg_type=ColDocument)
-        node_get_text: TaskNode[List[str], Dict[str, np.ndarray]] = self.get_node(
-            func=self.embed_cands,
-            arg_type=List[str])
-        node_query: TaskNode[ColDocument, List[str]] = self.get_node(
-            func=self.embed_query,
-            arg_type=ColDocument)
-        node_score: TaskNode[self.QandC, TRECResult] = self.get_node(
-            func=self.score,
-            arg_type=self.QandC)
+        node_dump_text: DumpNode[IDandDocs] = self.get_dump_node(func=dump_doc)
+        node_dump_text.set_upstream_node('docid', loader)
+        node_dump_text.set_upstream_node('rel_docs', node_get_docs)
+        node_get_docs.set_upstream_node('loader', loader)
 
-        # define the topology
-        node_filter.set_upstream_node('load', self.mprop.load_node)
-        node_get_text.set_upstream_node('filter', node_filter)
-        node_query.set_upstream_node('load', self.mprop.load_node)
+        node_encoder: DumpNode[IDandDocs] = self.get_dump_node(func=dump_embedding)
+        node_encoder.set_upstream_node('docid', loader)
+        node_encoder.set_upstream_node('rel_docs', node_get_docs)
 
-        node_score.set_upstream_node('col_emb', node_get_text)
-        node_score.set_upstream_node('query_doc', self.mprop.load_node)
-        node_score.set_upstream_node('query_emb', node_query)
-
-        self.mprop.dump_node.set_upstream_node('score', node_score)
-
-        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
+        flow: Flow = Flow(dump_nodes=[node_dump_text, node_encoder])
         return flow

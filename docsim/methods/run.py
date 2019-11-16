@@ -10,7 +10,7 @@ from docsim.methods.common.types import Context, P
 from docsim.methods.common.methods import MethodProperty, M
 
 # methods
-from docsim.methods.methods import keywords, per
+from docsim.methods.methods import keywords, per, cacher
 
 
 def get_method(method_name: str) -> Type[M]:
@@ -18,6 +18,8 @@ def get_method(method_name: str) -> Type[M]:
         return keywords.KeywordBaseline
     elif method_name == 'per':
         return per.Per
+    elif method_name == 'cache':
+        return cacher.Cacher
     else:
         raise KeyError(f'{method_name} is not found')
 
