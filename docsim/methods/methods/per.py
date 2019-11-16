@@ -13,7 +13,8 @@ from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import return_matrix, mat_normalize
 from docsim.embedding.base import Model as EmbedModel
 from docsim.embedding.fasttext import FastText
-from docsim.embedding.elmo import ElMo
+from docsim.embedding.bert import Bert
+from docsim.embedding.elmo import Elmo
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
 from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
@@ -55,7 +56,9 @@ class Per(Method[PerParam]):
         if self.param.model == 'fasttext':
             self.embed_model: FastText = FastText()
         elif self.param.model == 'elmo':
-            self.embed_model: ElMo = ElMo()
+            self.embed_model: Elmo = Elmo()
+        elif self.param.model == 'bert':
+            self.embed_model: Elmo = Bert()
         else:
             raise KeyError()
 
@@ -67,7 +70,9 @@ class Per(Method[PerParam]):
 
     @return_matrix
     def _embed_keywords(self,
-                        keywords: List[str]) -> np.ndarray:
+                        text: List[str]) -> np.ndarray:
+        keywords: List[str] = self.kb._extract_keywords_from_text(text=text)
+        # keywords: List[str] = sent_tokenize(text=text)[:100]
         ary: np.ndarray = np.array([self.embed_model.embed(word)
                                     for word in keywords])
         return ary
@@ -87,16 +92,14 @@ class Per(Method[PerParam]):
         }
         embeddings: Dict[str, np.ndarray] = {
             docid: mat_normalize(
-                self._embed_keywords(
-                    self.kb._extract_keywords_from_text(text=text)))
+                self._embed_keywords(text=text))
             for docid, text in id_texts.items()
         }
         return embeddings
 
     def embed_query(self,
                     doc: ColDocument) -> np.ndarray:
-        keywords: List[str] = self.kb.extract_keywords(doc=doc)
-        embeddings: np.ndarray = self._embed_keywords(keywords)
+        embeddings: np.ndarray = self._embed_keywords(text=doc.text)
         return mat_normalize(embeddings)
 
     class QandC(TypedDict):

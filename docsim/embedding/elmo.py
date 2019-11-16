@@ -12,7 +12,7 @@ from docsim.settings import nlpserver_url
 @dataclass
 class Elmo(Model):
     dim: int = 1024
-    server_url: str = str(nlpserver_url.joinpath('embed_elmo').resolve())
+    server_url: str = nlpserver_url + '/embed_elmo'
 
     @return_vector
     def embed(self, word: str) -> np.ndarray:

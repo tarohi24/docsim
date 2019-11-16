@@ -38,5 +38,10 @@ class Model:
     dim: int = field(init=False)
 
     @return_vector
-    def embed_paragraph(cls, para: str) -> np.ndarray:
+    def embed(self, word: str) -> np.ndarray:
+        raise NotImplementedError('Model is an abstract class')
+
+    @return_matrix
+    def embed_words(self,
+                    words: List[str]) -> np.ndarray:
         raise NotImplementedError('Model is an abstract class')
