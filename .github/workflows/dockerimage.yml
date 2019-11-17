@@ -10,6 +10,7 @@ jobs:
     env:
       ES_URL: ""
       PROJECT_ROOT: ${GITHUB_WORKSPACE}
+      NLPSERVER_URL: localhost
 
     steps:
     - uses: actions/checkout@v1
