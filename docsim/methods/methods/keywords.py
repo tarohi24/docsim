@@ -49,7 +49,8 @@ class KeywordBaseline(Method[KeywordParam]):
         # remove stopwords
         tokens: List[str] = [w for w in tokens if w not in stopwords]  # type: ignore
         tokens: List[str] = [w for w in tokens  # type: ignore
-                             if not_a_word_pat.match(w) is None]
+                             if not_a_word_pat.match(w) is None
+                             and not w.isdigit()]
         counter: Counter = Counter(tokens)
         keywords: List[str] = [w for w, _ in counter.most_common(self.param.n_words)]
         return keywords

@@ -14,9 +14,13 @@ data_dir: Path = root.joinpath('data')
 models_dir: Path = root.joinpath('models')
 results_dir: Path = root.joinpath('results')
 param_dir: Path = root.joinpath('params')
+cache_dir: Path = root.joinpath('cache')
 
 
 # Elasticsearch
 es: Elasticsearch = Elasticsearch(
     os.environ['ES_URL'] if not is_test else 'localhost'
 )
+
+# nlpserver
+nlpserver_url: str = os.environ['NLPSERVER_URL']

@@ -11,7 +11,8 @@ from docsim.tests.embedding.fasttext import FastText
 
 @pytest.fixture
 def param() -> PerParam:
-    param: PerParam = PerParam(n_words=2, strategy=Stragegy['PESSIMICTIC'])
+    param: PerParam = PerParam(n_words=2,
+                               strategy=Stragegy['PESSIMICTIC'])
     return param
 
 
@@ -56,19 +57,3 @@ def sample_hits():
             {'_source': {'docid': 'EP200', 'text': 'hello world'}, '_score': 3.2}),
     ])
     return res
-
-
-def test_init(per):
-    assert per.kb.param.n_words == 2
-
-
-def test_pre_filtering(mocker, sample_hits, per, doc):
-    mocker.patch('docsim.elas.search.EsSearcher.search',
-                 return_value=sample_hits)
-    assert per.pre_flitering(doc=doc) == ['EP200', ]
-
-
-def test_embed_cands(mocker, sample_hits, per, doc):
-    mocker.patch('docsim.elas.search.EsSearcher.search',
-                 return_value=sample_hits)
-    assert per.embed_cands(docids=['EP200'])['EP200'].shape == (2, 300)

@@ -9,6 +9,7 @@ from typing import Dict, Generator, Iterable, List, Tuple
 from elasticsearch.helpers import scan
 
 from docsim.elas.client import EsClient
+from docsim.models import ColDocument
 from docsim.settings import es
 from docsim.models import RankItem
 
@@ -36,6 +37,16 @@ class EsResultItem:
         assert 'tags' in self.source
         return (self.docid, str(self.source['tags'][0]))
 
+    def to_document(self) -> ColDocument:
+        assert 'text' in self.source
+        assert 'tags' in self.source
+        assert 'title' in self.source
+        return ColDocument(
+            docid=self.docid,
+            text=self.source['text'],
+            title=self.source['title'],
+            tags=self.source['tags'])
+
 
 @dataclass
 class EsResult:
@@ -60,6 +71,9 @@ class EsResult:
             for hit in self.hits
         }
         return dic
+
+    def to_docs(self) -> List[ColDocument]:
+        return [hit.to_document() for hit in self.hits]
 
 
 @dataclass
