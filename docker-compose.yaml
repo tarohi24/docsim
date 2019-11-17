@@ -37,6 +37,7 @@ services:
     environment:
       - ES_URL=${ES_URL}
       - PROJECT_ROOT=/workplace
+      - NLPSERVER_URL=http://${NLPSERVER_URL}
     working_dir: /workplace
 
 networks:
