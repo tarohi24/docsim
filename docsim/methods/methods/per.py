@@ -10,15 +10,10 @@ from typedflow.flow import Flow
 from typedflow.tasks import Task
 from typedflow.nodes import TaskNode
 
-from docsim.elas.search import EsResult, EsSearcher
-from docsim.embedding.base import return_matrix, mat_normalize
-from docsim.embedding.base import Model as EmbedModel
-from docsim.embedding.fasttext import FastText
+from docsim.embedding.base import mat_normalize
 from docsim.embedding.bert import Bert
-from docsim.embedding.elmo import Elmo
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
-from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
 from docsim.models import ColDocument
 from docsim.methods.common.pre_filtering import load_emb
 
