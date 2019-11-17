@@ -16,7 +16,9 @@ jobs:
     - name: Build the Docker image
       run: docker-compose build
     - name: Create network
-      run: docker network create docsim_default nlpserver_debfault
+      run: docker network create docsim_default
+    - name: Create network (nlpserver)
+      run: docker network create nlpserver_default
     - name: run tests
       run: |
         docker-compose run -e IS_TEST=1 actions pytest docsim
