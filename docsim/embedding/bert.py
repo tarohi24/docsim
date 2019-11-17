@@ -11,7 +11,7 @@ from docsim.settings import nlpserver_url
 
 @dataclass
 class Bert(Model):
-    dim: int = 1024
+    dim: int = 768
     server_url: str = nlpserver_url + '/embed_bert'
 
     @return_vector
@@ -21,7 +21,8 @@ class Bert(Model):
     @return_matrix
     def embed_words(self,
                     words: List[str]) -> np.ndarray:
-        body: Dict[str, Any] = {'text_batch': words}
+        valid_words: List[str] = [w for w in words if len(w) > 0]
+        body: str = json.dumps({'text_batch': valid_words})
         response: requests.Response = requests.post(self.server_url, data=body)
         mat: np.ndarray = np.array(json.loads(response.text)['embeddings'])
         return mat

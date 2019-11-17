@@ -11,6 +11,7 @@ from typing import (
 import numpy as np
 from nltk.tokenize import sent_tokenize
 from typedflow.batch import Batch
+from typedflow.exceptions import FaultItem
 from typedflow.flow import Flow
 from typedflow.tasks import Task, Dumper
 from typedflow.nodes import TaskNode, DumpNode, LoaderNode
@@ -37,6 +38,7 @@ class CacheParam:
     model: str
 
 
+@dataclass
 class Cacher(Method[CacheParam]):
     param_type: ClassVar[Type[P]] = CacheParam
     kb: KeywordBaseline = field(init=False)
@@ -80,10 +82,14 @@ class Cacher(Method[CacheParam]):
     def dump_doc(self,
                  batch: Batch[IDandDocs]) -> None:
         for item in batch.data:
+            if isinstance(item, FaultItem):
+                continue
+            if isinstance(item['rel_docs'], FaultItem):
+                continue
             path: Path = cache_dir\
                 .joinpath(self.mprop.context['es_index'])\
-                .joinpath(self.param.model)\
-                .joinpath(f"item['docid'].dump")
+                .joinpath('text')\
+                .joinpath(f"{item['docid']}.bulk")
             with open(path, 'w') as fout:
                 for doc in item['rel_docs']:
                     fout.write(doc.to_json())
@@ -92,14 +98,22 @@ class Cacher(Method[CacheParam]):
     def dump_embedding(self,
                        batch: Batch[IDandDocs]) -> None:
         for item in batch.data:
+            if isinstance(item, FaultItem):
+                continue
+            if isinstance(item['rel_docs'], FaultItem):
+                continue
             for doc in item['rel_docs']:
                 sents: List[str] = sent_tokenize(doc.text)
                 embeddings: np.ndarray = self.embed_model.embed_words(words=sents)
-                path: Path = cache_dir\
+                dirpath: Path = cache_dir\
                     .joinpath(self.mprop.context['es_index'])\
                     .joinpath(self.param.model)\
-                    .joinpath(item['docid'])\
-                    .joinpath(f"{doc.docid}.npy")
+                    .joinpath(item['docid'])
+                try:
+                    dirpath.mkdir()
+                except FileExistsError:
+                    pass
+                path = dirpath.joinpath(f"{doc.docid}.npy")
                 np.save(str(path.resolve()), embeddings)
 
     @staticmethod
@@ -113,21 +127,31 @@ class Cacher(Method[CacheParam]):
     def get_dump_node(func: Callable[[T], None],
                       arg_type: Type[T]) -> DumpNode[T]:
         dumper: Dumper[T] = Dumper(func=func)
-        node: DumpNode[T] = DumpNode(dumper=dumper)
+        node: DumpNode[T] = DumpNode(dumper=dumper,
+                                     arg_type=arg_type)
         return node
 
     def create_flow(self):
         loader: LoaderNode[ColDocument] = self.mprop.load_node
+        node_getid: TaskNode[ColDocument, str] = self.get_node(
+            func=self.get_docid,
+            arg_type=ColDocument)
+        node_getid.set_upstream_node('loader', loader)
+
         node_get_docs: TaskNode[ColDocument, List[ColDocument]] = self.get_node(
             func=self.get_filtered_docs,
             arg_type=ColDocument)
-        node_dump_text: DumpNode[IDandDocs] = self.get_dump_node(func=dump_doc)
-        node_dump_text.set_upstream_node('docid', loader)
+        node_dump_text: DumpNode[self.IDandDocs] = self.get_dump_node(
+            func=self.dump_doc,
+            arg_type=self.IDandDocs)
+        node_dump_text.set_upstream_node('docid', node_getid)
         node_dump_text.set_upstream_node('rel_docs', node_get_docs)
         node_get_docs.set_upstream_node('loader', loader)
 
-        node_encoder: DumpNode[IDandDocs] = self.get_dump_node(func=dump_embedding)
-        node_encoder.set_upstream_node('docid', loader)
+        node_encoder: DumpNode[self.IDandDocs] = self.get_dump_node(
+            func=self.dump_embedding,
+            arg_type=self.IDandDocs)
+        node_encoder.set_upstream_node('docid', node_getid)
         node_encoder.set_upstream_node('rel_docs', node_get_docs)
 
         flow: Flow = Flow(dump_nodes=[node_dump_text, node_encoder])

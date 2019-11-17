@@ -4,6 +4,7 @@ from enum import Enum
 from typing import (
     Callable, ClassVar, Dict, List, Type, TypedDict, TypeVar)
 
+from nltk.tokenize import sent_tokenize
 import numpy as np
 from typedflow.flow import Flow
 from typedflow.tasks import Task
@@ -19,6 +20,7 @@ from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
 from docsim.methods.methods.keywords import KeywordBaseline, KeywordParam
 from docsim.models import ColDocument
+from docsim.methods.common.pre_filtering import load_emb
 
 
 T = TypeVar('T')
@@ -34,72 +36,31 @@ class Stragegy(Enum):
 class PerParam(Param):
     n_words: int
     strategy: Stragegy
-    model: str
 
     @classmethod
     def from_args(cls, args) -> PerParam:
         return PerParam(n_words=args.n_words,
-                        strategy=Stragegy[args.strategy],
-                        model=args.model)
+                        strategy=Stragegy[args.strategy])
 
 
 @dataclass
 class Per(Method[PerParam]):
     param_type: ClassVar[Type[P]] = PerParam
-    kb: KeywordBaseline = field(init=False)
-    embed_model: EmbedModel = field(init=False)
+    bert: Bert = field(default_factory=Bert)
 
-    def __post_init__(self):
-        self.kb: KeywordBaseline = KeywordBaseline(
-            mprop=self.mprop,
-            param=KeywordParam(n_words=self.param.n_words))
-        if self.param.model == 'fasttext':
-            self.embed_model: FastText = FastText()
-        elif self.param.model == 'elmo':
-            self.embed_model: Elmo = Elmo()
-        elif self.param.model == 'bert':
-            self.embed_model: Elmo = Bert()
-        else:
-            raise KeyError()
-
-    def pre_flitering(self,
-                      doc: ColDocument) -> List[str]:
-        cands: List[str] = [item.docid for item
-                            in self.kb.search(doc=doc).hits]
-        return cands
-
-    @return_matrix
-    def _embed_keywords(self,
-                        text: List[str]) -> np.ndarray:
-        keywords: List[str] = self.kb._extract_keywords_from_text(text=text)
-        # keywords: List[str] = sent_tokenize(text=text)[:100]
-        ary: np.ndarray = np.array([self.embed_model.embed(word)
-                                    for word in keywords])
-        return ary
-
-    def embed_cands(self,
-                    docids: List[str]) -> Dict[str, np.ndarray]:
-        searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
-        res: EsResult = searcher\
-            .initialize_query()\
-            .add_query(terms=docids, field='docid')\
-            .add_size(len(docids))\
-            .add_source_fields(['text', ])\
-            .search()
-        id_texts: Dict[str, str] = {  # type: ignore
-            item.docid: item.source['text']
-            for item in res.hits
-        }
-        embeddings: Dict[str, np.ndarray] = {
-            docid: mat_normalize(
-                self._embed_keywords(text=text))
-            for docid, text in id_texts.items()
-        }
-        return embeddings
+    def get_bert_embs(self,
+                      doc: ColDocument) -> Dict[str, np.ndarray]:
+        docid: str = doc.docid
+        embs: Dict[str, np.ndarray] = load_emb(
+            docid=docid,
+            dataset=self.mprop.context['es_index'],
+            model='bert')
+        return embs
 
     def embed_query(self,
                     doc: ColDocument) -> np.ndarray:
-        embeddings: np.ndarray = self._embed_keywords(text=doc.text)
+        sents: List[str] = sent_tokenize(doc.text)
+        embeddings: np.ndarray = self.bert.embed_words(sents)
         return mat_normalize(embeddings)
 
     class QandC(TypedDict):
@@ -120,7 +81,6 @@ class Per(Method[PerParam]):
         vec: 2D
         bases: 2D (n_base, dim)
         """
-        # compute norm for each vecs
         comps: np.ndarray = np.dot(bases, vecs.T)
         assert comps.shape == (len(bases), len(vecs))
         norms: np.ndarray = np.linalg.norm(comps, axis=0).reshape(-1)
@@ -146,13 +106,10 @@ class Per(Method[PerParam]):
         return node
 
     def create_flow(self):
-        node_filter: TaskNode[ColDocument, List[str]] = self.get_node(
-            func=self.pre_flitering,
+        node_col_emb: TaskNode[ColDocument, Dict[str, np.ndarray]] = self.get_node(
+            func=self.get_bert_embs,
             arg_type=ColDocument)
-        node_get_text: TaskNode[List[str], Dict[str, np.ndarray]] = self.get_node(
-            func=self.embed_cands,
-            arg_type=List[str])
-        node_query: TaskNode[ColDocument, List[str]] = self.get_node(
+        node_query_emb: TaskNode[ColDocument, np.ndarray] = self.get_node(
             func=self.embed_query,
             arg_type=ColDocument)
         node_score: TaskNode[self.QandC, TRECResult] = self.get_node(
@@ -160,13 +117,12 @@ class Per(Method[PerParam]):
             arg_type=self.QandC)
 
         # define the topology
-        node_filter.set_upstream_node('load', self.mprop.load_node)
-        node_get_text.set_upstream_node('filter', node_filter)
-        node_query.set_upstream_node('load', self.mprop.load_node)
+        node_col_emb.set_upstream_node('load', self.mprop.load_node)
+        node_query_emb.set_upstream_node('load', self.mprop.load_node)
 
-        node_score.set_upstream_node('col_emb', node_get_text)
+        node_score.set_upstream_node('col_emb', node_col_emb)
         node_score.set_upstream_node('query_doc', self.mprop.load_node)
-        node_score.set_upstream_node('query_emb', node_query)
+        node_score.set_upstream_node('query_emb', node_query_emb)
 
         self.mprop.dump_node.set_upstream_node('score', node_score)
 

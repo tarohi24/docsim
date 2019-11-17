@@ -18,7 +18,7 @@ def get_method(method_name: str) -> Type[M]:
         return keywords.KeywordBaseline
     elif method_name == 'per':
         return per.Per
-    elif method_name == 'cache':
+    elif method_name == 'cacher':
         return cacher.Cacher
     else:
         raise KeyError(f'{method_name} is not found')
