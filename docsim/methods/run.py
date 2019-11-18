@@ -10,7 +10,7 @@ from docsim.methods.common.types import Context, P
 from docsim.methods.common.methods import MethodProperty, M
 
 # methods
-from docsim.methods.methods import keywords, per, cacher
+from docsim.methods.methods import keywords, per, cacher, fuzzy
 
 
 def get_method(method_name: str) -> Type[M]:
@@ -20,6 +20,8 @@ def get_method(method_name: str) -> Type[M]:
         return per.Per
     elif method_name == 'cacher':
         return cacher.Cacher
+    elif method_name == 'fuzzy':
+        return fuzzy.Fuzzy
     else:
         raise KeyError(f'{method_name} is not found')
 
