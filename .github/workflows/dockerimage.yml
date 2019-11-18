@@ -22,7 +22,7 @@ jobs:
       run: docker network create nlpserver_default
     - name: run tests
       run: |
-        docker-compose run -e IS_TEST=1 -e actions pytest docsim
+        docker-compose run -e IS_TEST=1 -e NLPSERVER_URL=${NLPSERVER_URL} actions pytest docsim
     - name: run mypy
       run: |
         docker-compose run -e IS_TEST=1 actions mypy docsim
