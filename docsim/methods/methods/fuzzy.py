@@ -4,8 +4,7 @@ Available only for fasttext
 from __future__ import annotations
 from dataclasses import dataclass, field
 import re
-from typing import (
-    Callable, ClassVar, Dict, List, Pattern, Set, Type, TypedDict, TypeVar)
+from typing import ClassVar, List, Pattern, Set, Type, TypedDict
 
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
