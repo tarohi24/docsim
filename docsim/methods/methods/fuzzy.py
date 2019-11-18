@@ -2,7 +2,6 @@
 Available only for fasttext
 """
 from __future__ import annotations
-from collections import Counter
 from dataclasses import dataclass, field
 import re
 from typing import (
@@ -12,16 +11,15 @@ from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 import numpy as np
 from typedflow.flow import Flow
-from typedflow.tasks import Task
 from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.embedding.base import mat_normalize, return_matrix, return_vector
+from docsim.embedding.base import mat_normalize, return_vector
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
 from docsim.models import ColDocument
-from docsim.methods.common.pre_filtering import load_emb, load_text
+from docsim.methods.common.pre_filtering import load_text
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
