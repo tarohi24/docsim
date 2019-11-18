@@ -122,3 +122,24 @@ class Fuzzy(Method[FuzzyParam]):
             .add_source_fields(['text'])\
             .search()
         return candidates
+
+    def create_flow(self):
+        node_get_tokens: TaskNode[ColDocument, List[str]] = self.get_node(
+            self.get_all_tokens,
+            arg_type=ColDocument)
+        node_get_keywords: TaskNode[List[str], List[str]] = self.get_node(
+            self.get_keywords,
+            arg_type=List[str])
+        node_get_tokens.set_upstream_node('query_doc', self.mprop.load_node)
+        node_get_keywords.set_upstream_node('tokens', node_get_tokens)
+
+        node_match: TaskNode[self.ScoringArg, TRECResult] = self.get_node(
+            func=self.match,
+            arg_type=self.ScoringArg)
+
+        node_match.set_upstream_node('query_doc', self.mprop.load_node)
+        node_match.set_upstream_node('keywords', self.mprop.load_node)
+
+        self.mprop.dump_node.set_upstream_node('task', node_match)
+        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
+        return flow
