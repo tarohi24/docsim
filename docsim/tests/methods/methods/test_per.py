@@ -6,8 +6,6 @@ from docsim.methods.common.methods import MethodProperty
 from docsim.methods.methods.per import Per, PerParam, Stragegy
 from docsim.models import ColDocument
 
-from docsim.tests.embedding.fasttext import FastText
-
 
 @pytest.fixture
 def param() -> PerParam:
