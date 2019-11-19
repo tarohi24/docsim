@@ -18,7 +18,7 @@ from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, P, TRECResult
 from docsim.models import ColDocument
-from docsim.methods.common.pre_filtering import load_text
+from docsim.methods.common.pre_filtering import load_cols
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
@@ -53,7 +53,7 @@ class Fuzzy(Method[FuzzyParam]):
 
     def get_cols(self, doc: ColDocument) -> List[ColDocument]:
         docid: str = doc.docid
-        cols: List[ColDocument] = load_text(
+        cols: List[ColDocument] = load_cols(
             docid=docid,
             dataset=self.mprop.context['es_index'])
         return cols
