@@ -83,7 +83,8 @@ class Fuzzy(Method[FuzzyParam]):
         implemented individually.
         """
         assert len(ind) > 0
-        reduced_sims: np.ndarray = sims[:, np.array(ind)]  # (n_tokens, n_cents)
+        indices: np.ndarray = np.isin(np.arange(sims.shape[0]), ind)
+        reduced_sims: np.ndarray = sims[:, indices]  # (n_tokens, n_cents)
         maxes: np.ndarray = np.amax(reduced_sims, axis=1)
         if all(maxes == 1):
             warnings.warn('Probably all elements in sims are zero?')
@@ -115,30 +116,28 @@ class Fuzzy(Method[FuzzyParam]):
         cent_sim_error: float = self._cent_sim_error(sims, ind)
         return rec_error + self.param.coef * cent_sim_error
 
-    @return_vector
-    def get_keywords(self,
-                     tokens: List[str]) -> List[str]:
+    def get_sim_matrix(self,
+                       tokens: List[str]) -> np.ndarray:
         """
-        Parameters
-        -----
-        matrix: 2D array (n_words, dim)
-
-        Return
-        -----
-        1D vector (n_words)
+        isolate from get_keywords due to easy testing
         """
         matrix: np.ndarray = mat_normalize(
             self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
         sim_matrix: np.ndarray = np.dot(matrix, matrix.T)  # (n_tokens, n_tokens)
+        return sim_matrix
+
+    def get_keywords(self,
+                     tokens: List[str]) -> List[str]:
+        sim_matrix: np.ndarray = self.get_sim_matrix(tokens=tokens)
         keyword_inds: List[int] = []
         keywords: Set[str] = set()
 
         for _ in range(self.param.n_words):
-            print('HI')
             errors: List[float] = [self.calc_error(sims=sim_matrix,
-                                                   ind=keyword_inds)
+                                                   ind=keyword_inds + [i])
                                    for i in range(sim_matrix.shape[0])
-                                   if tokens[i] not in keywords]
+                                   if i not in keyword_inds
+                                   and tokens[i] not in keywords]
             argmin = np.argmin(errors)
             keyword_inds = np.append(keyword_inds, argmin)
             keywords.add(tokens[argmin])

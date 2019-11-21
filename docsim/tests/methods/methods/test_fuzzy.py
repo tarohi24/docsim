@@ -16,7 +16,7 @@ def mock_ft(mocker):
 @pytest.fixture
 def param() -> FuzzyParam:
     return FuzzyParam(
-        n_words=3,
+        n_words=2,
         model='fasttext',
         coef=1
     )
@@ -65,3 +65,15 @@ def test_cent_sim_error(fuzzy):
     # 0 if len(ind) == 0
     np.testing.assert_almost_equal(func(sims, [1, ]), 0)
     np.testing.assert_almost_equal(func(sims, [1, 2]), 1)
+
+
+def test_get_keywords(mocker, fuzzy):
+    sims: np.ndarray = np.array([
+        [1, 0.3, 0.8],
+        [0.3, 1, 0.2],
+        [0.8, 0.2, 1]
+    ])
+    sims_mock = mocker.MagicMock(return_value=sims)
+    mocker.patch('docsim.methods.methods.fuzzy.Fuzzy.get_sim_matrix', sims_mock)
+    tokens = ['software', 'license', 'program']
+    assert fuzzy.get_keywords(tokens) == ['software', 'license']
