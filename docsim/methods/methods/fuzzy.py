@@ -73,14 +73,29 @@ class Fuzzy(Method[FuzzyParam]):
                              and not w.isdigit()]
         return tokens
 
+    @staticmethod
+    def _rec_error(mat: np.ndarray,
+                   centroids: np.ndarray) -> float:
+        """
+        Reconstruct error. In order to enable unittests, two errors are
+        implemented individually.
+        """
+        ind: List[int] = np.argmax(np.dot(mat, centroids.T), axis=1)
+        rec_error: float = np.mean(np.linalg.norm(mat - mat[ind, :], axis=1))
+        return rec_error
+
+    @staticmethod
+    def _cent_sim_error(centroids: np.ndarray) -> float:
+        cent_sim_error: float = np.dot(centroids, centroids.T).mean()
+        return cent_sim_error
+
     def calc_error(self,
                    mat: np.ndarray,
                    centroids: np.ndarray) -> float:
         if centroids.ndim == 1:
             centroids = centroids.reshape(-1, 300)
-        ind: List[int] = np.argmax(np.dot(mat, centroids.T), axis=1)
-        rec_error: float = np.mean(np.linalg.norm(mat - mat[ind, :], axis=1))
-        cent_sim_error: float = np.dot(centroids, centroids.T).mean()
+        rec_error: float = self._rec_error(mat, centroids)
+        cent_sim_error: float = self._cent_sim_error(centroids)
         return rec_error + self.param.coef * cent_sim_error
 
     @return_vector
@@ -118,7 +133,6 @@ class Fuzzy(Method[FuzzyParam]):
             keywords.add(tokens[argmin])
         print(keywords)
         return list(keywords)
-
 
     def match(self,
               args: ScoringArg) -> TRECResult:
