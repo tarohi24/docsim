@@ -11,6 +11,7 @@ from typing import ClassVar, List, Pattern, Set, Type, TypedDict
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 import numpy as np
+from tqdm import tqdm
 from typedflow.flow import Flow
 from typedflow.nodes import TaskNode
 
@@ -76,73 +77,77 @@ class Fuzzy(Method[FuzzyParam]):
         return tokens
 
     @staticmethod
-    def _rec_error(sims: np.ndarray,
-                   ind: List[int]) -> float:
+    def _rec_error(embs: np.ndarray,
+                   keyword_embs: np.ndarray,
+                   cand_emb: np.ndarray) -> float:
         """
         Reconstruct error. In order to enable unittests, two errors are
         implemented individually.
         """
-        assert len(ind) > 0
-        indices: np.ndarray = np.isin(np.arange(sims.shape[0]), ind)
-        reduced_sims: np.ndarray = sims[:, indices]  # (n_tokens, n_cents)
-        maxes: np.ndarray = np.amax(reduced_sims, axis=1)
-        if all(maxes == 1):
-            warnings.warn('Probably all elements in sims are zero?')
+        if keyword_embs.ndim == 2:
+            dims: np.ndarray = np.append(keyword_embs, cand_emb)
+        else:
+            dims: np.ndarray = np.array([cand_emb])  # type: ignore
+        maxes: np.ndarray = np.amax(np.dot(embs, dims.T), axis=1)
         return (1 - maxes).mean()
 
     @staticmethod
-    def _cent_sim_error(sims: np.ndarray,
-                        ind: List[int]) -> float:
-        """
-        Similarity among bases
-
-        Parameters
-        -----
-        sims
-            2D (n_tokens, n_tokens)
-        ind
-            dimension indices of sims
-        """
-        if len(ind) < 2:
+    def _cent_sim_error(keyword_embs: np.ndarray,
+                        cand_emb: np.ndarray) -> float:
+        if keyword_embs.ndim == 1:
             return 0
-        cent_sim_error: float = np.mean([sims[(i, j)]
-                                         for i, j in product(ind, ind)])
-        return cent_sim_error
+        return np.dot(keyword_embs, cand_emb)
 
     def calc_error(self,
-                   sims: np.ndarray,
-                   ind: List[int]) -> float:
-        rec_error: float = self._rec_error(sims, ind)
-        cent_sim_error: float = self._cent_sim_error(sims, ind)
+                   embs: np.ndarray,
+                   keyword_embs: np.ndarray,
+                   cand_emb: np.ndarray) -> float:
+        rec_error: float = self._rec_error(embs, keyword_embs, cand_emb)
+        cent_sim_error: float = self._cent_sim_error(keyword_embs, cand_emb)
+
         return rec_error + self.param.coef * cent_sim_error
 
-    def get_sim_matrix(self,
-                       tokens: List[str]) -> np.ndarray:
-        """
-        isolate from get_keywords due to easy testing
-        """
-        matrix: np.ndarray = mat_normalize(
-            self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
-        sim_matrix: np.ndarray = np.dot(matrix, matrix.T)  # (n_tokens, n_tokens)
-        return sim_matrix
+    def _get_keywords(self,
+                      tokens: List[str],
+                      embs: np.ndarray,
+                      keyword_embs: np.ndarray,
+                      n_remains: int) -> List[str]:
+        if n_remains == 0:
+            return []
+        errors: List[float] = [self.calc_error(embs=embs,
+                                               keyword_embs=keyword_embs,
+                                               cand_emb=embs[i])
+                               for i in range(len(tokens))]
+        argmin: int = np.argmin(errors)
+        keyword: str = tokens[argmin]
+        new_keyword_emb = embs[argmin]
+        residual_inds = [(t != keyword) for t in tokens]
+        print(keyword)
+        return [keyword] + self._get_keywords(
+            tokens=[t for t, is_valid in zip(tokens, residual_inds) if is_valid],
+            embs=embs[residual_inds, :],
+            keyword_embs=np.append(keyword_embs, new_keyword_emb),
+            n_remains=(n_remains - 1)
+        )
 
     def get_keywords(self,
                      tokens: List[str]) -> List[str]:
-        sim_matrix: np.ndarray = self.get_sim_matrix(tokens=tokens)
-        keyword_inds: List[int] = []
-        keywords: Set[str] = set()
+        matrix: np.ndarray = mat_normalize(
+            self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
+        return self._get_keywords(
+            tokens=tokens,
+            embs=matrix,
+            keyword_embs=np.array([]),
+            n_remains=self.param.n_words)
 
-        for _ in range(self.param.n_words):
-            errors: List[float] = [self.calc_error(sims=sim_matrix,
-                                                   ind=keyword_inds + [i])
-                                   for i in range(sim_matrix.shape[0])
-                                   if i not in keyword_inds
-                                   and tokens[i] not in keywords]
-            argmin = np.argmin(errors)
-            keyword_inds = np.append(keyword_inds, argmin)
-            keywords.add(tokens[argmin])
-        print(keywords)
-        return list(keywords)
+    def to_trec_result(self,
+                       doc: ColDocument,
+                       es_result: EsResult) -> TRECResult:
+        res: TRECResult = TRECResult(
+            query_docid=doc.docid,
+            scores=es_result.get_scores()
+        )
+        return res
 
     def match(self,
               args: ScoringArg) -> TRECResult:

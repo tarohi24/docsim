@@ -30,7 +30,9 @@ class Method(Generic[T]):
         def dump_result(res: TRECResult) -> None:
             dump_prel(res=res, context=self.context)
 
-        self.load_node: LoaderNode[ColDocument] = LoaderNode(func=get_queries)
+        self.load_node: LoaderNode[ColDocument] = LoaderNode(
+            func=get_queries,
+            batch_size=1)
         self.dump_node: DumpNode[TRECResult] = DumpNode(func=dump_result)
 
     def create_flow(self) -> Flow:

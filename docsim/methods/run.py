@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 from pathlib import Path
 from typing import Dict, List, Type, TypeVar
 
@@ -8,6 +7,7 @@ from typedflow.flow import Flow
 
 from docsim.methods.common.types import Context, Param
 from docsim.methods.common.methods import Method
+from docsim.methods.common.dumper import get_dump_path
 
 # methods
 from docsim.methods.methods import keywords, per, cacher, fuzzy
@@ -64,8 +64,13 @@ def main() -> int:
     args = parser.parse_args()
     methods: List[Method] = parse(args.paramfile[0])
     for met in methods:
+        dump_path: Path = get_dump_path(met.context)
+        try:
+            dump_path.unlink()
+        except FileNotFoundError:
+            pass
         flow: Flow = met.create_flow()
-        asyncio.run(flow.run())
+        flow.run()
     return 0
 
 
