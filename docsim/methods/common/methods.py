@@ -1,43 +1,37 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import ClassVar, Generic, Type, TypeVar  # type: ignore
+from typing import ClassVar, Generic, Generator, Type, TypeVar  # type: ignore
 
 from typedflow.flow import Flow
 from typedflow.nodes import LoaderNode, DumpNode
 
-from docsim.methods.common.dumper import get_dump_node
-from docsim.methods.common.loader import get_loader_node
+from docsim.methods.common.loader import load_query_files
+from docsim.methods.common.dumper import dump_prel
 from docsim.methods.common.types import Context, TRECResult
 from docsim.models import ColDocument
 
 
+T = TypeVar('T')
+
+
 @dataclass
-class MethodProperty:
-    context: Context  # independent of methods
+class Method(Generic[T]):
+    context: Context
+    param: T
+    param_type: ClassVar[Type[T]] = field(init=False)
     load_node: LoaderNode[ColDocument] = field(init=False)
     dump_node: DumpNode[TRECResult] = field(init=False)
 
     def __post_init__(self):
-        self.load_node: LoaderNode[ColDocument] = get_loader_node(
-            context=self.context)
-        self.dump_node: DumpNode[TRECResult] = get_dump_node(
-            context=self.context)
+
+        def get_queries() -> Generator[ColDocument, None, None]:
+            return load_query_files(dataset=self.context.es_index)
+
+        def dump_result(res: TRECResult) -> None:
+            dump_prel(res=res, context=self.context)
+
+        self.load_node: LoaderNode[ColDocument] = LoaderNode(func=get_queries)
+        self.dump_node: DumpNode[TRECResult] = DumpNode(func=dump_result)
 
     def create_flow(self) -> Flow:
         ...
-
-
-P = TypeVar('P')
-
-
-@dataclass
-class Method(Generic[P]):
-    mprop: MethodProperty
-    param: P
-    param_type: ClassVar[Type[P]] = field(init=False)
-
-    def create_flow(self):
-        ...
-
-
-M = TypeVar('M', bound=Method)

@@ -7,13 +7,14 @@ on:
       - develop
       - master
 
-env:
-  ES_URL: ""
-  PROJECT_ROOT: ${GITHUB_WORKSPACE}
-  NLPSERVER_URL: localhost
-
 jobs:
   unittest:
+
+    env:
+      ES_URL: ""
+      PROJECT_ROOT: ${GITHUB_WORKSPACE}
+      NLPSERVER_URL: localhost
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -25,12 +26,18 @@ jobs:
       run: docker network create nlpserver_default
     - name: run tests
       run: |
-        docker-compose run -e IS_TEST=1 -e actions pytest docsim
+        docker-compose run -e IS_TEST=1 -e NLPSERVER_URL=${NLPSERVER_URL} actions pytest docsim
     - name: run mypy
       run: |
         docker-compose run -e IS_TEST=1 actions mypy docsim
 
   mypy:
+
+    env:
+      ES_URL: ""
+      PROJECT_ROOT: ${GITHUB_WORKSPACE}
+      NLPSERVER_URL: localhost
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1

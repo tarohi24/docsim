@@ -25,10 +25,8 @@ class Param:
         ...
 
 
-P = TypeVar('P', bound=Param)
-
-
-class Context(TypedDict):
+@dataclass
+class Context:
     es_index: str
     method: str
     runname: str

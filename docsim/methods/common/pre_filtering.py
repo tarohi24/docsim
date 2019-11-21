@@ -2,10 +2,11 @@
 Loader of pre-filtered texts and embeddings
 """
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import numpy as np
 
+from docsim.models import ColDocument
 from docsim.settings import cache_dir
 
 
@@ -23,3 +24,12 @@ def load_emb(docid: str,
         for p in dirpath.glob('*.npy')
     }
     return dic
+
+
+def load_cols(docid: str,
+              dataset: str) -> List[ColDocument]:
+    path: Path = cache_dir.joinpath(f'{dataset}/text/{docid}.bulk')
+    with open(path) as fin:
+        lst: List[ColDocument] = [ColDocument.from_json(line)  # type: ignore
+                                  for line in fin.read().splitlines()]
+    return lst

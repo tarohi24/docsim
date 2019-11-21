@@ -4,7 +4,7 @@ import numpy as np
 
 
 @dataclass
-class FastText:
+class FTMock:
     dim: int = 300
 
     def embed(self, word: str) -> np.ndarray:

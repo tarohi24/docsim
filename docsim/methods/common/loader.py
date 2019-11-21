@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Generator
 
 from tqdm import tqdm
-from typedflow.tasks import DataLoader
 from typedflow.nodes import LoaderNode
 
 from docsim.methods.common.types import Context
@@ -13,10 +12,10 @@ from docsim.models import ColDocument
 from docsim.settings import data_dir
 
 
-__all__ = ['get_loader_node', ]
+__all__ = ['load_query_files', ]
 
 
-def query_load_file(dataset: str) -> Generator[ColDocument, None, None]:
+def load_query_files(dataset: str) -> Generator[ColDocument, None, None]:
     qpath: Path = data_dir.joinpath(f'{dataset}/query/dump.bulk')
     pbar = tqdm()
     with open(qpath) as fin:
@@ -24,12 +23,3 @@ def query_load_file(dataset: str) -> Generator[ColDocument, None, None]:
             doc: ColDocument = ColDocument.from_json(line)  # type: ignore
             yield doc
             pbar.update(1)
-
-
-def get_loader_node(context: Context) -> LoaderNode[ColDocument]:
-    queries: Generator[ColDocument, None, None] = query_load_file(
-        dataset=context['es_index'])
-    loader: DataLoader[ColDocument] = DataLoader(gen=queries,
-                                                 batch_size=1)
-    node: LoaderNode[ColDocument] = LoaderNode(loader)
-    return node
