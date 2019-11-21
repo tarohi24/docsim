@@ -15,7 +15,7 @@ from typedflow.flow import Flow
 from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.embedding.base import mat_normalize, return_vector
+from docsim.embedding.base import mat_normalize
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, TRECResult
