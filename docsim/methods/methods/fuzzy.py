@@ -3,7 +3,9 @@ Available only for fasttext
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
+from itertools import product
 import re
+import warnings
 from typing import ClassVar, List, Pattern, Set, Type, TypedDict
 
 from nltk.corpus import stopwords as nltk_sw
@@ -74,29 +76,43 @@ class Fuzzy(Method[FuzzyParam]):
         return tokens
 
     @staticmethod
-    def _rec_error(mat: np.ndarray,
-                   centroids: np.ndarray) -> float:
+    def _rec_error(sims: np.ndarray,
+                   ind: List[int]) -> float:
         """
         Reconstruct error. In order to enable unittests, two errors are
         implemented individually.
         """
-        ind: List[int] = np.argmax(np.dot(mat, centroids.T), axis=1)
-        rec_error: float = np.mean(np.linalg.norm(mat - mat[ind, :], axis=1))
-        return rec_error
+        assert len(ind) > 0
+        reduced_sims: np.ndarray = sims[:, np.array(ind)]  # (n_tokens, n_cents)
+        maxes: np.ndarray = np.amax(reduced_sims, axis=1)
+        if all(maxes == 1):
+            warnings.warn('Probably all elements in sims are zero?')
+        return (1 - maxes).mean()
 
     @staticmethod
-    def _cent_sim_error(centroids: np.ndarray) -> float:
-        normed: np.ndarray = mat_normalize(centroids)
-        cent_sim_error: float = np.dot(normed, normed.T).mean()
+    def _cent_sim_error(sims: np.ndarray,
+                        ind: List[int]) -> float:
+        """
+        Similarity among bases
+
+        Parameters
+        -----
+        sims
+            2D (n_tokens, n_tokens)
+        ind
+            dimension indices of sims
+        """
+        if len(ind) < 2:
+            return 0
+        cent_sim_error: float = np.mean([sims[(i, j)]
+                                         for i, j in product(ind, ind)])
         return cent_sim_error
 
     def calc_error(self,
-                   mat: np.ndarray,
-                   centroids: np.ndarray) -> float:
-        if centroids.ndim == 1:
-            centroids = centroids.reshape(-1, 300)
-        rec_error: float = self._rec_error(mat, centroids)
-        cent_sim_error: float = self._cent_sim_error(centroids)
+                   sims: np.ndarray,
+                   ind: List[int]) -> float:
+        rec_error: float = self._rec_error(sims, ind)
+        cent_sim_error: float = self._cent_sim_error(sims, ind)
         return rec_error + self.param.coef * cent_sim_error
 
     @return_vector
@@ -111,24 +127,18 @@ class Fuzzy(Method[FuzzyParam]):
         -----
         1D vector (n_words)
         """
-        matrix: np.ndarray = self.fasttext.embed_words(tokens)
-        norm_mat: np.ndarray = mat_normalize(matrix)
-        keyword_inds: np.ndarray = np.array([]).astype(int)
+        matrix: np.ndarray = mat_normalize(
+            self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
+        sim_matrix: np.ndarray = np.dot(matrix, matrix.T)  # (n_tokens, n_tokens)
+        keyword_inds: List[int] = []
         keywords: Set[str] = set()
+
         for _ in range(self.param.n_words):
             print('HI')
-            centroids: np.ndarray = norm_mat[keyword_inds]
-            errors: List[float] = [
-                self.calc_error(
-                    norm_mat[~np.isin(
-                        np.arange(norm_mat.shape[0]),
-                        np.append(keyword_inds, i)
-                    )],
-                    np.append(centroids, norm_mat[i])
-                )
-                for i in range(norm_mat.shape[0])
-                if tokens[i] not in keywords
-            ]
+            errors: List[float] = [self.calc_error(sims=sim_matrix,
+                                                   ind=keyword_inds)
+                                   for i in range(sim_matrix.shape[0])
+                                   if tokens[i] not in keywords]
             argmin = np.argmin(errors)
             keyword_inds = np.append(keyword_inds, argmin)
             keywords.add(tokens[argmin])
