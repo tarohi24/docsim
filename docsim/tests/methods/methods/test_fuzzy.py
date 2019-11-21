@@ -55,3 +55,12 @@ def test_rec_error(fuzzy):
     ])
     centroids = np.zeros((1, 300))
     np.testing.assert_almost_equal(func(mat, centroids), np.sqrt(300) / 2)
+
+
+def test_cent_sim_error(fuzzy):
+    func = fuzzy._cent_sim_error
+    centroids = np.zeros((1, 300))
+    with pytest.warns(RuntimeWarning):
+        assert np.isnan(func(centroids))
+    centroids = np.ones((1, 300))
+    np.testing.assert_almost_equal(func(centroids), 1)

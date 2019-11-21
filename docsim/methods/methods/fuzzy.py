@@ -86,7 +86,8 @@ class Fuzzy(Method[FuzzyParam]):
 
     @staticmethod
     def _cent_sim_error(centroids: np.ndarray) -> float:
-        cent_sim_error: float = np.dot(centroids, centroids.T).mean()
+        normed: np.ndarray = mat_normalize(centroids)
+        cent_sim_error: float = np.dot(normed, normed.T).mean()
         return cent_sim_error
 
     def calc_error(self,
