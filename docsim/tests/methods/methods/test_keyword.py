@@ -6,6 +6,8 @@ from docsim.elas.search import EsResult, EsResultItem
 from docsim.methods.common.types import TRECResult
 from docsim.methods.methods.keywords import KeywordParam, KeywordBaseline
 
+from docsim.tests.methods.methods.base import context, doc, text  # noqa
+
 
 
 @pytest.fixture

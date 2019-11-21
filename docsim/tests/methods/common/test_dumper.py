@@ -10,6 +10,7 @@ from docsim.methods.common.dumper import get_dump_path, dump_prel
 from docsim.methods.common.types import TRECResult
 from docsim.settings import results_dir
 
+from docsim.tests.methods.methods.base import context, doc, text  # noqa
 
 
 @pytest.fixture
