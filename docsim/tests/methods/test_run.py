@@ -1,12 +1,14 @@
 from pathlib import Path
-from typing import List
+from typing import List, TypeVar
 
 import pytest
 
 from docsim.methods.run import get_method, parse
-from docsim.methods.common.methods import M
 from docsim.methods.methods.keywords import KeywordBaseline
 from docsim.settings import param_dir
+
+
+P = TypeVar('P')
 
 
 @pytest.fixture
@@ -22,13 +24,13 @@ def test_get_method():
 
 
 def test_parse(sample_yaml):
-    lst: List[M] = parse(sample_yaml)
+    lst: List[P] = parse(sample_yaml)
     assert len(lst) == 2
-    assert lst[0].mprop.context['n_docs'] == 100
-    assert lst[0].mprop.context['es_index'] == 'clef'
-    assert lst[0].mprop.context['method'] == 'keywords'
-    assert lst[0].mprop.context['runname'] == '40'
-    assert lst[1].mprop.context['runname'] == '30'
+    assert lst[0].context.n_docs == 100
+    assert lst[0].context.es_index== 'clef'
+    assert lst[0].context.method == 'keywords'
+    assert lst[0].context.runname == '40'
+    assert lst[1].context.runname == '30'
 
     assert lst[0].param.n_words == 40
     assert lst[1].param.n_words == 30

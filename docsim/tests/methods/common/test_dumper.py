@@ -4,21 +4,20 @@ from typing import Dict, List, Union
 import pytest
 from typedflow.batch import Batch
 from typedflow.exceptions import FaultItem
+from typedflow.nodes import DumpNode
 
 from docsim.methods.common.dumper import get_dump_path, dump_prel
-from docsim.methods.common.types import Context, TRECResult
+from docsim.methods.common.types import TRECResult
 from docsim.settings import results_dir
 
 
-@pytest.fixture(scope='module')
-def context() -> Context:
-    context: Context = {
-        'es_index': 'clef',
-        'method': 'keyword',
-        'runname': '40',
-        'n_docs': 10
-    }
-    yield context
+
+@pytest.fixture
+def node(context) -> DumpNode[TRECResult]:
+    def dump(res: TRECResult) -> None:
+        dump_prel(res=res, context=context)
+    node: DumpNode[TRECResult] = DumpNode(func=dump)
+    return node
 
 
 def get_res() -> TRECResult:
@@ -35,7 +34,7 @@ def get_res() -> TRECResult:
 
 def test_path_func(context):
     assert get_dump_path(context)\
-        == results_dir.joinpath('clef/keyword/40.prel')
+        == results_dir.joinpath('dummy/keywords/40.prel')
 
 
 def test_to_prel():
@@ -45,17 +44,17 @@ EP111 Q0 EP101 2 1.0 STANDARD
 EP111 Q0 EP100 3 0.0 STANDARD"""
 
 
-def test_dump(context):
+def test_dump(context, node):
     res = get_res()
     data: List[TRECResult] = [res, ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
-
     path: Path = get_dump_path(context)
+
     try:
         path.unlink()
     except FileNotFoundError:
         pass
-    dump_prel(batch=batch, context=context)
+    node.dump(batch=batch)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
     assert out == ['EP111 Q0 EP102 1 2.0 STANDARD',
@@ -64,17 +63,26 @@ def test_dump(context):
     path.unlink()
 
 
-def test_dump_with_fault(context):
+def test_dump_with_fault(context, node):
     data: List[Union[TRECResult, FaultItem]] = [FaultItem(), ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
-
     path: Path = get_dump_path(context)
+
     try:
         path.unlink()
     except FileNotFoundError:
         pass
-    dump_prel(batch=batch, context=context)
+    node.dump(batch=batch)
+    with pytest.raises(FileNotFoundError):
+        with open(path) as fin:
+            pass
+
+    data: List[Union[TRECResult, FaultItem]] = [get_res(), FaultItem(), ]
+    batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
+    node.dump(batch=batch)
     with open(path) as fin:
         out: List[str] = fin.read().splitlines()
-    assert out == ['', ]
+    assert out == ['EP111 Q0 EP102 1 2.0 STANDARD',
+                   'EP111 Q0 EP101 2 1.0 STANDARD',
+                   'EP111 Q0 EP100 3 0.0 STANDARD']
     path.unlink()

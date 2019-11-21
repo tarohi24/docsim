@@ -1,13 +1,11 @@
-import asyncio
 from typing import List
 
 import pytest
 
 from docsim.elas.search import EsResult, EsResultItem
-from docsim.methods.common.methods import MethodProperty
-from docsim.methods.common.types import Context, TRECResult
+from docsim.methods.common.types import TRECResult
 from docsim.methods.methods.keywords import KeywordParam, KeywordBaseline
-from docsim.models import ColDocument
+
 
 
 @pytest.fixture
@@ -17,36 +15,8 @@ def param() -> KeywordParam:
 
 
 @pytest.fixture
-def context() -> Context:
-    context: Context = {
-        'n_docs': 3,
-        'es_index': 'dummy',
-        'method': 'keyword',
-        'runname': '40',
-    }
-    return context
-
-
-@pytest.fixture
-def text() -> str:
-    doc: str = 'This is this IS a test. TEST. test; danger Danger da_ is.'
-    return doc
-
-
-@pytest.fixture
-def doc(text) -> ColDocument:
-    doc: ColDocument = ColDocument(
-        docid='EP111',
-        title='sample',
-        text=text,
-        tags=['G10P'])
-    return doc
-
-
-@pytest.fixture
 def method(param, context):
-    mprop: MethodProperty = MethodProperty(context=context)
-    method: KeywordBaseline = KeywordBaseline(mprop=mprop, param=param)
+    method: KeywordBaseline = KeywordBaseline(context=context, param=param)
     return method
 
 
@@ -82,4 +52,4 @@ def test_flow_creation(mocker, method, sample_hits):
     mocker.patch('docsim.settings.es', 'foo')
     mocker.patch('docsim.elas.search.EsSearcher.search',
                  return_value=sample_hits)
-    asyncio.run(method.create_flow().run())
+    method.create_flow().run()

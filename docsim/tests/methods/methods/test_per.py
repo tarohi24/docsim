@@ -2,9 +2,10 @@ import pytest
 
 from docsim.elas.search import EsResult, EsResultItem
 from docsim.methods.common.types import Context
-from docsim.methods.common.methods import MethodProperty
 from docsim.methods.methods.per import Per, PerParam, Stragegy
 from docsim.models import ColDocument
+
+from docsim.tests.embedding.fasttext import FTMock
 
 
 @pytest.fixture
@@ -15,15 +16,13 @@ def param() -> PerParam:
 
 
 @pytest.fixture
-def mprop() -> MethodProperty:
-    context: Context = {
+def context() -> Context:
+    return {
         'n_docs': 3,
         'es_index': 'dummy',
         'method': 'keyword',
         'runname': '40',
     }
-    mprop: MethodProperty = MethodProperty(context=context)
-    return mprop
 
 
 @pytest.fixture
@@ -44,7 +43,7 @@ def doc(text) -> ColDocument:
 
 @pytest.fixture
 def per(mocker, param, mprop) -> Per:
-    mocker.patch('docsim.methods.methods.per.FastText', new=FastText)
+    mocker.patch('docsim.methods.methods.per.FastText', new=FTMock)
     return Per(param=param, mprop=mprop)
 
 

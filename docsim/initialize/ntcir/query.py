@@ -1,19 +1,15 @@
 """
 load xml -> parse and extract -> dump into a file (query.bulk)
 """
-import asyncio
 from pathlib import Path
 import re
-from typing import Generator, List, Optional, Union
+from typing import Generator, List, Optional
 from lxml import etree
 import xml.etree.ElementTree as ET
 
 from tqdm import tqdm
-from typedflow.batch import Batch
-from typedflow.exceptions import FaultItem
 from typedflow.flow import Flow
 from typedflow.nodes import TaskNode, LoaderNode, DumpNode
-from typedflow.tasks import Task, DataLoader, Dumper
 
 from docsim.initialize.converters.ntcir import NTCIRConverter
 from docsim.models import ColDocument
@@ -54,39 +50,16 @@ def get_document(root: ET.Element) -> ColDocument:
                        tags=tags)
 
 
-def dump_to_one_file(batch: Batch[Union[FaultItem, ColDocument]],
-                     path: Path) -> None:
-    with open(path, 'a') as fout:
-        for item in batch.data:
-            if not isinstance(item, FaultItem):
-                fout.write(item.to_json() + '\n')
-
-
 if __name__ == '__main__':
-    # loader
-    gen: Generator[Path, None, None] = loading()
-    loader: DataLoader[Path] = DataLoader(gen=gen)
-    loader_node: LoaderNode[Path] = LoaderNode(loader=loader)
+    loader_node: LoaderNode[Path] = LoaderNode(func=loading)
+    pre_task_node: TaskNode[Path, ET.Element] = TaskNode(func=replace_tab)
+    task_node: TaskNode[ET.Element, ColDocument] = TaskNode(func=get_document)
+    (task_node < pre_task_node)('pre')
 
-    # pre-task
-    pre_proc_task: Task[Path, ET.Element] = Task(func=replace_tab)
-    pre_task_node: TaskNode[Path, ET.Element] = TaskNode(task=pre_proc_task,
-                                                         arg_type=Path)
-    pre_task_node.set_upstream_node('loader', loader_node)
+    def dump_to_one_file(doc: ColDocument) -> None:
+        with open(data_dir.joinpath('ntcir/query/dump.bulk'), 'a') as fout:
+            fout.write(doc.to_json() + '\n')  # noqa
 
-    # task
-    task: Task[ET.Element, ColDocument] = Task(func=get_document)
-    task_node: TaskNode[ET.Element, ColDocument] = TaskNode(task=task,
-                                                            arg_type=ColDocument)
-    task_node.set_upstream_node('pre', pre_task_node)
-
-    # dump
-    dump_path: Path = data_dir.joinpath('ntcir/query/dump.bulk')
-    dumper: Dumper = Dumper[ColDocument](
-        func=lambda batch: dump_to_one_file(batch, dump_path))
-    dump_node: DumpNode[ColDocument] = DumpNode(dumper=dumper,
-                                                arg_type=ColDocument)
-    dump_node.set_upstream_node('task', task_node)
-
+    dump_node: DumpNode[ColDocument] = DumpNode(func=dump_to_one_file)
     flow: Flow = Flow(dump_nodes=[dump_node, ])
-    asyncio.run(flow.run())
+    flow.run()

@@ -16,7 +16,7 @@ from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import mat_normalize, return_vector
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import Param, P, TRECResult
+from docsim.methods.common.types import Param, TRECResult
 from docsim.models import ColDocument
 from docsim.methods.common.pre_filtering import load_cols
 
@@ -42,7 +42,7 @@ class FuzzyParam(Param):
 
 @dataclass
 class Fuzzy(Method[FuzzyParam]):
-    param_type: ClassVar[Type[P]] = FuzzyParam
+    param_type: ClassVar[Type] = FuzzyParam
     fasttext: FastText = field(init=False)
 
     def __post_init__(self):
@@ -132,12 +132,10 @@ class Fuzzy(Method[FuzzyParam]):
         return trec_result
 
     def create_flow(self):
-        node_get_tokens: TaskNode[ColDocument, List[str]] = self.get_node(
-            self.get_all_tokens,
-            arg_type=ColDocument)
-        node_get_keywords: TaskNode[List[str], List[str]] = self.get_node(
-            self.get_keywords,
-            arg_type=List[str])
+        loader: LoaderNode[ColDocument] =a
+        node_get_tokens: TaskNode[ColDocument, List[str]] = TaskNode(func=self.get_all_tokens)
+        node_get_keywords: TaskNode[List[str], List[str]] = TaskNode(func=self.get_keywords)
+        (node_get_tokens > node_get_keywords)('tokens')
         node_get_tokens.set_upstream_node('query_doc', self.mprop.load_node)
         node_get_keywords.set_upstream_node('tokens', node_get_tokens)
 

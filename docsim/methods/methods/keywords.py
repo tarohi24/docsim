@@ -10,13 +10,12 @@ from typing import ClassVar, List, Pattern, Set, Type  # type: ignore
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 from typedflow.flow import Flow
-from typedflow.tasks import Task
 from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import Param, TRECResult, P
+from docsim.methods.common.types import Param, TRECResult
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
@@ -35,12 +34,10 @@ class KeywordParam(Param):
 
 @dataclass
 class KeywordBaseline(Method[KeywordParam]):
-    param_type: ClassVar[Type[P]] = KeywordParam
+    param_type: ClassVar[Type] = KeywordParam
 
     def get_retrieve_node(self) -> TaskNode[ColDocument, TRECResult]:
-        task: Task[ColDocument, TRECResult] = Task(self.retrieve)
-        node: TaskNode[ColDocument, TRECResult] = TaskNode(task=task,
-                                                           arg_type=ColDocument)
+        node: TaskNode[ColDocument, TRECResult] = TaskNode(func=self.retrieve)
         return node
 
     def _extract_keywords_from_text(self, text: str) -> List[str]:
@@ -59,12 +56,12 @@ class KeywordBaseline(Method[KeywordParam]):
         return self._extract_keywords_from_text(text=doc.text)
 
     def search(self, doc: ColDocument) -> EsResult:
-        searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
+        searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
         keywords: List[str] = self.extract_keywords(doc=doc)
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=keywords, field='text')\
-            .add_size(self.mprop.context['n_docs'])\
+            .add_size(self.context.n_docs)\
             .add_filter(terms=doc.tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
@@ -86,7 +83,7 @@ class KeywordBaseline(Method[KeywordParam]):
 
     def create_flow(self) -> Flow:
         task_node: TaskNode[ColDocument, TRECResult] = self.get_retrieve_node()
-        self.mprop.dump_node.set_upstream_node('task', task_node)
-        task_node.set_upstream_node('load', self.mprop.load_node)
-        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
+        (self.load_node > task_node)('loader')
+        (task_node > self.dump_node)('res')
+        flow: Flow = Flow(dump_nodes=[self.dump_node, ])
         return flow

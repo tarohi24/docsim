@@ -1,31 +1,15 @@
 from typing import Generator
 
-from typedflow.tasks import DataLoader
 from typedflow.nodes import LoaderNode
 
 from docsim.models import ColDocument
-from docsim.methods.common.loader import query_load_file
-
-
-def test_query_load_file():
-    queries: Generator[ColDocument, None, None] = query_load_file(dataset='clef')
-    qdoc: ColDocument = next(queries)
-    assert qdoc.docid == 'EP1780094A1'
-
-
-def dataloader() -> DataLoader[ColDocument]:
-    queries: Generator[ColDocument, None, None] = query_load_file(dataset='clef')
-    loader: DataLoader[ColDocument] = DataLoader(gen=queries, batch_size=1)
-    return loader
-
-
-def test_dataloader_creation():
-    dataloader()
+from docsim.methods.common.loader import load_query_files
 
 
 def node():
-    loader: DataLoader[ColDocument] = dataloader()
-    node: LoaderNode[ColDocument] = LoaderNode(loader)
+    def get_queries() -> Generator[ColDocument, None, None]:
+        return load_query_files(dataset='clef')
+    node: LoaderNode[ColDocument] = LoaderNode(func=get_queries)
     return node
 
 

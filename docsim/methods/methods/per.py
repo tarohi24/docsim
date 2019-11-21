@@ -7,13 +7,12 @@ from typing import (
 from nltk.tokenize import sent_tokenize
 import numpy as np
 from typedflow.flow import Flow
-from typedflow.tasks import Task
 from typedflow.nodes import TaskNode
 
 from docsim.embedding.base import mat_normalize
 from docsim.embedding.bert import Bert
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import Param, P, TRECResult
+from docsim.methods.common.types import Param, TRECResult
 from docsim.models import ColDocument
 from docsim.methods.common.pre_filtering import load_emb
 
@@ -40,7 +39,7 @@ class PerParam(Param):
 
 @dataclass
 class Per(Method[PerParam]):
-    param_type: ClassVar[Type[P]] = PerParam
+    param_type: ClassVar[Type] = PerParam
     bert: Bert = field(default_factory=Bert)
 
     def get_bert_embs(self,
@@ -92,13 +91,6 @@ class Per(Method[PerParam]):
             query_docid=qandc['query_doc'].docid,
             scores=norms)
         return res
-
-    @staticmethod
-    def get_node(func: Callable[[T], K],
-                 arg_type: Type[T]) -> TaskNode[T, K]:
-        task: Task[T, K] = Task(func=func)
-        node: TaskNode[T, K] = TaskNode(task=task, arg_type=arg_type)
-        return node
 
     def create_flow(self):
         node_col_emb: TaskNode[ColDocument, Dict[str, np.ndarray]] = self.get_node(
