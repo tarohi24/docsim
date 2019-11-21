@@ -1,7 +1,6 @@
 name: unittests and lint
 
 on:
-  pull_request:
   push:
     on:
       - develop
