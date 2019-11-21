@@ -7,13 +7,14 @@ on:
       - develop
       - master
 
-env:
-  ES_URL: ""
-  PROJECT_ROOT: ${GITHUB_WORKSPACE}
-  NLPSERVER_URL: localhost
-
 jobs:
   unittest:
+
+    env:
+      ES_URL: ""
+      PROJECT_ROOT: ${GITHUB_WORKSPACE}
+      NLPSERVER_URL: localhost
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -31,6 +32,12 @@ jobs:
         docker-compose run -e IS_TEST=1 actions mypy docsim
 
   mypy:
+
+    env:
+      ES_URL: ""
+      PROJECT_ROOT: ${GITHUB_WORKSPACE}
+      NLPSERVER_URL: localhost
+
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
