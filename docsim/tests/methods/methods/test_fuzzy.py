@@ -27,3 +27,7 @@ def fuzzy(mocker, param, context) -> Fuzzy:
 
 def test_init(fuzzy):
     assert fuzzy.param.coef == 1
+
+
+def test_flow(fuzzy):
+    fuzzy.create_flow().typecheck()

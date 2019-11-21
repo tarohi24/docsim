@@ -40,12 +40,17 @@ class FuzzyParam(Param):
         return param
 
 
-@dataclass
+class ScoringArg(TypedDict):
+    query_doc: ColDocument
+    keywords: List[str]
+
+
 class Fuzzy(Method[FuzzyParam]):
     param_type: ClassVar[Type] = FuzzyParam
     fasttext: FastText = field(init=False)
 
     def __post_init__(self):
+        super(Fuzzy, self).__post_init__()
         self.fasttext: FastText = FastText()
 
     def get_docid(self, doc: ColDocument) -> str:
@@ -55,7 +60,7 @@ class Fuzzy(Method[FuzzyParam]):
         docid: str = doc.docid
         cols: List[ColDocument] = load_cols(
             docid=docid,
-            dataset=self.mprop.context['es_index'])
+            dataset=self.context.es_index)
         return cols
 
     def get_all_tokens(self,
@@ -114,17 +119,14 @@ class Fuzzy(Method[FuzzyParam]):
         print(keywords)
         return list(keywords)
 
-    class ScoringArg(TypedDict):
-        query_doc: ColDocument
-        keywords: List[str]
 
     def match(self,
               args: ScoringArg) -> TRECResult:
-        searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
+        searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=args['keywords'], field='text')\
-            .add_size(self.mprop.context['n_docs'])\
+            .add_size(self.context.n_docs)\
             .add_filter(terms=args['query_doc'].tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
@@ -132,20 +134,17 @@ class Fuzzy(Method[FuzzyParam]):
         return trec_result
 
     def create_flow(self):
-        loader: LoaderNode[ColDocument] =a
         node_get_tokens: TaskNode[ColDocument, List[str]] = TaskNode(func=self.get_all_tokens)
+        (node_get_tokens < self.load_node)('doc')
+
         node_get_keywords: TaskNode[List[str], List[str]] = TaskNode(func=self.get_keywords)
         (node_get_tokens > node_get_keywords)('tokens')
-        node_get_tokens.set_upstream_node('query_doc', self.mprop.load_node)
-        node_get_keywords.set_upstream_node('tokens', node_get_tokens)
 
-        node_match: TaskNode[self.ScoringArg, TRECResult] = self.get_node(
-            func=self.match,
-            arg_type=self.ScoringArg)
+        node_match: TaskNode[ScoringArg, TRECResult] = TaskNode(func=self.match)
+        (node_match < self.load_node)('query_doc')
+        (node_match < node_get_keywords)('keywords')
 
-        node_match.set_upstream_node('query_doc', self.mprop.load_node)
-        node_match.set_upstream_node('keywords', node_get_keywords)
+        (self.dump_node < node_match)('task')
 
-        self.mprop.dump_node.set_upstream_node('task', node_match)
-        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
+        flow: Flow = Flow(dump_nodes=[self.dump_node, ])
         return flow
