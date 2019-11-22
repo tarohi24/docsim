@@ -54,6 +54,6 @@ def test_get_all_tokens(fuzzy, doc):  # noqa
 
 def test_get_keywords(mocker, fuzzy, sample_embeddings):
     tokens = ['software', 'license', 'program', 'terms', 'code']
-    mocker.patch('docsim.tests.embedding.fasttext.FTMock.embed_words',
-                 return_value=np.array([sample_embeddings[w] for w in tokens]))
+    mocker.patch('docsim.tests.embedding.fasttext.FTMock.embed',
+                 side_effect=lambda s: sample_embeddings[s])
     assert set(fuzzy.get_keywords(tokens)) == {'software', 'license'}

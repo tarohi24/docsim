@@ -4,6 +4,7 @@ Available only for fasttext
 from __future__ import annotations
 from dataclasses import dataclass, field
 from itertools import product
+import logging
 import re
 import warnings
 from typing import ClassVar, List, Pattern, Set, Type, TypedDict
@@ -27,6 +28,7 @@ from docsim.methods.common.pre_filtering import load_cols
 stopwords: Set[str] = set(nltk_sw.words('english'))
 tokenizer: RegexpTokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
 not_a_word_pat: Pattern = re.compile(r'^[^a-z0-9]*$')
+logger = logging.getLogger(__file__)
 
 
 @dataclass
@@ -91,8 +93,8 @@ class Fuzzy(Method[FuzzyParam]):
         maxes: np.ndarray = np.amax(np.dot(embs, dims.T), axis=1)
         return (1 - maxes).mean()
 
-    @staticmethod
-    def _cent_sim_error(keyword_embs: np.ndarray,
+    def _cent_sim_error(self,
+                        keyword_embs: np.ndarray,
                         cand_emb: np.ndarray) -> float:
         if keyword_embs.ndim == 1:
             return 0
@@ -104,7 +106,7 @@ class Fuzzy(Method[FuzzyParam]):
                    cand_emb: np.ndarray) -> float:
         rec_error: float = self._rec_error(embs, keyword_embs, cand_emb)
         cent_sim_error: float = self._cent_sim_error(keyword_embs, cand_emb)
-
+        logger.info(f'rec_error: {str(rec_error)}, cent_sim_error: {str(cent_sim_error)}')
         return rec_error + self.param.coef * cent_sim_error
 
     def _get_keywords(self,
@@ -122,7 +124,7 @@ class Fuzzy(Method[FuzzyParam]):
         keyword: str = tokens[argmin]
         new_keyword_emb = embs[argmin]
         residual_inds = [(t != keyword) for t in tokens]
-        print(keyword)
+        logger.info(f'keyword: {keyword}')
         return [keyword] + self._get_keywords(
             tokens=[t for t, is_valid in zip(tokens, residual_inds) if is_valid],
             embs=embs[residual_inds, :],
