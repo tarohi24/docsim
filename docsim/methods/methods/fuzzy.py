@@ -3,17 +3,21 @@ Available only for fasttext
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
+from itertools import product
+import logging
 import re
+import warnings
 from typing import ClassVar, List, Pattern, Set, Type, TypedDict
 
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 import numpy as np
+from tqdm import tqdm
 from typedflow.flow import Flow
 from typedflow.nodes import TaskNode
 
 from docsim.elas.search import EsResult, EsSearcher
-from docsim.embedding.base import mat_normalize, return_vector
+from docsim.embedding.base import mat_normalize
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import Param, TRECResult
@@ -24,6 +28,7 @@ from docsim.methods.common.pre_filtering import load_cols
 stopwords: Set[str] = set(nltk_sw.words('english'))
 tokenizer: RegexpTokenizer = RegexpTokenizer(r'\w+|\$[\d\.]+|\S+')
 not_a_word_pat: Pattern = re.compile(r'^[^a-z0-9]*$')
+logger = logging.getLogger(__file__)
 
 
 @dataclass
@@ -40,12 +45,17 @@ class FuzzyParam(Param):
         return param
 
 
-@dataclass
+class ScoringArg(TypedDict):
+    query_doc: ColDocument
+    keywords: List[str]
+
+
 class Fuzzy(Method[FuzzyParam]):
     param_type: ClassVar[Type] = FuzzyParam
     fasttext: FastText = field(init=False)
 
     def __post_init__(self):
+        super(Fuzzy, self).__post_init__()
         self.fasttext: FastText = FastText()
 
     def get_docid(self, doc: ColDocument) -> str:
@@ -55,7 +65,7 @@ class Fuzzy(Method[FuzzyParam]):
         docid: str = doc.docid
         cols: List[ColDocument] = load_cols(
             docid=docid,
-            dataset=self.mprop.context['es_index'])
+            dataset=self.context.es_index)
         return cols
 
     def get_all_tokens(self,
@@ -68,63 +78,86 @@ class Fuzzy(Method[FuzzyParam]):
                              and not w.isdigit()]
         return tokens
 
+    @staticmethod
+    def _rec_error(embs: np.ndarray,
+                   keyword_embs: np.ndarray,
+                   cand_emb: np.ndarray) -> float:
+        """
+        Reconstruct error. In order to enable unittests, two errors are
+        implemented individually.
+        """
+        if keyword_embs.ndim == 2:
+            dims: np.ndarray = np.append(keyword_embs, cand_emb)
+        else:
+            dims: np.ndarray = np.array([cand_emb])  # type: ignore
+        maxes: np.ndarray = np.amax(np.dot(embs, dims.T), axis=1)
+        return (1 - maxes).mean()
+
+    def _cent_sim_error(self,
+                        keyword_embs: np.ndarray,
+                        cand_emb: np.ndarray) -> float:
+        if keyword_embs.ndim == 1:
+            return 0
+        return np.dot(keyword_embs, cand_emb)
+
     def calc_error(self,
-                   mat: np.ndarray,
-                   centroids: np.ndarray) -> float:
-        if centroids.ndim == 1:
-            centroids = centroids.reshape(-1, 300)
-        ind: List[int] = np.argmax(np.dot(mat, centroids.T), axis=1)
-        rec_error: float = np.mean(np.linalg.norm(mat - mat[ind, :], axis=1))
-        cent_sim_error: float = np.dot(centroids, centroids.T).mean()
+                   embs: np.ndarray,
+                   keyword_embs: np.ndarray,
+                   cand_emb: np.ndarray) -> float:
+        rec_error: float = self._rec_error(embs, keyword_embs, cand_emb)
+        cent_sim_error: float = self._cent_sim_error(keyword_embs, cand_emb)
+        logger.info(f'rec_error: {str(rec_error)}, cent_sim_error: {str(cent_sim_error)}')
         return rec_error + self.param.coef * cent_sim_error
 
-    @return_vector
+    def _get_keywords(self,
+                      tokens: List[str],
+                      embs: np.ndarray,
+                      keyword_embs: np.ndarray,
+                      n_remains: int) -> List[str]:
+        if n_remains == 0:
+            return []
+        errors: List[float] = [self.calc_error(embs=embs,
+                                               keyword_embs=keyword_embs,
+                                               cand_emb=embs[i])
+                               for i in range(len(tokens))]
+        argmin: int = np.argmin(errors)
+        keyword: str = tokens[argmin]
+        new_keyword_emb = embs[argmin]
+        residual_inds = [(t != keyword) for t in tokens]
+        logger.info(f'keyword: {keyword}')
+        return [keyword] + self._get_keywords(
+            tokens=[t for t, is_valid in zip(tokens, residual_inds) if is_valid],
+            embs=embs[residual_inds, :],
+            keyword_embs=np.append(keyword_embs, new_keyword_emb),
+            n_remains=(n_remains - 1)
+        )
+
     def get_keywords(self,
                      tokens: List[str]) -> List[str]:
-        """
-        Parameters
-        -----
-        matrix: 2D array (n_words, dim)
+        matrix: np.ndarray = mat_normalize(
+            self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
+        return self._get_keywords(
+            tokens=tokens,
+            embs=matrix,
+            keyword_embs=np.array([]),
+            n_remains=self.param.n_words)
 
-        Return
-        -----
-        1D vector (n_words)
-        """
-        matrix: np.ndarray = self.fasttext.embed_words(tokens)
-        norm_mat: np.ndarray = mat_normalize(matrix)
-        keyword_inds: np.ndarray = np.array([]).astype(int)
-        keywords: Set[str] = set()
-        for _ in range(self.param.n_words):
-            print('HI')
-            centroids: np.ndarray = norm_mat[keyword_inds]
-            errors: List[float] = [
-                self.calc_error(
-                    norm_mat[~np.isin(
-                        np.arange(norm_mat.shape[0]),
-                        np.append(keyword_inds, i)
-                    )],
-                    np.append(centroids, norm_mat[i])
-                )
-                for i in range(norm_mat.shape[0])
-                if tokens[i] not in keywords
-            ]
-            argmin = np.argmin(errors)
-            keyword_inds = np.append(keyword_inds, argmin)
-            keywords.add(tokens[argmin])
-        print(keywords)
-        return list(keywords)
-
-    class ScoringArg(TypedDict):
-        query_doc: ColDocument
-        keywords: List[str]
+    def to_trec_result(self,
+                       doc: ColDocument,
+                       es_result: EsResult) -> TRECResult:
+        res: TRECResult = TRECResult(
+            query_docid=doc.docid,
+            scores=es_result.get_scores()
+        )
+        return res
 
     def match(self,
               args: ScoringArg) -> TRECResult:
-        searcher: EsSearcher = EsSearcher(es_index=self.mprop.context['es_index'])
+        searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=args['keywords'], field='text')\
-            .add_size(self.mprop.context['n_docs'])\
+            .add_size(self.context.n_docs)\
             .add_filter(terms=args['query_doc'].tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
@@ -132,20 +165,17 @@ class Fuzzy(Method[FuzzyParam]):
         return trec_result
 
     def create_flow(self):
-        loader: LoaderNode[ColDocument] =a
         node_get_tokens: TaskNode[ColDocument, List[str]] = TaskNode(func=self.get_all_tokens)
+        (node_get_tokens < self.load_node)('doc')
+
         node_get_keywords: TaskNode[List[str], List[str]] = TaskNode(func=self.get_keywords)
         (node_get_tokens > node_get_keywords)('tokens')
-        node_get_tokens.set_upstream_node('query_doc', self.mprop.load_node)
-        node_get_keywords.set_upstream_node('tokens', node_get_tokens)
 
-        node_match: TaskNode[self.ScoringArg, TRECResult] = self.get_node(
-            func=self.match,
-            arg_type=self.ScoringArg)
+        node_match: TaskNode[ScoringArg, TRECResult] = TaskNode(func=self.match)
+        (node_match < self.load_node)('query_doc')
+        (node_match < node_get_keywords)('keywords')
 
-        node_match.set_upstream_node('query_doc', self.mprop.load_node)
-        node_match.set_upstream_node('keywords', node_get_keywords)
+        (self.dump_node < node_match)('task')
 
-        self.mprop.dump_node.set_upstream_node('task', node_match)
-        flow: Flow = Flow(dump_nodes=[self.mprop.dump_node, ])
+        flow: Flow = Flow(dump_nodes=[self.dump_node, ])
         return flow

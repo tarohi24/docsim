@@ -9,3 +9,6 @@ class FTMock:
 
     def embed(self, word: str) -> np.ndarray:
         return np.random.rand(self.dim)
+
+    def embed_words(self, words: str) -> np.ndarray:
+        return np.array([self.embed(w) for w in words])
