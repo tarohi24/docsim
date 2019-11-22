@@ -26,9 +26,6 @@ jobs:
     - name: run tests
       run: |
         docker-compose run -e IS_TEST=1 -e NLPSERVER_URL=${NLPSERVER_URL} actions pytest docsim
-    - name: run mypy
-      run: |
-        docker-compose run -e IS_TEST=1 actions mypy docsim
 
   mypy:
 
