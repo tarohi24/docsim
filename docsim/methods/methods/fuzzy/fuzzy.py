@@ -42,11 +42,11 @@ def calc_error(embs: np.ndarray,
     return rec_error + coef * cent_sim_error
 
 
-def get_keywords(tokens: List[str],
-                 embs: np.ndarray,
-                 keyword_embs: np.ndarray,
-                 n_remains: int,
-                 coef: float) -> List[str]:
+def get_keyword_embs(tokens: List[str],
+                     embs: np.ndarray,
+                     keyword_embs: np.ndarray,
+                     n_remains: int,
+                     coef: float) -> np.ndarray:
     if n_remains == 0:
         return []
     errors: List[float] = [calc_error(embs=embs,
@@ -59,10 +59,14 @@ def get_keywords(tokens: List[str],
     new_keyword_emb = embs[argmin]
     residual_inds = [(t != keyword) for t in tokens]
     logger.info(f'keyword: {keyword}')
-    return [keyword] + get_keywords(
-        tokens=[t for t, is_valid in zip(tokens, residual_inds) if is_valid],
-        embs=embs[residual_inds, :],
-        keyword_embs=np.append(keyword_embs, new_keyword_emb),
-        n_remains=(n_remains - 1),
-        coef=coef
-    )
+    if n_remains == 1:
+        return np.append(keyword_embs, new_keyword_emb)
+    else:
+        residual_embs: np.ndarray = get_keyword_embs(
+            tokens=[t for t, is_valid in zip(tokens, residual_inds) if is_valid],
+            embs=embs[residual_inds, :],
+            keyword_embs=np.append(keyword_embs, new_keyword_emb),
+            n_remains=(n_remains - 1),
+            coef=coef
+        )
+        return np.concatenate([keyword_embs, residual_embs])

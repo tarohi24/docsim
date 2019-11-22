@@ -1,10 +1,12 @@
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List, Type
+from typing import ClassVar, Dict, List, Type, TypedDict
 
 import numpy as np
+from typedflow.flow import Flow
+from typedflow.nodes import TaskNode
 
-from docsim.embedding.base import mat_normalize
+from docsim.embedding.base import mat_normalize, return_matrix
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.pre_filtering import load_cols
@@ -12,7 +14,7 @@ from docsim.methods.common.types import TRECResult
 from docsim.models import ColDocument
 
 from docsim.methods.methods.fuzzy.param import FuzzyParam
-from docsim.methods.methods.fuzzy.fuzzy import get_keywords
+from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs
 from docsim.methods.methods.fuzzy.tokenize import get_all_tokens
 
 
@@ -42,14 +44,15 @@ class FuzzyReranker(Method[FuzzyParam]):
             self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
         return matrix
 
-    def extract_keywords(self,
+    @return_matrix
+    def get_keyword_embs(self,
                          mat: np.ndarray,
-                         tokens: List[str]) -> List[str]:
+                         tokens: List[str]) -> np.ndarray:
         """
         Given embeddint matrix mat (n_tokens * n_dim) and tokens (list (n_tokens)),
         calculate keyword tokens
         """
-        return get_keywords(
+        return get_keyword_embs(
             tokens=tokens,
             embs=mat,
             keyword_embs=np.array([]),
@@ -110,3 +113,42 @@ class FuzzyReranker(Method[FuzzyParam]):
                                     for docid, bow in col_bows.items()}
         return TRECResult(query_docid=query_doc.docid,
                           scores=scores)
+
+    def create_flow(self):
+        # query
+        node_tokens: TaskNode[List[str]] = TaskNode(func=get_all_tokens)
+        (node_tokens < self.load_node)('doc')
+        
+        node_emb: TaskNode[np.ndarray] = TaskNode(func=self.embed_words)
+        (node_emb < node_tokens)('tokens')
+
+        node_keyword_embs: TaskNode[np.ndarray] = TaskNode(
+            func=self.get_keyword_embs)
+        (node_keyword_embs < node_emb)('mat')
+        (node_keyword_embs < node_tokens)('tokens')
+
+        node_bow: TaskNode[np.ndarray] = TaskNode(
+            func=self.to_fuzzy_bows)
+        (node_bow < node_emb)('mat')
+        (node_bow < node_keyword_embs)('keyword_embs')
+
+        # col
+        node_cols: TaskNode[List[ColDocument]] = TaskNode(
+            func=self.get_cols)
+        (node_cols < self.load_node)('query')
+
+        node_col_bows: TaskNode[Dict[str, np.ndarray]] = TaskNode(
+            func=self.get_collection_fuzzy_bows)
+        (node_col_bows < node_cols)('cols')
+        (node_col_bows < node_keyword_embs)('keyword_embs')
+
+        # integration
+        node_match: TaskNode[TRECResult] = TaskNode(func=self.match)
+        (node_match < self.load_node)('query_doc')
+        (node_match < node_bow)('query_bow')
+        (node_match < node_col_bows)('col_bows')
+
+        (self.dump_node < node_match)('res')
+        flow: Flow = Flow(dump_nodes=[self.dump_node, ])
+        flow.typecheck()
+        return flow
