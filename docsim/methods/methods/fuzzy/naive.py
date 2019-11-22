@@ -35,6 +35,7 @@ class ScoringArg(TypedDict):
     keywords: List[str]
 
 
+@dataclass
 class FuzzyNaive(Method[FuzzyParam]):
     param_type: ClassVar[Type] = FuzzyParam
     fasttext: FastText = field(init=False)
@@ -42,16 +43,6 @@ class FuzzyNaive(Method[FuzzyParam]):
     def __post_init__(self):
         super(FuzzyNaive, self).__post_init__()
         self.fasttext: FastText = FastText()
-
-    def get_docid(self, doc: ColDocument) -> str:
-        return doc.docid
-
-    def get_cols(self, doc: ColDocument) -> List[ColDocument]:
-        docid: str = doc.docid
-        cols: List[ColDocument] = load_cols(
-            docid=docid,
-            dataset=self.context.es_index)
-        return cols
 
     def extract_keywords(self,
                          tokens: List[str]) -> List[str]:
