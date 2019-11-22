@@ -17,5 +17,5 @@ class FuzzyParam(Param):
         param: FuzzyParam = FuzzyParam(n_words=args.n_words,
                                        model=args.model,
                                        coef=args.coef,
-                                       strategy=args.strategy)
+                                       strategy=Strategy[args.strategy])
         return param

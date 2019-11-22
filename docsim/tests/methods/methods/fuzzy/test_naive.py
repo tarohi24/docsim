@@ -12,7 +12,8 @@ def param() -> FuzzyParam:
     return FuzzyParam(
         n_words=2,
         model='fasttext',
-        coef=1
+        coef=1,
+        strategy='NAIVE'
     )
 
 
@@ -23,7 +24,7 @@ def fuzzy(mocker, param, context) -> FuzzyNaive:  # noqa
 
 @pytest.fixture(autouse=True)
 def mock_ft(mocker):
-    mocker.patch('docsim.methods.methods.fuzzy.FastText', new=FTMock)
+    mocker.patch('docsim.methods.methods.fuzzy.naive.FastText', new=FTMock)
 
 
 def test_flow(fuzzy):

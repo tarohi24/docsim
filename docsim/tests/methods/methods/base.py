@@ -23,7 +23,8 @@ def text() -> str:
 
 
 @pytest.fixture
-def doc(text) -> ColDocument:
+def doc() -> ColDocument:
+    text: str = 'This is this IS a test. TEST. test; danger Danger da_ is.'
     doc: ColDocument = ColDocument(
         docid='EP111',
         title='sample',

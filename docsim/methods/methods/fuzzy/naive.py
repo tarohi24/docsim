@@ -35,12 +35,12 @@ class ScoringArg(TypedDict):
     keywords: List[str]
 
 
-class Fuzzy(Method[FuzzyParam]):
+class FuzzyNaive(Method[FuzzyParam]):
     param_type: ClassVar[Type] = FuzzyParam
     fasttext: FastText = field(init=False)
 
     def __post_init__(self):
-        super(Fuzzy, self).__post_init__()
+        super(FuzzyNaive, self).__post_init__()
         self.fasttext: FastText = FastText()
 
     def get_docid(self, doc: ColDocument) -> str:

@@ -7,13 +7,13 @@ import numpy as np
 from docsim.settings import data_dir
 
 from docsim.tests.embedding.fasttext import FTMock
-from docsim.tests.methods.methods.base import context, text, doc  # noqa
+from docsim.embedding.base import mat_normalize
 from docsim.methods.methods.fuzzy.fuzzy import get_keywords
 
 
 @pytest.fixture(autouse=True)
 def mock_ft(mocker):
-    mocker.patch('docsim.methods.methods.fuzzy.naive.FuzzyNaive.FastText', new=FTMock)
+    mocker.patch('docsim.methods.methods.fuzzy.naive.FastText', new=FTMock)
 
 
 @pytest.fixture
@@ -25,8 +25,14 @@ def sample_embeddings() -> Dict[str, np.ndarray]:
     return {word: ary for word, ary in zip(vocabs, mat)}
 
 
-def test_get_keywords(mocker, sample_embeddings):
+def test_get_keywords(sample_embeddings):
     tokens = ['software', 'license', 'program', 'terms', 'code']
-    mocker.patch('docsim.tests.embedding.fasttext.FTMock.embed_words',
-                 return_value=np.array([sample_embeddings[w] for w in tokens]))
-    assert set(get_keywords(tokens)) == {'software', 'license'}
+    embs = mat_normalize(np.array([sample_embeddings[w] for w in tokens]))
+    keyword_embs = np.array([])
+    keywords: List[str] = get_keywords(
+        tokens=tokens,
+        embs=embs,
+        keyword_embs=keyword_embs,
+        n_remains=2,
+        coef=1)
+    assert set(keywords) == {'software', 'license'}
