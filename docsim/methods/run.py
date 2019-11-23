@@ -1,4 +1,5 @@
 import argparse
+import logging
 from pathlib import Path
 from typing import Dict, List, Type, TypeVar
 
@@ -12,6 +13,9 @@ from docsim.methods.common.dumper import get_dump_path
 # methods
 from docsim.methods.methods import keywords, per, cacher
 from docsim.methods.methods.fuzzy import naive, rerank
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 M = TypeVar('M', bound=Method)
