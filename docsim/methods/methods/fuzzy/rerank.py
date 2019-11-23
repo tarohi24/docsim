@@ -55,7 +55,7 @@ class FuzzyReranker(Method[FuzzyParam]):
         return get_keyword_embs(
             tokens=tokens,
             embs=mat,
-            keyword_embs=np.array([]),
+            keyword_embs=None,
             n_remains=self.param.n_words,
             coef=self.param.coef)
 

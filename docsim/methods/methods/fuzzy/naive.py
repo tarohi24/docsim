@@ -3,14 +3,10 @@ Available only for fasttext
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
-from itertools import product
 import logging
-import re
-import warnings
-from typing import ClassVar, List, Pattern, Set, Type, TypedDict
+from typing import ClassVar, List, Type
 
 import numpy as np
-from tqdm import tqdm
 from typedflow.flow import Flow
 from typedflow.nodes import TaskNode
 
@@ -20,19 +16,13 @@ from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.types import TRECResult
 from docsim.models import ColDocument
-from docsim.methods.common.pre_filtering import load_cols
 
 from docsim.methods.methods.fuzzy.param import FuzzyParam
-from docsim.methods.methods.fuzzy.fuzzy import get_keywords
+from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs
 from docsim.methods.methods.fuzzy.tokenize import get_all_tokens
 
 
 logger = logging.getLogger(__file__)
-
-
-class ScoringArg(TypedDict):
-    query_doc: ColDocument
-    keywords: List[str]
 
 
 @dataclass
@@ -48,12 +38,16 @@ class FuzzyNaive(Method[FuzzyParam]):
                          tokens: List[str]) -> List[str]:
         matrix: np.ndarray = mat_normalize(
             self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
-        return get_keywords(
+        k_embs: np.ndarray = get_keyword_embs(
             tokens=tokens,
             embs=matrix,
-            keyword_embs=np.array([]),
+            keyword_embs=None,
             n_remains=self.param.n_words,
             coef=self.param.coef)
+        indices: List[int] = [i for i, is_valid
+                              in enumerate(np.sum(matrix - k_embs, axis=1) == 0)
+                              if is_valid]
+        return list(set([tokens[i] for i in indices]))
 
     def to_trec_result(self,
                        doc: ColDocument,
@@ -65,30 +59,31 @@ class FuzzyNaive(Method[FuzzyParam]):
         return res
 
     def match(self,
-              args: ScoringArg) -> TRECResult:
+              query_doc: ColDocument,
+              keywords: List[str]) -> TRECResult:
         searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
         candidates: EsResult = searcher\
             .initialize_query()\
-            .add_query(terms=args['keywords'], field='text')\
+            .add_query(terms=keywords, field='text')\
             .add_size(self.context.n_docs)\
-            .add_filter(terms=args['query_doc'].tags, field='tags')\
+            .add_filter(terms=query_doc.tags, field='tags')\
             .add_source_fields(['text'])\
             .search()
-        trec_result: TRECResult = self.to_trec_result(doc=args['query_doc'], es_result=candidates)
+        trec_result: TRECResult = self.to_trec_result(doc=query_doc, es_result=candidates)
         return trec_result
 
     def create_flow(self):
-        node_get_tokens: TaskNode[ColDocument, List[str]] = TaskNode(func=get_all_tokens)
+        node_get_tokens: TaskNode[List[str]] = TaskNode(func=get_all_tokens)
         (node_get_tokens < self.load_node)('doc')
 
-        node_get_keywords: TaskNode[List[str], List[str]] = TaskNode(func=self.extract_keywords)
+        node_get_keywords: TaskNode[List[str]] = TaskNode(func=self.extract_keywords)
         (node_get_tokens > node_get_keywords)('tokens')
 
-        node_match: TaskNode[ScoringArg, TRECResult] = TaskNode(func=self.match)
+        node_match: TaskNode[TRECResult] = TaskNode(func=self.match)
         (node_match < self.load_node)('query_doc')
         (node_match < node_get_keywords)('keywords')
 
-        (self.dump_node < node_match)('task')
+        (self.dump_node < node_match)('res')
 
         flow: Flow = Flow(dump_nodes=[self.dump_node, ])
         return flow

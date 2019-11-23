@@ -14,10 +14,10 @@ from docsim.tests.methods.methods.base import context, doc, text  # noqa
 
 
 @pytest.fixture
-def node(context) -> DumpNode[TRECResult]:
+def node(context) -> DumpNode:
     def dump(res: TRECResult) -> None:
         dump_prel(res=res, context=context)
-    node: DumpNode[TRECResult] = DumpNode(func=dump)
+    node: DumpNode= DumpNode(func=dump)
     return node
 
 
