@@ -15,8 +15,10 @@ def _get_new_kemb_cand(cand_emb: np.ndarray,
     if keyword_embs is None:
         return cand_emb.reshape(1, -1)
     else:
+        mod_cand_emb: np.ndarray = cand_emb.reshape(1, -1)
         assert keyword_embs.ndim == 2
-        return np.concatenate([keyword_embs, cand_emb.reshape(1, -1)])
+        assert mod_cand_emb.ndim == 2
+        return np.concatenate([keyword_embs, mod_cand_emb])
 
 
 def rec_loss(embs: np.ndarray,
@@ -28,8 +30,11 @@ def rec_loss(embs: np.ndarray,
     """
     dims: np.ndarray = _get_new_kemb_cand(cand_emb=cand_emb,
                                           keyword_embs=keyword_embs)
+    assert dims.ndim == 2
+    assert embs.shape[1] == dims.shape[1]
     maxes: np.ndarray = np.amax(np.dot(embs, dims.T), axis=1)
-    return (1 - maxes).mean()
+    val: float = (1 - maxes).mean()
+    return val
 
 
 def cent_sim_loss(keyword_embs: np.ndarray,
@@ -37,7 +42,8 @@ def cent_sim_loss(keyword_embs: np.ndarray,
     """
     Loss penalizing for similar dimensions
     """
-    return np.dot(keyword_embs, cand_emb)
+    val: float = np.dot(keyword_embs, cand_emb).mean()
+    return val
 
 
 def calc_error(embs: np.ndarray,
@@ -46,38 +52,36 @@ def calc_error(embs: np.ndarray,
                coef: float) -> float:
     rec_error: float = rec_loss(embs, keyword_embs, cand_emb)
     if keyword_embs is not None:
+        assert keyword_embs.ndim == 2
         cent_sim_error: float = cent_sim_loss(keyword_embs, cand_emb)
+        logger.info(
+            f'rec: {str(rec_error)}, cent: {str(cent_sim_error)}, kemb: {str(keyword_embs.shape)} cand: {str(cand_emb.shape)}')
     else:
         cent_sim_error: float = 0  # type: ignore
-    logger.info(f'rec_error: {str(rec_error)}, cent_sim_error: {str(cent_sim_error)}')
     return rec_error + coef * cent_sim_error
 
 
 @return_matrix
-def get_keyword_embs(tokens: List[str],
-                     embs: np.ndarray,
+def get_keyword_embs(embs: np.ndarray,
                      keyword_embs: Optional[np.ndarray],
                      n_remains: int,
                      coef: float) -> np.ndarray:
+    uniq_vecs: np.ndarray = np.unique(embs, axis=0)
     errors: List[float] = [calc_error(embs=embs,
                                       keyword_embs=keyword_embs,
-                                      cand_emb=embs[i],
+                                      cand_emb=cand,
                                       coef=coef)
-                           for i in range(len(tokens))]
+                           for cand in uniq_vecs]
     argmin: int = np.argmin(errors)
-    keyword: str = tokens[argmin]
-    new_keyword_emb = embs[argmin]
-    residual_inds = [(t != keyword) for t in tokens]
-    logger.info(f'keyword: {keyword}')
+    new_keyword_emb = uniq_vecs[argmin]
+    residual_inds: np.ndarray = np.array([not np.array_equal(vec, new_keyword_emb) for vec in embs])
     new_dims: np.ndarray = _get_new_kemb_cand(cand_emb=new_keyword_emb,
                                               keyword_embs=keyword_embs)
     if n_remains == 1:
         return new_dims
     else:
-        return get_keyword_embs(
-            tokens=[t for t, is_valid in zip(tokens, residual_inds) if is_valid],
-            embs=embs[residual_inds, :],
-            keyword_embs=new_dims,
-            n_remains=(n_remains - 1),
-            coef=coef
-        )
+        res_dims: np.ndarray = embs[residual_inds]
+        return get_keyword_embs(embs=res_dims,
+                                keyword_embs=new_dims,
+                                n_remains=(n_remains - 1),
+                                coef=coef)

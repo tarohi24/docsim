@@ -40,24 +40,23 @@ class FuzzyRerank(Method[FuzzyParam]):
 
     def embed_words(self,
                     tokens: List[str]) -> np.ndarray:
-        matrix: np.ndarray = mat_normalize(
-            self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
+        orig_emb: np.ndarray = self.fasttext.embed_words(tokens)
+        orig_emb = orig_emb[[any(vec != 0) for vec in orig_emb], :]  # type: ignore
+        matrix: np.ndarray = mat_normalize(orig_emb)  # (n_tokens, n_dim)
         return matrix
 
     @return_matrix
-    def get_keyword_embs(self,
-                         mat: np.ndarray,
-                         tokens: List[str]) -> np.ndarray:
+    def get_kembs(self,
+                         mat: np.ndarray) -> np.ndarray:
         """
         Given embeddint matrix mat (n_tokens * n_dim) and tokens (list (n_tokens)),
         calculate keyword tokens
         """
-        return get_keyword_embs(
-            tokens=tokens,
-            embs=mat,
-            keyword_embs=None,
-            n_remains=self.param.n_words,
-            coef=self.param.coef)
+        embs: np.ndarray = get_keyword_embs(embs=mat,
+                                            keyword_embs=None,
+                                            n_remains=self.param.n_words,
+                                            coef=self.param.coef)
+        return embs
 
     def _get_nns(self,
                  mat: np.ndarray,
@@ -123,9 +122,8 @@ class FuzzyRerank(Method[FuzzyParam]):
         (node_emb < node_tokens)('tokens')
 
         node_keyword_embs: TaskNode[np.ndarray] = TaskNode(
-            func=self.get_keyword_embs)
+            func=self.get_kembs)
         (node_keyword_embs < node_emb)('mat')
-        (node_keyword_embs < node_tokens)('tokens')
 
         node_bow: TaskNode[np.ndarray] = TaskNode(
             func=self.to_fuzzy_bows)

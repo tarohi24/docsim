@@ -8,7 +8,7 @@ from docsim.settings import data_dir
 
 from docsim.tests.embedding.fasttext import FTMock
 from docsim.embedding.base import mat_normalize
-from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs
+from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs, rec_loss
 
 
 @pytest.fixture(autouse=True)
@@ -25,6 +25,13 @@ def sample_embeddings() -> Dict[str, np.ndarray]:
     return {word: ary for word, ary in zip(vocabs, mat)}
 
 
+def test_rec_loss(sample_embeddings):
+    tokens = ['software', 'license', 'program', 'terms', 'code']
+    embs = mat_normalize(np.array([sample_embeddings[w] for w in tokens]))
+    assert 0 < rec_loss(embs=embs, keyword_embs=None, cand_emb=embs[1]) < 4
+    assert 0 < rec_loss(embs=embs, keyword_embs=embs[:1], cand_emb=embs[2]) < 3
+
+
 def test_get_keywords(sample_embeddings):
     tokens = ['software', 'license', 'program', 'terms', 'code']
     embs = mat_normalize(np.array([sample_embeddings[w] for w in tokens]))
@@ -35,4 +42,5 @@ def test_get_keywords(sample_embeddings):
         n_remains=2,
         coef=1)
     gt_embs: np.ndarray = embs[[0, 1]]
+    assert np.linalg.matrix_rank(keyword_embs) == 2
     assert np.linalg.matrix_rank(keyword_embs - gt_embs) == 1
