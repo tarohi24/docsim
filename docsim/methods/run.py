@@ -15,7 +15,7 @@ from docsim.methods.methods import keywords, per, cacher
 from docsim.methods.methods.fuzzy import naive, rerank
 
 
-logging.basicConfig(level=logging.INFO)
+# logging.basicConfig(level=logging.INFO)
 
 
 M = TypeVar('M', bound=Method)
