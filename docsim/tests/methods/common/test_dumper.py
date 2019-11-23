@@ -47,7 +47,7 @@ EP111 Q0 EP100 3 0.0 STANDARD"""
 
 def test_dump(context, node):
     res = get_res()
-    data: List[TRECResult] = [res, ]
+    data: List[TRECResult] = [{'res': res}, ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
     path: Path = get_dump_path(context)
 
@@ -65,7 +65,7 @@ def test_dump(context, node):
 
 
 def test_dump_with_fault(context, node):
-    data: List[Union[TRECResult, FaultItem]] = [FaultItem(), ]
+    data = [FaultItem(), ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
     path: Path = get_dump_path(context)
 
@@ -78,7 +78,7 @@ def test_dump_with_fault(context, node):
         with open(path) as fin:
             pass
 
-    data: List[Union[TRECResult, FaultItem]] = [get_res(), FaultItem(), ]
+    data: List[Union[TRECResult, FaultItem]] = [{'res': get_res()}, FaultItem(), ]
     batch: Batch[TRECResult] = Batch(batch_id=0, data=data)
     node.dump(batch=batch)
     with open(path) as fin:

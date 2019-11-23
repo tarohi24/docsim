@@ -13,7 +13,6 @@ def param() -> FuzzyParam:
         n_words=2,
         model='fasttext',
         coef=1,
-        strategy='NAIVE'
     )
 
 
