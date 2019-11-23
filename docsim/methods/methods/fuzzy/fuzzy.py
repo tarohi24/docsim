@@ -69,7 +69,6 @@ def get_keyword_embs(tokens: List[str],
     new_keyword_emb = embs[argmin]
     residual_inds = [(t != keyword) for t in tokens]
     logger.info(f'keyword: {keyword}')
-    
     new_dims: np.ndarray = _get_new_kemb_cand(cand_emb=new_keyword_emb,
                                               keyword_embs=keyword_embs)
     if n_remains == 1:

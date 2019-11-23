@@ -19,12 +19,12 @@ from docsim.methods.methods.fuzzy.tokenize import get_all_tokens
 
 
 @dataclass
-class FuzzyReranker(Method[FuzzyParam]):
+class FuzzyRerank(Method[FuzzyParam]):
     param_type: ClassVar[Type] = FuzzyParam
     fasttext: FastText = field(init=False)
 
     def __post_init__(self):
-        super(FuzzyReranker, self).__post_init__()
+        super(FuzzyRerank, self).__post_init__()
         self.fasttext: FastText = FastText()
 
     def get_cols(self,
