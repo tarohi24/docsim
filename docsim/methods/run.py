@@ -10,7 +10,8 @@ from docsim.methods.common.methods import Method
 from docsim.methods.common.dumper import get_dump_path
 
 # methods
-from docsim.methods.methods import keywords, per, cacher, fuzzy
+from docsim.methods.methods import keywords, per, cacher
+from docsim.methods.methods.fuzzy import naive, rerank
 
 
 M = TypeVar('M', bound=Method)
@@ -23,8 +24,10 @@ def get_method(method_name: str) -> Type[M]:
         return per.Per
     elif method_name == 'cacher':
         return cacher.Cacher
-    elif method_name == 'fuzzy':
-        return fuzzy.Fuzzy
+    elif method_name == 'fuzzy.naive':
+        return naive.FuzzyNaive
+    elif method_name == 'fuzzy.rerank':
+        return rerank.FuzzyRerank
     else:
         raise KeyError(f'{method_name} is not found')
 
