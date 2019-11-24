@@ -36,7 +36,6 @@ def test_get_keywords(sample_embeddings):
     tokens = ['software', 'license', 'program', 'terms', 'code']
     embs = mat_normalize(np.array([sample_embeddings[w] for w in tokens]))
     keyword_embs: np.ndarray = get_keyword_embs(
-        tokens=tokens,
         embs=embs,
         keyword_embs=None,
         n_remains=2,
