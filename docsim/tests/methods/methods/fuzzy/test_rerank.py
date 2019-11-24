@@ -1,8 +1,9 @@
-from typing import List
+from typing import Dict, List
 
 import pytest
 import numpy as np
 
+from docsim.models import ColDocument
 from docsim.methods.methods.fuzzy.param import FuzzyParam
 from docsim.methods.methods.fuzzy.rerank import FuzzyRerank
 from docsim.tests.methods.methods.base import context  # noqa
@@ -62,3 +63,23 @@ def test_fuzzy_bows(mocker, model):
     sorted_sims: np.ndarray = np.sort(model.to_fuzzy_bows(mat, embs))
     desired = np.sort([2 / 3, 1 / 3])
     np.testing.assert_array_almost_equal(sorted_sims, desired)
+
+
+def test_match(mocker, model):
+    mocker.patch.object(model.param, 'n_words', 2)
+    mat = model.embed_words(get_tokens())
+    embs = model.get_kembs(mat)
+    assert embs.shape[0] == 2
+    qbow: np.ndarray = model.to_fuzzy_bows(mat, embs)
+    cols: List[ColDocument] = [
+        ColDocument(docid='a', tags=[], text='hello world everyone', title=''),
+        ColDocument(docid='b', tags=[], text='this is a pen', title=''),
+    ]
+    col_bows: Dict[str, np.ndarray] = model.get_collection_fuzzy_bows(cols, embs)
+
+    qdoc = mocker.MagicMock()
+    qdoc.docid = 'query'
+    res = model.match(query_doc=qdoc,
+                      query_bow=qbow,
+                      col_bows=col_bows)
+    assert res.scores['a'] > res.scores['b']
