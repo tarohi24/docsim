@@ -48,9 +48,17 @@ def test_get_kembs(model):
     assert set(model._get_nns(mat, embs)) == {0, 1, 2}
 
 
-def test_fuzzy_bows(model):
+def test_fuzzy_bows(mocker, model):
     mat = model.embed_words(get_tokens())
     embs = model.get_kembs(mat)
     bow: np.ndarray = model.to_fuzzy_bows(mat, embs)
     ones: np.ndarray = np.ones(embs.shape[0])
     np.testing.assert_array_almost_equal(bow, ones / np.sum(ones))
+
+    # 2 keywords
+    mocker.patch.object(model.param, 'n_words', 2)
+    embs = model.get_kembs(mat)
+    assert embs.shape[0] == 2
+    sorted_sims: np.ndarray = np.sort(model.to_fuzzy_bows(mat, embs))
+    desired = np.sort([2 / 3, 1 / 3])
+    np.testing.assert_array_almost_equal(sorted_sims, desired)
