@@ -9,9 +9,11 @@ from typedflow.nodes import TaskNode
 from docsim.embedding.base import mat_normalize, return_matrix
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
+from docsim.methods.methods.keywords import extract_keywords_from_text
 from docsim.methods.common.pre_filtering import load_cols
 from docsim.methods.common.types import TRECResult
 from docsim.models import ColDocument
+from docsim.elas.search import EsSearcher
 
 from docsim.methods.methods.fuzzy.param import FuzzyParam
 from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs
@@ -32,11 +34,20 @@ class FuzzyRerank(Method[FuzzyParam]):
         """
         Get documents cached by keywrod search
         """
-        docid: str = query.docid
-        cols: List[ColDocument] = load_cols(
-            docid=docid,
-            dataset=self.context.es_index)
-        return cols
+        keywords: List[str] = extract_keywords_from_text(
+            text=query.text,
+            n_words=self.param.n_words)
+        searcher: EsSearcher = EsSearcher(
+            es_index=self.context.es_index)
+        candidates: List[ColDocument] = searcher\
+            .initialize_query()\
+            .add_query(terms=keywords, field='text')\
+            .add_size(self.context.n_docs * 3)\
+            .add_filter(terms=query.tags, field='tags')\
+            .add_source_fields(['text'])\
+            .search()\
+            .to_docs()
+        return candidates
 
     @return_matrix
     def embed_words(self,

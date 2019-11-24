@@ -32,6 +32,21 @@ class KeywordParam(Param):
         return KeywordParam(n_words=args.n_keywords)
 
 
+def extract_keywords_from_text(text: str,
+                               n_words: int) -> List[str]:
+    # lower and tokenize
+    tokens: List[str] = tokenizer.tokenize(text.lower())
+    # remove stopwords
+    tokens: List[str] = [w for w in tokens if w not in stopwords]  # type: ignore
+    tokens: List[str] = [w for w in tokens  # type: ignore
+                         if not_a_word_pat.match(w) is None
+                         and not w.isdigit()]
+    counter: Counter = Counter(tokens)
+    keywords: List[str] = [
+        w for w, _ in counter.most_common(n_words)]
+    return keywords
+
+
 @dataclass
 class KeywordBaseline(Method[KeywordParam]):
     param_type: ClassVar[Type] = KeywordParam
@@ -40,20 +55,9 @@ class KeywordBaseline(Method[KeywordParam]):
         node: TaskNode[ColDocument, TRECResult] = TaskNode(func=self.retrieve)
         return node
 
-    def _extract_keywords_from_text(self, text: str) -> List[str]:
-        # lower and tokenize
-        tokens: List[str] = tokenizer.tokenize(text.lower())
-        # remove stopwords
-        tokens: List[str] = [w for w in tokens if w not in stopwords]  # type: ignore
-        tokens: List[str] = [w for w in tokens  # type: ignore
-                             if not_a_word_pat.match(w) is None
-                             and not w.isdigit()]
-        counter: Counter = Counter(tokens)
-        keywords: List[str] = [w for w, _ in counter.most_common(self.param.n_words)]
-        return keywords
-
     def extract_keywords(self, doc: ColDocument) -> List[str]:
-        return self._extract_keywords_from_text(text=doc.text)
+        return extract_keywords_from_text(text=doc.text,
+                                           n_words=self.param.n_words)
 
     def search(self, doc: ColDocument) -> EsResult:
         searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
