@@ -66,10 +66,9 @@ def test_fuzzy_bows(mocker, model):
 
 
 def test_match(mocker, model):
-    mocker.patch.object(model.param, 'n_words', 2)
     mat = model.embed_words(get_tokens())
     embs = model.get_kembs(mat)
-    assert embs.shape[0] == 2
+    assert embs.shape[0] == 3
     qbow: np.ndarray = model.to_fuzzy_bows(mat, embs)
     cols: List[ColDocument] = [
         ColDocument(docid='a', tags=[], text='hello world everyone', title=''),
