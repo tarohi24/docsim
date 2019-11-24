@@ -38,6 +38,7 @@ class FuzzyRerank(Method[FuzzyParam]):
             dataset=self.context.es_index)
         return cols
 
+    @return_matrix
     def embed_words(self,
                     tokens: List[str]) -> np.ndarray:
         orig_emb: np.ndarray = self.fasttext.embed_words(tokens)
@@ -47,7 +48,7 @@ class FuzzyRerank(Method[FuzzyParam]):
 
     @return_matrix
     def get_kembs(self,
-                         mat: np.ndarray) -> np.ndarray:
+                  mat: np.ndarray) -> np.ndarray:
         """
         Given embeddint matrix mat (n_tokens * n_dim) and tokens (list (n_tokens)),
         calculate keyword tokens
@@ -68,7 +69,7 @@ class FuzzyRerank(Method[FuzzyParam]):
         -----
         list (len = mat.shape[0]) of nearest embedding's indexes
         """
-        nns: List[int] = np.amax(
+        nns: List[int] = np.argmax(
             np.dot(mat, keyword_embs.T), axis=1).tolist()
         return nns
 
