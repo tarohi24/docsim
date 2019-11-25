@@ -8,7 +8,10 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=0 python python "/workplace/${SCRIPT}" ${@:2}
         ;;
     "trec" )
-        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  $2 $3
+        PREC_FILE=$2
+        DATASET=(${PREC_FILE//\// })
+        DATASET=${DATASET[1]}
+        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  results/${DATASET}/gt.qrel $PREC_FILE
         ;;
     "test" )
         if [ "${#@}" -eq 1 ]
