@@ -3,7 +3,6 @@ from typing import Dict, List
 
 import fasttext
 import numpy as np
-from tqdm import tqdm
 
 from docsim.embedding.base import Model, return_matrix, return_vector
 from docsim.settings import models_dir
@@ -26,7 +25,7 @@ class FastText(Model):
     def embed_words(self,
                     words: List[str]) -> np.ndarray:
         emb_caches: Dict[str, np.ndarray] = dict()
-        for w in tqdm(words, desc='embedding words...', leave=True):
+        for w in words:
             if w not in emb_caches:
                 emb_caches[w] = self.embed(w)
         return np.array([emb_caches[w] for w in words])

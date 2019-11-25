@@ -1,23 +1,27 @@
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import ClassVar, Dict, List, Type, TypedDict
+import logging
+from typing import ClassVar, Dict, List, Type
+
 
 import numpy as np
 from typedflow.flow import Flow
 from typedflow.nodes import TaskNode
+from tqdm import tqdm
 
 from docsim.embedding.base import mat_normalize, return_matrix
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
-from docsim.methods.methods.keywords import extract_keywords_from_text
 from docsim.methods.common.pre_filtering import load_cols
 from docsim.methods.common.types import TRECResult
 from docsim.models import ColDocument
-from docsim.elas.search import EsSearcher
 
 from docsim.methods.methods.fuzzy.param import FuzzyParam
 from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs
 from docsim.methods.methods.fuzzy.tokenize import get_all_tokens
+
+
+logger = logging.getLogger(__file__)
 
 
 @dataclass
@@ -104,7 +108,7 @@ class FuzzyRerank(Method[FuzzyParam]):
                                   cols: List[ColDocument],
                                   keyword_embs: np.ndarray) -> Dict[str, np.ndarray]:
         bow_dict: Dict[str, np.ndarray] = dict()
-        for doc in cols:
+        for doc in tqdm(cols, desc='computing bow...', leave=True):
             tokens: List[str] = get_all_tokens(doc)
             embs: np.ndarray = mat_normalize(self.embed_words(tokens))
             bow: np.ndarray = self.to_fuzzy_bows(mat=embs,
