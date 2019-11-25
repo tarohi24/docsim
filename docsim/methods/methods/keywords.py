@@ -51,13 +51,9 @@ def extract_keywords_from_text(text: str,
 class KeywordBaseline(Method[KeywordParam]):
     param_type: ClassVar[Type] = KeywordParam
 
-    def get_retrieve_node(self) -> TaskNode[ColDocument, TRECResult]:
-        node: TaskNode[ColDocument, TRECResult] = TaskNode(func=self.retrieve)
-        return node
-
     def extract_keywords(self, doc: ColDocument) -> List[str]:
         return extract_keywords_from_text(text=doc.text,
-                                           n_words=self.param.n_words)
+                                          n_words=self.param.n_words)
 
     def search(self, doc: ColDocument) -> EsResult:
         searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
@@ -86,8 +82,8 @@ class KeywordBaseline(Method[KeywordParam]):
         return trec_result
 
     def create_flow(self) -> Flow:
-        task_node: TaskNode[ColDocument, TRECResult] = self.get_retrieve_node()
-        (self.load_node > task_node)('loader')
+        task_node: TaskNode[TRECResult] = TaskNode(func=self.retrieve)
+        (self.load_node > task_node)('doc')
         (task_node > self.dump_node)('res')
         flow: Flow = Flow(dump_nodes=[self.dump_node, ])
         return flow

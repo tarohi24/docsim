@@ -38,20 +38,10 @@ class FuzzyRerank(Method[FuzzyParam]):
         """
         Get documents cached by keywrod search
         """
-        keywords: List[str] = extract_keywords_from_text(
-            text=query.text,
-            n_words=self.param.n_words)
-        searcher: EsSearcher = EsSearcher(
-            es_index=self.context.es_index)
-        candidates: List[ColDocument] = searcher\
-            .initialize_query()\
-            .add_query(terms=keywords, field='text')\
-            .add_size(self.context.n_docs * 3)\
-            .add_filter(terms=query.tags, field='tags')\
-            .add_source_fields(['text'])\
-            .search()\
-            .to_docs()
-        return candidates
+        cols: List[ColDocument] = load_cols(
+            docid=query.docid,
+            dataset=self.context.es_index)
+        return cols
 
     @return_matrix
     def embed_words(self,
@@ -124,6 +114,7 @@ class FuzzyRerank(Method[FuzzyParam]):
         Yet this only computes cosine similarity as the similarity.
         There's room for adding other ways.
         """
+        # dot is inadequate
         scores: Dict[str, float] = {docid: np.dot(query_bow, bow)
                                     for docid, bow in col_bows.items()}
         return TRECResult(query_docid=query_doc.docid,
@@ -133,7 +124,7 @@ class FuzzyRerank(Method[FuzzyParam]):
         # query
         node_tokens: TaskNode[List[str]] = TaskNode(func=get_all_tokens)
         (node_tokens < self.load_node)('doc')
-        
+
         node_emb: TaskNode[np.ndarray] = TaskNode(func=self.embed_words)
         (node_emb < node_tokens)('tokens')
 
