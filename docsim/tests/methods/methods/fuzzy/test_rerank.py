@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Set
 
 import pytest
 import numpy as np
@@ -82,3 +82,11 @@ def test_match(mocker, model):
                       query_bow=qbow,
                       col_bows=col_bows)
     assert res.scores['a'] > res.scores['b']
+
+
+def test_get_cols(mocker, model):
+    mocker.patch.object(model.context, 'es_index', 'clef')
+    qdoc = mocker.MagicMock()
+    qdoc.docid = 'EP1288722A2'
+    ids: Set[str] = set(d.docid for d in model.get_cols(query=qdoc))
+    assert set(ids) == {'EP0762208B1', 'EP0762208A2', 'EP1096314A1'}
