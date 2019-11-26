@@ -11,7 +11,7 @@ case $1 in
         PREC_FILE=$2
         DATASET=(${PREC_FILE//\// })
         DATASET=${DATASET[1]}
-        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  results/${DATASET}/gt.qrel $PREC_FILE
+        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -m recall -q results/${DATASET}/gt.qrel $PREC_FILE
         ;;
     "test" )
         if [ "${#@}" -eq 1 ]
