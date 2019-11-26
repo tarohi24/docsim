@@ -39,7 +39,6 @@ class FuzzyNaive(Method[FuzzyParam]):
         matrix: np.ndarray = mat_normalize(
             self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
         k_embs: np.ndarray = get_keyword_embs(
-            tokens=tokens,
             embs=matrix,
             keyword_embs=None,
             n_remains=self.param.n_words,
