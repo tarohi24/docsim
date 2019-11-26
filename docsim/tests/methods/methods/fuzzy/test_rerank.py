@@ -90,3 +90,8 @@ def test_get_cols(mocker, model):
     qdoc.docid = 'EP1288722A2'
     ids: Set[str] = set(d.docid for d in model.get_cols(query=qdoc))
     assert set(ids) == {'EP0762208B1', 'EP0762208A2', 'EP1096314A1'}
+
+
+def test_typecheck(model):
+    flow = model.create_flow()
+    flow.typecheck()

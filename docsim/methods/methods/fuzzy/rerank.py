@@ -43,7 +43,6 @@ class FuzzyRerank(Method[FuzzyParam]):
             dataset=self.context.es_index)
         return cols
 
-    @return_matrix
     def embed_words(self,
                     tokens: List[str]) -> np.ndarray:
         orig_emb: np.ndarray = self.fasttext.embed_words(tokens)
@@ -51,7 +50,6 @@ class FuzzyRerank(Method[FuzzyParam]):
         matrix: np.ndarray = mat_normalize(orig_emb)  # (n_tokens, n_dim)
         return matrix
 
-    @return_matrix
     def get_kembs(self,
                   mat: np.ndarray) -> np.ndarray:
         """
