@@ -15,6 +15,7 @@ models_dir: Path = root.joinpath('models')
 results_dir: Path = root.joinpath('results')
 param_dir: Path = root.joinpath('params')
 cache_dir: Path = root.joinpath('cache')
+trec_dir: Path = root.joinpath('trec_dir')
 
 
 # Elasticsearch
