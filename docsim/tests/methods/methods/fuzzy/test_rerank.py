@@ -1,7 +1,10 @@
-from typing import Dict, List, Set
+from typing import Any, Dict, List, Set, Generator
 
 import pytest
 import numpy as np
+from typedflow.batch import Batch
+from typedflow.nodes import LoaderNode
+from typedflow.exceptions import EndOfBatch
 
 from docsim.models import ColDocument
 from docsim.methods.methods.fuzzy.param import FuzzyParam
@@ -66,15 +69,13 @@ def test_fuzzy_bows(mocker, model):
 
 
 def test_match(mocker, model):
-    mat = model.embed_words(get_tokens())
-    embs = model.get_kembs(mat)
-    assert embs.shape[0] == 3
-    qbow: np.ndarray = model.to_fuzzy_bows(mat, embs)
-    cols: List[ColDocument] = [
-        ColDocument(docid='a', tags=[], text='hello world everyone', title=''),
-        ColDocument(docid='b', tags=[], text='this is a pen', title=''),
-    ]
-    col_bows: Dict[str, np.ndarray] = model.get_collection_fuzzy_bows(cols, embs)
+    col_bows: Dict[str, np.ndarray] = {
+        'a': np.ones(3),
+        'b': np.array([0.5, 0.3, 0.2]), 
+    }
+    col_bows = {docid: vec / np.linalg.norm(vec)  # noqa
+                for docid, vec in col_bows.items()}
+    qbow = col_bows['a']
 
     qdoc = mocker.MagicMock()
     qdoc.docid = 'query'
@@ -95,3 +96,35 @@ def test_get_cols(mocker, model):
 def test_typecheck(model):
     flow = model.create_flow()
     flow.typecheck()
+
+
+def test_flow(mocker, model):
+
+    def generate_query() -> Generator[ColDocument, None, None]:
+        yield ColDocument(docid='query', title='', text='hey jude', tags=[])
+    
+    def generate_cols(docid: str, dataset: str) -> List[ColDocument]:
+        return [ColDocument(docid=str(i), title='', text=str(i), tags=[])
+                for i in range(2)]
+
+    def accept(self,
+               batch_id: int) -> Batch[Dict[str, Any]]:
+        """
+        merge all the arguments items into an instance of T (=arg_type)
+        """
+        materials: Dict[str, Batch] = dict()
+        for key, prec in self.precs.items():
+            try:
+                materials[key] = prec.get_or_produce_batch(batch_id=batch_id)
+            except EndOfBatch:
+                print(key)
+        # check lengths of batches
+        merged_batch: Batch[Dict[str, Any]] = self._merge_batches(materials=materials)
+        return merged_batch
+
+    mocker.patch('typedflow.nodes.ConsumerNode.accept', accept)
+    mocker.patch.object(model, 'load_node', LoaderNode(generate_query, batch_size=1))
+    mocker.patch('docsim.methods.methods.fuzzy.rerank.load_cols', generate_cols)
+    flow = model.create_flow()
+    assert flow.get_loader_nodes()[0].cache_table.life == 3
+    flow.dump_nodes[0].accept(batch_id=0)

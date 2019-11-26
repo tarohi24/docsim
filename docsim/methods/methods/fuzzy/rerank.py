@@ -9,7 +9,7 @@ from typedflow.flow import Flow
 from typedflow.nodes import TaskNode
 from tqdm import tqdm
 
-from docsim.embedding.base import mat_normalize, return_matrix
+from docsim.embedding.base import mat_normalize
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
 from docsim.methods.common.pre_filtering import load_cols
