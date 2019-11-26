@@ -115,7 +115,7 @@ class FuzzyRerank(Method[FuzzyParam]):
         There's room for adding other ways.
         """
         # dot is inadequate
-        scores: Dict[str, float] = {docid: np.dot(query_bow, bow)
+        scores: Dict[str, float] = {docid: 1 / (np.linalg.norm(query_bow - bow) + 0.1)
                                     for docid, bow in col_bows.items()}
         return TRECResult(query_docid=query_doc.docid,
                           scores=scores)
