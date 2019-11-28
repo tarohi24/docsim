@@ -44,32 +44,6 @@ $ bash run.bash python path/to/script.py  # run python script
 ```
 
 
-## Modules
-
-### Elasticsearch wrapper
-You can create/execute an Elasticsearch query by chaining methods like:
-
-```python
-from docsim.elas.search import EsResult, EsSearcher
-
-searcher = EsSearcher(es_index='index_name')
-candidates = searcher\
-    # initialize
-    .initialize_query()\
-    # add search query
-    .add_query(terms=q_words, field='text')\
-    # specify the number of docs returned
-    .add_size(size)\
-    # filtering
-    .add_filter(terms=query_doc.tags, field='tags')\
-    # specify field name where terms exist
-    .add_source_fields(['text'])\
-    # execute search
-    .search()
-```
-
-For more defailed information, see [implementation](https://github.com/tarohi24/docsim/blob/master/docsim/elas/search.py).
-
 
 ## Advanced usage
 

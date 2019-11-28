@@ -8,7 +8,10 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --rm -e IS_TEST=0 python python "/workplace/${SCRIPT}" ${@:2}
         ;;
     "trec" )
-        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -q  $2 $3
+        PREC_FILE=$2
+        DATASET=(${PREC_FILE//\// })
+        DATASET=${DATASET[1]}
+        docker-compose -f compose/trec/docker-compose.yaml run --rm trec trec_eval -m recall -q results/${DATASET}/gt.qrel $PREC_FILE
         ;;
     "test" )
         if [ "${#@}" -eq 1 ]
@@ -29,7 +32,7 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --rm python bash
         ;;
     "jnote" )
-        docker-compose -f ${COMPOSE_FILE} up -d jnote
+        docker-compose up jnote
         ;;
     "spm" )
         docker-compose -f ${COMPOSE_FILE} run --rm spm bash

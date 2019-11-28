@@ -38,9 +38,9 @@ class EsResultItem:
         return (self.docid, str(self.source['tags'][0]))
 
     def to_document(self) -> ColDocument:
-        assert 'text' in self.source
-        assert 'tags' in self.source
-        assert 'title' in self.source
+        assert 'text' in self.source, 'text not found in source'
+        assert 'tags' in self.source, 'tags not found in source'
+        assert 'title' in self.source, 'title not found in source'
         return ColDocument(
             docid=self.docid,
             text=self.source['text'],

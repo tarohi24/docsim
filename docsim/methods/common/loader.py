@@ -8,6 +8,7 @@ from tqdm import tqdm
 from typedflow.nodes import LoaderNode
 
 from docsim.methods.common.types import Context
+from docsim.methods.common.pre_filtering import load_cols
 from docsim.models import ColDocument
 from docsim.settings import data_dir
 
@@ -21,5 +22,10 @@ def load_query_files(dataset: str) -> Generator[ColDocument, None, None]:
     with open(qpath) as fin:
         while (line := fin.readline()):
             doc: ColDocument = ColDocument.from_json(line)  # type: ignore
+            try:
+                # filter documents
+                load_cols(docid=doc.docid, dataset=dataset)
+            except FileNotFoundError:
+                continue
             yield doc
             pbar.update(1)

@@ -1,4 +1,5 @@
 import argparse
+import logging
 from pathlib import Path
 from typing import Dict, List, Type, TypeVar
 
@@ -7,10 +8,14 @@ from typedflow.flow import Flow
 
 from docsim.methods.common.types import Context, Param
 from docsim.methods.common.methods import Method
-from docsim.methods.common.dumper import get_dump_path
+from docsim.methods.common.dumper import get_dump_dir
 
 # methods
-from docsim.methods.methods import keywords, per, cacher, fuzzy
+from docsim.methods.methods import keywords, per, cacher
+from docsim.methods.methods.fuzzy import naive, rerank
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 M = TypeVar('M', bound=Method)
@@ -23,8 +28,10 @@ def get_method(method_name: str) -> Type[M]:
         return per.Per
     elif method_name == 'cacher':
         return cacher.Cacher
-    elif method_name == 'fuzzy':
-        return fuzzy.Fuzzy
+    elif method_name == 'fuzzy.naive':
+        return naive.FuzzyNaive
+    elif method_name == 'fuzzy.rerank':
+        return rerank.FuzzyRerank
     else:
         raise KeyError(f'{method_name} is not found')
 
@@ -64,12 +71,14 @@ def main() -> int:
     args = parser.parse_args()
     methods: List[Method] = parse(args.paramfile[0])
     for met in methods:
-        dump_path: Path = get_dump_path(met.context)
+        dump_dir: Path = get_dump_dir(met.context)
         try:
-            dump_path.unlink()
+            for path in dump_dir.glob('*'):
+                path.unlink()
         except FileNotFoundError:
             pass
         flow: Flow = met.create_flow()
+        flow.typecheck()
         flow.run()
     return 0
 

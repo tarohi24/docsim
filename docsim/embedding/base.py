@@ -30,11 +30,15 @@ def return_matrix(func: Callable[..., np.ndarray]):
 def mat_normalize(mat: np.ndarray) -> np.ndarray:
     assert len(mat.shape) == 2
     norm = np.linalg.norm(mat, axis=1)
-    return (mat.T / norm).T
+    mat: np.ndarray = (mat.T / norm).T
+    return mat
 
 
 @dataclass
 class Model:
+    """
+    The basic class for all embedding models.
+    """
     dim: int = field(init=False)
 
     @return_vector

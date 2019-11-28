@@ -123,7 +123,7 @@ class Cacher(Method[CacheParam]):
             func=self.get_filtered_docs)
         node_dump_text: DumpNode[self.IDandDocs] = DumpNode(func=self.dump_doc)
         (node_dump_text < node_getid)('docid')
-        (node_dump_text <node_get_docs)('rel_docs')
+        (node_dump_text < node_get_docs)('rel_docs')
         (node_get_docs < loader)('loader')
 
         node_encoder: DumpNode[self.IDandDocs] = DumpNode(func=self.dump_embedding)
