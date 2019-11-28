@@ -19,4 +19,6 @@ def get_all_tokens(doc: ColDocument) -> List[str]:
     tokens: List[str] = [w for w in tokens  # type: ignore
                          if not_a_word_pat.match(w) is None
                          and not w.isdigit()]
+    tokens: List[str] = [w.replace('(', '').replace(')', '').replace('-', '')  # type: ignore
+                         for w in tokens]
     return tokens

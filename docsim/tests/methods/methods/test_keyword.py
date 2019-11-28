@@ -41,11 +41,12 @@ def test_extract_keyword(method, doc):
     assert keywords == ['test', 'danger', ]
 
 
-def test_search(mocker, method, doc, sample_hits):
+def test_integrated(mocker, method, doc, sample_hits):
     mocker.patch('docsim.settings.es', 'foo')
     mocker.patch('docsim.elas.search.EsSearcher.search',
                  return_value=sample_hits)
-    trec_res: TRECResult = method.retrieve(doc=doc)
+    search_res: EsResult = method.search(doc=doc, keywords=[])
+    trec_res: TRECResult = method.to_trec_result(doc=doc, es_result=search_res)
     assert trec_res.query_docid == 'EP111'
     assert trec_res.scores == {'EP200': 3.2}
 

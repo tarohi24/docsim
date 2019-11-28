@@ -32,7 +32,7 @@ case $1 in
         docker-compose -f ${COMPOSE_FILE} run --rm python bash
         ;;
     "jnote" )
-        docker-compose -f ${COMPOSE_FILE} up -d jnote
+        docker-compose up jnote
         ;;
     "spm" )
         docker-compose -f ${COMPOSE_FILE} run --rm spm bash

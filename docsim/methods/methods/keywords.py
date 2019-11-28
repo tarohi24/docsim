@@ -5,17 +5,18 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 import re
-from typing import ClassVar, List, Pattern, Set, Type  # type: ignore
+from typing import ClassVar, Generator, List, Pattern, Set, Type  # type: ignore
 
 from nltk.corpus import stopwords as nltk_sw
 from nltk.tokenize import RegexpTokenizer
 from typedflow.flow import Flow
-from typedflow.nodes import TaskNode
+from typedflow.nodes import TaskNode, DumpNode, LoaderNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.models import ColDocument
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import Param, TRECResult
+from docsim.methods.common.dumper import dump_keywords
+from docsim.methods.common.types import Param, TRECResult, Context
 
 
 stopwords: Set[str] = set(nltk_sw.words('english'))
@@ -55,9 +56,10 @@ class KeywordBaseline(Method[KeywordParam]):
         return extract_keywords_from_text(text=doc.text,
                                           n_words=self.param.n_words)
 
-    def search(self, doc: ColDocument) -> EsResult:
+    def search(self,
+               doc: ColDocument,
+               keywords: List[str]) -> EsResult:
         searcher: EsSearcher = EsSearcher(es_index=self.context.es_index)
-        keywords: List[str] = self.extract_keywords(doc=doc)
         candidates: EsResult = searcher\
             .initialize_query()\
             .add_query(terms=keywords, field='text')\
@@ -76,14 +78,28 @@ class KeywordBaseline(Method[KeywordParam]):
         )
         return res
 
-    def retrieve(self, doc: ColDocument) -> TRECResult:
-        es_result: EsResult = self.search(doc=doc)
-        trec_result: TRECResult = self.to_trec_result(doc=doc, es_result=es_result)
-        return trec_result
-
     def create_flow(self) -> Flow:
-        task_node: TaskNode[TRECResult] = TaskNode(func=self.retrieve)
-        (self.load_node > task_node)('doc')
-        (task_node > self.dump_node)('res')
-        flow: Flow = Flow(dump_nodes=[self.dump_node, ])
+
+        def provide_context() -> Generator[Context, None, None]:
+            while True:
+                yield self.context
+
+        node_keywords: TaskNode[List[str]] = TaskNode(self.extract_keywords)
+        (node_keywords < self.load_node)('doc')
+        node_search: TaskNode[EsResult] = TaskNode(self.search)
+        (node_search < self.load_node)('doc')
+        (node_search < node_keywords)('keywords')
+        keyword_dumper: DumpNode = DumpNode(func=dump_keywords)
+        (keyword_dumper < node_keywords)('keywords')
+        (keyword_dumper < self.load_node)('doc')
+        context_loader: LoaderNode[Context] = LoaderNode(provide_context,
+                                                         batch_size=1)
+        (keyword_dumper < context_loader)('context')
+
+        node_trec: TaskNode[TRECResult] = TaskNode(self.to_trec_result)
+        (node_trec < self.load_node)('doc')
+        (node_trec < node_search)('es_result')
+
+        (node_trec > self.dump_node)('res')
+        flow: Flow = Flow(dump_nodes=[self.dump_node, keyword_dumper])
         return flow

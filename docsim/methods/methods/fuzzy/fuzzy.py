@@ -2,6 +2,7 @@ import logging
 from typing import List, Optional
 
 import numpy as np
+from tqdm import tqdm
 
 from docsim.embedding.base import return_matrix
 
@@ -51,10 +52,10 @@ def calc_error(embs: np.ndarray,
                cand_emb: np.ndarray,
                coef: float) -> float:
     rec_error: float = rec_loss(embs, keyword_embs, cand_emb)
-    if keyword_embs is not None:
+    if keyword_embs is not None and coef != 0:
         assert keyword_embs.ndim == 2
         cent_sim_error: float = cent_sim_loss(keyword_embs, cand_emb)
-        logger.info(
+        logger.debug(
             f'rec: {str(rec_error)}, cent: {str(cent_sim_error)}, kemb: {str(keyword_embs.shape)} cand: {str(cand_emb.shape)}')
     else:
         cent_sim_error: float = 0  # type: ignore
@@ -65,7 +66,10 @@ def calc_error(embs: np.ndarray,
 def get_keyword_embs(embs: np.ndarray,
                      keyword_embs: Optional[np.ndarray],
                      n_remains: int,
-                     coef: float) -> np.ndarray:
+                     coef: float,
+                     pbar=None) -> np.ndarray:
+    if pbar is None:
+        pbar = tqdm(total=n_remains)  # noqa
     uniq_vecs: np.ndarray = np.unique(embs, axis=0)
     errors: List[float] = [calc_error(embs=embs,
                                       keyword_embs=keyword_embs,
@@ -77,6 +81,7 @@ def get_keyword_embs(embs: np.ndarray,
     residual_inds: np.ndarray = np.array([not np.array_equal(vec, new_keyword_emb) for vec in embs])
     new_dims: np.ndarray = _get_new_kemb_cand(cand_emb=new_keyword_emb,
                                               keyword_embs=keyword_embs)
+    pbar.update(1)
     if n_remains == 1:
         return new_dims
     else:
@@ -84,4 +89,5 @@ def get_keyword_embs(embs: np.ndarray,
         return get_keyword_embs(embs=res_dims,
                                 keyword_embs=new_dims,
                                 n_remains=(n_remains - 1),
-                                coef=coef)
+                                coef=coef,
+                                pbar=pbar)

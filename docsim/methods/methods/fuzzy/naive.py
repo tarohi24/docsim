@@ -4,18 +4,19 @@ Available only for fasttext
 from __future__ import annotations
 from dataclasses import dataclass, field
 import logging
-from typing import ClassVar, List, Type
+from typing import ClassVar, List, Type, Generator
 
 import numpy as np
 from typedflow.flow import Flow
-from typedflow.nodes import TaskNode
+from typedflow.nodes import TaskNode, DumpNode, LoaderNode
 
 from docsim.elas.search import EsResult, EsSearcher
 from docsim.embedding.base import mat_normalize
 from docsim.embedding.fasttext import FastText
 from docsim.methods.common.methods import Method
-from docsim.methods.common.types import TRECResult
+from docsim.methods.common.types import TRECResult, Context
 from docsim.models import ColDocument
+from docsim.methods.common.dumper import dump_keywords
 
 from docsim.methods.methods.fuzzy.param import FuzzyParam
 from docsim.methods.methods.fuzzy.fuzzy import get_keyword_embs
@@ -43,10 +44,13 @@ class FuzzyNaive(Method[FuzzyParam]):
             keyword_embs=None,
             n_remains=self.param.n_words,
             coef=self.param.coef)
-        indices: List[int] = [i for i, is_valid
-                              in enumerate(np.sum(matrix - k_embs, axis=1) == 0)
-                              if is_valid]
-        return list(set([tokens[i] for i in indices]))
+        logger.info(k_embs.sum(axis=1))
+        indices: List[int] = [np.argmin(np.linalg.norm(matrix - vec, axis=1))
+                              for vec in k_embs]
+        logger.info(indices)
+        keywords: List[str] = list(set([tokens[i] for i in indices]))
+        logger.info(keywords)
+        return keywords
 
     def to_trec_result(self,
                        doc: ColDocument,
@@ -72,17 +76,26 @@ class FuzzyNaive(Method[FuzzyParam]):
         return trec_result
 
     def create_flow(self):
+
+        def provide_context() -> Generator[Context, None, None]:
+            while True:
+                yield self.context
+
         node_get_tokens: TaskNode[List[str]] = TaskNode(func=get_all_tokens)
         (node_get_tokens < self.load_node)('doc')
 
         node_get_keywords: TaskNode[List[str]] = TaskNode(func=self.extract_keywords)
         (node_get_tokens > node_get_keywords)('tokens')
-
+        keywords_dumper: DumpNode = DumpNode(dump_keywords)
+        (keywords_dumper < node_get_keywords)('keywords')
+        (keywords_dumper < self.load_node)('doc')
+        (keywords_dumper < LoaderNode(provide_context,
+                                      batch_size=1))('context')
         node_match: TaskNode[TRECResult] = TaskNode(func=self.match)
         (node_match < self.load_node)('query_doc')
         (node_match < node_get_keywords)('keywords')
 
         (self.dump_node < node_match)('res')
 
-        flow: Flow = Flow(dump_nodes=[self.dump_node, ])
+        flow: Flow = Flow(dump_nodes=[self.dump_node, keywords_dumper])
         return flow

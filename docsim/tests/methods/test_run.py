@@ -25,12 +25,9 @@ def test_get_method():
 
 def test_parse(sample_yaml):
     lst: List[P] = parse(sample_yaml)
-    assert len(lst) == 2
+    assert len(lst) == 1
     assert lst[0].context.n_docs == 100
     assert lst[0].context.es_index== 'clef'
     assert lst[0].context.method == 'keywords'
     assert lst[0].context.runname == '40'
-    assert lst[1].context.runname == '30'
-
     assert lst[0].param.n_words == 40
-    assert lst[1].param.n_words == 30
