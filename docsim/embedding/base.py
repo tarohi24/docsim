@@ -36,6 +36,9 @@ def mat_normalize(mat: np.ndarray) -> np.ndarray:
 
 @dataclass
 class Model:
+    """
+    The basic class for all embedding models.
+    """
     dim: int = field(init=False)
 
     @return_vector
