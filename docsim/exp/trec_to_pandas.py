@@ -6,8 +6,6 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from docsim.settings import trec_dir
-
 
 @dataclass
 class Recall:
@@ -59,12 +57,3 @@ def to_df(path: Path) -> pd.DataFrame:
     return pd.DataFrame(mat,
                         index=docids,
                         columns=[r.n_items for r in info_list[:mat.shape[1]]])
-
-
-def get_path(dataset: str,
-             method: str,
-             runname: str) -> Path:
-    """
-    Get .trec path from given properties
-    """
-    return trec_dir.joinpath(f'{dataset}/{method}/{runname}.trec')
