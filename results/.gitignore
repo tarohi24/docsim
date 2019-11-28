@@ -1,2 +1,2 @@
-*.prel
-*.json
+*
+!.gitkeep
