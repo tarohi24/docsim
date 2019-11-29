@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from typing import Callable, List
-
+from typing import Callable, List, Optional
+ 
 import numpy as np
 
 
@@ -47,5 +47,9 @@ class Model:
 
     @return_matrix
     def embed_words(self,
-                    words: List[str]) -> np.ndarray:
+                    words: List[str]) -> List[Optional[np.ndarray]]:
+        """
+        Given tokenized words, embed them. If a word is unknown,
+        the corresponding embedding is None
+        """
         raise NotImplementedError('Model is an abstract class')
