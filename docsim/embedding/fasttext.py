@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Optional
 
 import fasttext
 import numpy as np
@@ -21,9 +21,8 @@ class FastText(Model):
     def embed(self, word: str) -> np.ndarray:
         return self.model.get_word_vector(word)
 
-    @return_matrix
     def embed_words(self,
-                    words: List[str]) -> np.ndarray:
+                    words: List[str]) -> List[Optional[np.ndarray]]:
         emb_caches: Dict[str, np.ndarray] = dict()
         unknown_words: Set[str] = set()
         for w in words:
@@ -35,4 +34,4 @@ class FastText(Model):
                     emb_caches[w] = embedding
                 else:
                     unknown_words.add(w)
-        return np.array([emb_caches[w] for w in words])
+        return [emb_caches[w] if w not in unknown_words else None for w in words]

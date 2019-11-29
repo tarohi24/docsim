@@ -4,7 +4,7 @@ Available only for fasttext
 from __future__ import annotations
 from dataclasses import dataclass, field
 import logging
-from typing import ClassVar, List, Type, Generator
+from typing import ClassVar, List, Type, Generator, Optional
 
 import numpy as np
 from typedflow.flow import Flow
@@ -37,8 +37,12 @@ class FuzzyNaive(Method[FuzzyParam]):
 
     def extract_keywords(self,
                          tokens: List[str]) -> List[str]:
-        matrix: np.ndarray = mat_normalize(
-            self.fasttext.embed_words(tokens))  # (n_tokens, n_dim)
+        optional_embs: List[Optional[np.ndarray]] = self.fasttext.embed_words(tokens)
+        tokens: List[str] = [w for w, vec in zip(tokens, optional_embs)  # type: ignore
+                             if vec is not None]
+        matrix = mat_normalize(np.array([vec for vec in optional_embs if vec is not None]))
+        assert len(tokens) == matrix.shape[0]
+
         k_embs: np.ndarray = get_keyword_embs(
             embs=matrix,
             keyword_embs=None,
